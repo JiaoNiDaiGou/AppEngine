@@ -17,7 +17,7 @@ ext {
     httpcomponents_httpclient_ver = '4.5.5'
     httpcomponents_httpcore_ver = '4.4.9'
     httpcomponents_httpmime_ver = '4.5.5'
-    jackson_ver = '2.9.5'
+    jackson_ver = '2.9.6'
     javax_inject_ver = '1'
     javax_mail_ver = '1.4.7'
     javax_ws_rs_ver = '2.1'
