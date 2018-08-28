@@ -1,64 +1,13 @@
-apply from: './versions.gradle'
+apply from: "$rootDir/versions.gradle"
+apply plugin: 'idea'
 
 allprojects {
     version = '1.0'
-    group = 'SongFan'
+    group = 'JiaoNiDaiGou.AppEngine'
 
-    apply plugin: 'idea'
-    apply plugin: 'java'
-
-    configurations.all {
-        resolutionStrategy {
-            // Use ./gradlew :api:dependencyInsight --configuration compile --dependency <dependency> -PdebugDeps
-            // to check dependencies
-            if (!project.hasProperty('debugDeps')) {
-                failOnVersionConflict()
-            }
-
-            force "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
-            force "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
-            force "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"
-            force "com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:$jackson_ver"
-            force "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"
-            force "com.google.api-client:google-api-client:1.23.0"
-            force "com.google.api.grpc:proto-google-cloud-db-v1:0.10.0"
-            force "com.google.api.grpc:proto-google-common-protos:1.9.0"
-            force "com.google.code.findbugs:jsr305:$jsr_305_ver"
-            force "com.google.errorprone:error_prone_annotations:2.3.0"
-            force "com.google.guava:guava:$guava_ver"
-            force "com.google.http-client:google-http-client-jackson2:1.23.0"
-            force "com.google.http-client:google-http-client-jackson:1.23.0"
-            force "com.google.http-client:google-http-client:1.23.0"
-            force "com.google.inject:guice:$guice_ver"
-            force "com.google.oauth-client:google-oauth-client:1.23.0"
-            force "com.google.protobuf:protobuf-java:$protobuf_ver"
-            force "commons-codec:commons-codec:1.11"
-            force "commons-collections:commons-collections:3.2.2"
-            force "commons-io:commons-io:2.6"
-            force "commons-logging:commons-logging:1.2"
-            force "io.grpc:grpc-context:1.11.0"
-            force "io.opencensus:opencensus-api:0.12.3"
-            force "javax.ws.rs:javax.ws.rs-api:$javax_ws_rs_ver"
-            force "joda-time:joda-time:$jodatime_ver"
-            force "org.apache.httpcomponents:httpclient:4.5.5"
-            force "org.apache.httpcomponents:httpcore:4.4.9"
-            force "org.apache.httpcomponents:httpmime:4.5.5"
-            force "org.glassfish.hk2:hk2-api:2.5.0-b61"
-            force "org.glassfish.hk2:hk2-utils:2.5.0-b61"
-            force "org.glassfish.hk2.external:aopalliance-repackaged:2.5.0-b61"
-            force "org.javassist:javassist:3.21.0-GA"
-            force "org.slf4j:slf4j-api:$slf4j_ver"
-        }
+    repositories {   // repositories for Jar's you access in your code
+        mavenLocal()
+        mavenCentral()
+        jcenter()
     }
 }
-
-repositories {
-    jcenter()
-    mavenCentral()
-    google()
-    flatDir {
-        dirs 'lib'
-    }
-}
-
-

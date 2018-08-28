@@ -1,0 +1,3 @@
+rootProject.name = 'AppEngine'
+
+include 'common'
