@@ -6,14 +6,11 @@ import javax.ws.rs.container.ContainerRequestContext;
  * Interface of authenticator.
  */
 public interface Authenticator {
-
     /**
-     * Whether this authenticator can authorize the request.
+     * Try auth the request.
+     *
+     * @param requestContext request.
+     * @return True when auth pass. False when this authenticator cannot auth. throw ForbiddenException when auth failed.
      */
-    boolean canAuth(final ContainerRequestContext requestContext);
-
-    /**
-     * Authorize the request.
-     */
-    void auth(final ContainerRequestContext requestContext);
+    boolean tryAuth(final ContainerRequestContext requestContext);
 }

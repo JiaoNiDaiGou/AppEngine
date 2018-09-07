@@ -10,10 +10,9 @@ import com.google.api.services.oauth2.model.Tokeninfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
-
-import static jiaonidaigou.appengine.api.auth.AuthUtils.extractBearerToken;
 
 /**
  * Authenticator based on Google OAuth2.
@@ -25,31 +24,35 @@ public class GoogleOAuth2Authenticator implements Authenticator {
     private static final String ADMIN_EMAIL = "songfan.rfu@gmail.com";
 
     @Override
-    public boolean canAuth(ContainerRequestContext requestContext) {
-        return extractBearerToken(requestContext).isPresent();
-    }
+    public boolean tryAuth(ContainerRequestContext requestContext) {
+        Optional<String> token = AuthUtils.extractBearerToken(requestContext);
+        if (!token.isPresent()) {
+            return false;
+        }
 
-    @Override
-    public void auth(final ContainerRequestContext requestContext) {
-        String token = extractBearerToken(requestContext)
-                .orElseThrow(() -> new IllegalStateException("bearer token cannot be blank."));
-        Tokeninfo tokeninfo = getTokeninfo(token);
+        Tokeninfo tokeninfo = getTokeninfo(token.get());
+        if (tokeninfo == null) {
+            return false;
+        }
+
         String email = tokeninfo.getEmail();
         if (!ADMIN_EMAIL.equalsIgnoreCase(email)) {
             throw new ForbiddenException();
         }
+
         UserPrincipal principal = new UserPrincipal(
                 email,
                 UserPrincipal.AuthenticationScheme.GOOGLE_OAUTH2,
                 requestContext.getSecurityContext().isSecure(),
                 Roles.ADMIN);
         AuthUtils.updateUserPrinciple(requestContext, principal);
+        return true;
     }
 
     private Tokeninfo getTokeninfo(final String token) {
         GoogleCredential credential = (new GoogleCredential()).setAccessToken(token);
         Oauth2 oauth2 = (new Builder(new NetHttpTransport(), new JacksonFactory(), credential))
-                .setApplicationName("jiaonidaigou").build();
+                .setApplicationName("SongFan").build();
 
         try {
             HttpResponse resp = oauth2.tokeninfo().setAccessToken(token).executeUnparsed();
@@ -62,18 +65,14 @@ public class GoogleOAuth2Authenticator implements Authenticator {
                 try {
                     tokeninfo = resp.parseAs(Tokeninfo.class);
                 } catch (IllegalArgumentException var9) {
-                    throw new ForbiddenException();
+                    return null;
                 }
 
                 if (tokeninfo.containsKey("error")) {
                     LOGGER.warn("Error validating OAuth2 token: " + tokeninfo.get("error"));
-                    throw new ForbiddenException();
-//                } else if (!googleOpenIdClientIds.contains(tokeninfo.getIssuedTo())) {
-//                    LOGGER.warn("Unsupported issuer [" + tokeninfo.getIssuedTo() + "] for supplied token.");
-//                    throw new ForbiddenException();
-                } else {
-                    return tokeninfo;
+                    return null;
                 }
+                return tokeninfo;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
