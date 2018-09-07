@@ -1,8 +1,7 @@
 // Standard java configurations for every sub-module
-
-apply plugin: 'findbugs'
 apply plugin: 'idea'
 apply plugin: 'java'
+apply plugin: 'findbugs'
 
 ext {
     findBugsVersion = '3.0.1'
@@ -23,7 +22,7 @@ tasks.withType(FindBugs) {
         xml.enabled = false
         html.enabled = true
     }
-    classpath = classpath.filter {
+    classpath = classpath == null ? classpath : classpath.filter {
         // sqllite native libraries are placed on the class path. This is a gradle/findbugs plugin bug
         // fixed in the future version. As a work around, exclude these files from the classpath.
         !it.name.endsWith('so') && !it.name.endsWith('dll') && !it.name.endsWith('dylib') && !it.name.endsWith('gz')

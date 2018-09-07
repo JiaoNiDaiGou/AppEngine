@@ -19,7 +19,7 @@ KEY_RING="jiaonidaigou-secrets"
 KEY_VERSION=1
 KEY_NAME="jiaonidaigou-secrets"
 SECRETS_BUCKET=$PROJECT_ROOT_BUCKET/secrets
-TEMP_CIPHER_DIR=tmp/jiaonidaigou_secrets/tmp
+TEMP_CIPHER_DIR=/tmp/jiaonidaigou_secrets/tmp
 LOCAL_SECRETS_DIR=$ROOT/common/src/main/resources/secrets
 
 mkdir -p $TEMP_CIPHER_DIR

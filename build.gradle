@@ -6,8 +6,9 @@ allprojects {
     group = 'JiaoNiDaiGou.AppEngine'
 
     repositories {   // repositories for Jar's you access in your code
+        google()
+        jcenter()
         mavenLocal()
         mavenCentral()
-        jcenter()
     }
 }
