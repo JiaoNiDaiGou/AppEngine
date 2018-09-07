@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class ParseRequest {
     private final String imageUrl;
@@ -70,7 +71,7 @@ public class ParseRequest {
     }
 
     public byte[] getImageBytes() {
-        return imageBytes;
+        return Arrays.copyOf(imageBytes, imageBytes.length);
     }
 
     @Override

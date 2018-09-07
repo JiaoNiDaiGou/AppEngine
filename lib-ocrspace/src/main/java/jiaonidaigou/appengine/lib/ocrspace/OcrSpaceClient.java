@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.lib.ocrspace;
 
+import com.google.common.base.Charsets;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.common.utils.Secrets;
@@ -43,7 +44,7 @@ public class OcrSpaceClient {
             throw new InternalIOException(e);
         }
         bytes = Base64.getEncoder().encode(bytes);
-        return "data:image/jpg;base64," + new String(bytes);
+        return "data:image/jpg;base64," + new String(bytes, Charsets.UTF_8);
     }
 
     public ParseResponse parse(final ParseRequest request) {
