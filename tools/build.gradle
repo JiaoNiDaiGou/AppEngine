@@ -1,8 +1,17 @@
 apply from: "$rootDir/standard-java.gradle"
+apply plugin: 'application'
+
+mainClassName = 'jiaonidaigou.appengine.tools.LocalLauncher'
 
 dependencies {
-//    compile project(":common")
-//    compile project(":api")
+    compile project(":api")
+    compile project(":common")
+
+    compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
+//    compile "org.glassfish.jersey.core:jersey-server:$jersey_ver"
+//    compile "org.glassfish.jersey.containers:jersey-container-servlet-core:$jersey_ver"
+    compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey_ver"
+//    compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"
 
 //    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
 //    compile "com.fasterxml.jackson.core:jackson-core:$jackson_ver"

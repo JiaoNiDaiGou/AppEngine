@@ -12,8 +12,10 @@ export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 VERSION="${1:-jiaonidaigou}"
 
 echo "Fetching secrets ..."
-$ROOT/scripts/fetch_secrets.sh
+# $ROOT/scripts/fetch_secrets.sh
 
 ./gradlew :api:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 # ./gradlew :api:appengineUpdateQueues -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 # ./gradlew :api:appengineUpdateCron -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+
+open "http://$VERSION-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"
