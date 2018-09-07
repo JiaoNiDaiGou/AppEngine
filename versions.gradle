@@ -9,6 +9,7 @@ ext {
     commons_validator_ver = '1.6'
     freemarker_ver = '2.3.28'
     google_api_client_ver = '1.23.0'
+    google_apis_oauth2_ver = 'v2-rev141-1.25.0'
     google_apis_sheets_ver = 'v4-rev516-1.23.0'
     google_apis_cloudkms_ver = 'v1-rev59-1.24.1'
     guava_ver = '25.1-jre'
