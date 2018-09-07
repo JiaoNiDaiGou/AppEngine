@@ -1,0 +1,150 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>
+    小熊快跑国际速递
+</title><meta name="viewport" content="width=1200,maximum-scale=1" />
+    <!-- 引入 Bootstrap -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="/js/jquery-1.4.1.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/lhtp.js"></script>
+    <script src="/js/lhtpM.js"></script>
+    <link href="/style/lhtp.css" rel="stylesheet" />
+    <!-- HTML5 Shim 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
+    <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
+    <!--[if lt IE 9]>
+    <script src="/bootstrap/js/html5shiv.js"></script>
+    <script src="/bootstrap/js/respond.min.js"></script>
+    <![endif]-->
+    <link href="/style/stylenew.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" language="javascript">
+        $(document).ready(function () {
+            $("#btnOrderSelect").click(function () {
+                if ($("#txtOrderSelect").val() == "") {
+                    alert("输入跟踪运单号！");
+                    return false;
+                }
+            });
+            $("#btnLogin").click(function () {
+                if ($("#txtEmail").val() == "") {
+                    alert("请输入登录邮箱！");
+                    return false;
+                }
+                if ($("#txtPassword").val() == "") {
+                    alert("请输入登录密码！");
+                    return false;
+                }
+            });
+        });
+    </script>
+    <meta name="Description" content="小熊快跑国际速递" /><meta name="keywords" content="小熊快跑国际速递" /></head>
+<body>
+<form name="form1" method="post" action="" id="form1">
+    <div>
+        <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTk2ODkzMDAzMmQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgEFCmNoZWNrRW1haWyapNbrHoWRoNqfTUCf/QAblASg7PizeXEssry5LrLdPg==" />
+    </div>
+
+
+    <div class="topBg">
+        <div class="wrap">
+            您好，欢迎来到小熊快跑！&nbsp;&nbsp;&nbsp;<a href="/logincontent/">登录</a>/<a href="/regcontent/">注册</a>
+        </div>
+    </div>
+
+    <div class="headerBg">
+        <div class="wrap header">
+            <div class="logo">
+                <a href="/index.aspx">
+                    <img alt="Logo" src="/upload/636293272902916485_636241755945182762_logo.gif"></a>
+            </div>
+            <div class="nav">
+                <a ID="124" href="/index.aspx">网站首页</a><a ID="294" href="/content/?294_0_0.html">新闻公告</a><a ID="355" href="/content/?355_0_0.html">打包标准</a><a ID="366" href="/content/?366_0_0.html">联络我们</a><a ID="365" href="/IDCard/">身份证上传</a>
+            </div>
+        </div>
+    </div>
+    <div class="lhtp">
+        <ul><li style="background: url(/upload/636634988625547633_123567.jpg) center 0px no-repeat;"></li><li style="background: url(/upload/636337396823475695_支付宝.jpg) center 0px no-repeat;"></li><li style="background: url(/upload/636276437042925938_轮播图1.jpg) center 0px no-repeat;"></li></ul>
+        <div class="lhtpBtn">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="lhtpPrev"></div>
+        <div class="lhtpNext"></div>
+    </div>
+    <div class="wrap">
+        <div class="indexRight">
+            <div class="indexLogin">
+                <div class="title">用户登录</div>
+                <div id="indexLoginWin" class="content">
+                    <input name="txtEmail" type="text" id="txtEmail" class="form-control" placeholder="请输入登录邮箱" />
+                    <input name="txtPassword" type="password" id="txtPassword" class="form-control" placeholder="请输入登录密码" />
+                    <input id="checkEmail" type="checkbox" name="checkEmail" /><label for="checkEmail">记住邮箱</label><a class="indexLoginLink" href="/getPasscontent/">忘记密码</a>
+                    <input type="submit" name="btnLogin" value="登录" id="btnLogin" />
+                    <a style="margin-left: 80px;" class="indexRegLink" href="/regcontent/">注册</a>
+                </div>
+
+            </div>
+            <div class="indexSelect">
+                <div class="title">运单查询</div>
+                <div class="content">
+                        <textarea name="txtOrderSelect" rows="2" cols="20" id="txtOrderSelect" class="form-control" placeholder="请输入要查询的运单号，多个运单以“回车键”分隔">
+</textarea>
+                    <input type="submit" name="btnOrderSelect" value="运单查询" id="btnOrderSelect" />
+                </div>
+            </div>
+        </div>
+        <div class="indexLeft">
+            <div class="indexYouShi" style="background: url(/imagesRnnbex/B1.jpg) center center no-repeat;margin-top:0px;">
+                <b>国际配送</b><br />
+                丰富的全球航空路线<br />
+                稳定的国际配送服务<br />
+                本地化客户服务团队
+            </div>
+            <div class="indexYouShi" style="background: url(/imagesRnnbex/B2.jpg) center center no-repeat;margin-top:0px;">
+                <b>海外仓储</b><br />
+                遍布全球的服务网点<br />
+                专业的仓储物流系统<br />
+                高效的配货包装服务
+            </div>
+            <div class="indexYouShi" style="background: url(/imagesRnnbex/B3.jpg) center center no-repeat;">
+                <b>保税物流</b><br />
+                中国各大保税试点区域<br />
+                跨境电商保税进口服务
+            </div>
+            <div class="indexYouShi" style="background: url(/imagesRnnbex/B4.jpg) center center no-repeat;">
+                <b>关务辅导</b><br />
+                海外出口申报服务<br />
+                中国入境申报咨询
+            </div>
+            <div class="indexLink">
+                <span>友情链接</span>
+                <a href="https://www.jd.com/" target="_blank"><img  alt="京东" src="/upload/636149463163561578_京东.jpg"  /></a><a href="http://zh.delta.com/" target="_blank"><img  alt="delta" src="/upload/636293369820249550_delta.jpg"  /></a><a href="https://www.tmall.hk/" target="_blank"><img  alt="天猫国际" src="/upload/636149463480905328_天猫国际.jpg"  /></a><a href="http://www.suning.com/" target="_blank"><img  alt="苏宁易购" src="/upload/636149463651686578_苏宁易购.jpg"  /></a><a href="http://www.airchinacargo.com/" target="_blank"><img  alt="中国国际货运航空" src="/upload/636149464294342828_中国国际航空公司.jpg"  /></a><a href="http://www.csair.com/cn/index.shtml" target="_blank"><img  alt="中国南方航空" src="/upload/636149464645905328_中国南方航空.jpg"  /></a><a href="http://www.chinapost.com.cn/" target="_blank"><img  alt="中国邮政" src="/upload/636149464819186578_中国邮政.jpg"  /></a><a href="http://www.fedex.com/" target="_blank"><img  alt="FEDEX" src="/upload/636149464945749078_FEDEX.jpg"  /></a><a href="http://www.hnair.com/" target="_blank"><img  alt="海南航空" src="/upload/636293367923687050_hainan_air.jpg"  /></a>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="footerBg">
+        <div class="wrap">
+            <p>
+                美国客服微信号：seattleexpress&nbsp;&nbsp;&nbsp;
+                国内客服微信号：xxkdgnkf&nbsp;&nbsp;&nbsp;
+                美国客服qq号：3503236669&nbsp;&nbsp;&nbsp;
+                中国客服qq号：3465119819
+            </p>
+            <p>
+                版权所有© 2016 www.RNBex.us 小熊快跑国际速递
+            </p>
+        </div>
+    </div>
+    <div id="lovexin12" style="left:2px;position:absolute;top:200px;"></div>
+    <div id="lovexin14"><a class="qq" href="http://wpa.qq.com/msgrd?v=3&uin=3503236669&site=qq&menu=yes"></a><a class="tel"><span>+1(425)-556-2077</span></a><a class="weixin"><img alt="二维码" src="/upload/636293095705727500_733003970.jpg" /></a><a href="#" class="top"></a></div>
+    <script src="/js/duilianAd.js"></script>
+
+
+</form>
+</body>
+</html>

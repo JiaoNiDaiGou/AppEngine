@@ -1,0 +1,11 @@
+apply from: "$rootDir/standard-java.gradle"
+
+dependencies {
+    compile project(':common')
+
+    compile "com.google.guava:guava:$guava_ver"
+    compile "junit:junit:$junit_ver"
+    compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
+    compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
+    compile "org.mockito:mockito-core:$mockito_ver"
+}

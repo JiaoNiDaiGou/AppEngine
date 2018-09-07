@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.common.utils;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
+import jiaonidaigou.appengine.common.model.VoidCallable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,11 +89,6 @@ public class Retrier {
             theCall.call();
             return null;
         });
-    }
-
-    @FunctionalInterface
-    public interface VoidCallable {
-        void call() throws Exception;
     }
 
     public static class Builder {

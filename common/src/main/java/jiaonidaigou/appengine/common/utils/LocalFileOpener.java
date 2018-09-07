@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.common.utils;
 
-import jiaonidaigou.appengine.common.model.RuntimeIOException;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class LocalFileOpener {
         try {
             Runtime.getRuntime().exec("open " + file.getAbsolutePath());
         } catch (IOException e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 
@@ -27,7 +27,7 @@ public class LocalFileOpener {
         try {
             Files.write(file.toPath(), bytes);
         } catch (IOException e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
         openFile(file);
     }

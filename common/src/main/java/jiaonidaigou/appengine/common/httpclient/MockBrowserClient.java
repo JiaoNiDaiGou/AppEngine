@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.RuntimeIOException;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.common.utils.Retrier;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -27,6 +27,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +104,7 @@ public class MockBrowserClient implements Closeable {
         try {
             paramStr = EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
         } catch (IOException e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
         return url + "?" + paramStr;
     }
@@ -216,7 +218,7 @@ public class MockBrowserClient implements Closeable {
         try {
             return DEFAULT_RETRIER.call(() -> client.execute(request, responseHandler(handle)));
         } catch (Exception e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 
@@ -259,7 +261,7 @@ public class MockBrowserClient implements Closeable {
             try {
                 return stringBody(DEFAULT_OBJECT_MAPPER.writeValueAsString(jsonBody));
             } catch (JsonProcessingException e) {
-                throw new RuntimeIOException(e);
+                throw new InternalIOException(e);
             }
         }
 
@@ -393,6 +395,10 @@ public class MockBrowserClient implements Closeable {
                 outputStream.write(EntityUtils.toByteArray(t));
                 return null;
             });
+        }
+
+        public Document callToHtml() {
+            return Jsoup.parse(callToString());
         }
 
         public byte[] callToBytes() {

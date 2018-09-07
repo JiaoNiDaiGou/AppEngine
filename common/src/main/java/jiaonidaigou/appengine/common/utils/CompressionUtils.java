@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.common.utils;
 
-import jiaonidaigou.appengine.common.model.RuntimeIOException;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +12,7 @@ public class CompressionUtils {
         try (GZIPOutputStream outputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             outputStream.write(bytes);
         } catch (IOException e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
         return byteArrayOutputStream.toByteArray();
     }

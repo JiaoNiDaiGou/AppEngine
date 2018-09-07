@@ -1,3 +1,5 @@
 rootProject.name = 'AppEngine'
 
 include 'common'
+include 'common-test'
+include 'lib-teddy'

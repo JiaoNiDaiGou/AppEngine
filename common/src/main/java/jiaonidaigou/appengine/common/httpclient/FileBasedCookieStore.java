@@ -3,7 +3,7 @@ package jiaonidaigou.appengine.common.httpclient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.RuntimeIOException;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.common.utils.Environments;
 import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class FileBasedCookieStore implements CookieDao {
             LOGGER.info("Save cookies to {}: {}", toWrite, cookies);
             OBJECT_MAPPER.writeValue(new File(toWrite), cookies);
         } catch (IOException e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 
@@ -52,7 +52,7 @@ public class FileBasedCookieStore implements CookieDao {
             LOGGER.info("Load cookies from {}: {}", toRead, toReturn);
             return toReturn;
         } catch (IOException e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 }
