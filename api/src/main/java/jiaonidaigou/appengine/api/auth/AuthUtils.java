@@ -33,8 +33,8 @@ class AuthUtils {
             }
 
             @Override
-            public boolean isUserInRole(String roleStr) {
-                return getUserPrincipal().getRoles().contains(Role.valueOf(roleStr));
+            public boolean isUserInRole(String role) {
+                return getUserPrincipal().getRoles().contains(role);
             }
 
             @Override

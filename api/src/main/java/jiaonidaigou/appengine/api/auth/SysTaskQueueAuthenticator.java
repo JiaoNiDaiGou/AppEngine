@@ -32,7 +32,7 @@ public class SysTaskQueueAuthenticator implements Authenticator {
                 requestContext.getHeaderString(APP_ENGINE_QUEUE_NAME_HEADER_KEY),
                 UserPrincipal.AuthenticationScheme.GAE_TASK_QUEUE,
                 true,
-                Role.SYS_TASK_QUEUE_OR_CRON);
+                Roles.SYS_TASK_QUEUE_OR_CRON);
         AuthUtils.updateUserPrinciple(requestContext, principal);
     }
 }

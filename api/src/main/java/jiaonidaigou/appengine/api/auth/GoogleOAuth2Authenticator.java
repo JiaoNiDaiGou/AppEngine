@@ -42,7 +42,7 @@ public class GoogleOAuth2Authenticator implements Authenticator {
                 email,
                 UserPrincipal.AuthenticationScheme.GOOGLE_OAUTH2,
                 requestContext.getSecurityContext().isSecure(),
-                Role.ADMIN);
+                Roles.ADMIN);
         AuthUtils.updateUserPrinciple(requestContext, principal);
     }
 

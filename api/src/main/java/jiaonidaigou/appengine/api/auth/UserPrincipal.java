@@ -9,13 +9,13 @@ import java.util.Set;
 class UserPrincipal implements Principal {
     private final String name;
     private final AuthenticationScheme scheme;
-    private final Set<Role> roles;
+    private final Set<String> roles;
     private final boolean secure;
 
     UserPrincipal(final String name,
                   final AuthenticationScheme scheme,
                   final boolean secure,
-                  final Set<Role> roles) {
+                  final Set<String> roles) {
         this.name = name;
         this.scheme = scheme;
         this.roles = new HashSet<>(roles);
@@ -25,7 +25,7 @@ class UserPrincipal implements Principal {
     UserPrincipal(final String name,
                   final AuthenticationScheme scheme,
                   final boolean secure,
-                  final Role... roles) {
+                  final String... roles) {
         this(name, scheme, secure, Sets.newHashSet(roles));
     }
 
@@ -38,7 +38,7 @@ class UserPrincipal implements Principal {
         return scheme;
     }
 
-    Set<Role> getRoles() {
+    Set<String> getRoles() {
         return new HashSet<>(roles);
     }
 
