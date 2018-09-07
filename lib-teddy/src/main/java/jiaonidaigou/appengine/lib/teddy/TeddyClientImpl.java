@@ -559,7 +559,6 @@ public class TeddyClientImpl implements TeddyClient {
     void login() {
         LOGGER.info("~~~ LOGIN [{}] ~~~", admin.getLoginUsername());
 
-        curState.viewState = null;
         curState.loggedIn = false;
 
         // Access home page to get __VIEWSTATE
@@ -579,7 +578,6 @@ public class TeddyClientImpl implements TeddyClient {
                 .request()
                 .callToString();
 
-        curState.viewState = viewState;
         curState.loggedIn = true;
         client.saveCookies();
     }
@@ -590,7 +588,6 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     private static class State {
-        String viewState;
         boolean loggedIn;
     }
 

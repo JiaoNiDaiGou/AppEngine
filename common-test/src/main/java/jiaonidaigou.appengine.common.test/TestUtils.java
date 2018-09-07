@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.common.test;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.mock;
 
 public class TestUtils {
     public static String readResourcesAsString(final String resourceName) {
-        try (Reader reader = new InputStreamReader(Resources.getResource(resourceName).openStream())) {
+        try (Reader reader = new InputStreamReader(Resources.getResource(resourceName).openStream(), Charsets.UTF_8)) {
             return CharStreams.toString(reader);
         } catch (IOException e) {
             throw new InternalIOException(e);
@@ -53,7 +54,7 @@ public class TestUtils {
             String[] otherResponses = Arrays.stream(resourceNames, 1, resourceNames.length)
                     .map(TestUtils::readResourcesAsString)
                     .toArray(String[]::new);
-            return doReturn(readResourcesAsString(resourceNames[0]), otherResponses);
+            return doReturn(readResourcesAsString(resourceNames[0]), (Object[]) otherResponses);
         }
     }
 }
