@@ -6,6 +6,7 @@ import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.common.utils.Secrets;
 import jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest;
 import jiaonidaigou.appengine.lib.ocrspace.model.ParseResponse;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
@@ -15,6 +16,7 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Base64;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -65,7 +67,7 @@ public class OcrSpaceClient {
             // Alternatively,
             // builder.addTextBody("base64Image", encodeFileToBase64Binary(request.getImageFile()));
 
-        } else if (request.getImageBytes() != null) {
+        } else if (ArrayUtils.isNotEmpty(request.getImageBytes())) {
             builder.addPart("file", new ByteArrayBody(request.getImageBytes(), "random." + request.getFileType()));
         } else {
             builder.addPart("file", new InputStreamBody(request.getImage(), "random." + request.getFileType()));

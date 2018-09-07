@@ -71,7 +71,7 @@ public class ParseRequest {
     }
 
     public byte[] getImageBytes() {
-        return Arrays.copyOf(imageBytes, imageBytes.length);
+        return imageBytes == null ? null : Arrays.copyOf(imageBytes, imageBytes.length);
     }
 
     @Override
@@ -133,7 +133,9 @@ public class ParseRequest {
         }
 
         public Builder withImageBytes(final byte[] image) {
-            this.imageBytes = image;
+            if (image != null) {
+                this.imageBytes = Arrays.copyOf(image, image.length);
+            }
             return this;
         }
 
