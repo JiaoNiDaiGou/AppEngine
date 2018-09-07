@@ -18,4 +18,4 @@ echo "Fetching secrets ..."
 # ./gradlew :api:appengineUpdateQueues -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 # ./gradlew :api:appengineUpdateCron -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 
-open "http://$VERSION-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"
+open "https://$VERSION-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"

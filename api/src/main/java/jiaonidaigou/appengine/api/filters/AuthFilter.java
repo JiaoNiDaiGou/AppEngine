@@ -7,7 +7,6 @@ import jiaonidaigou.appengine.api.auth.SysTaskQueueAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -30,15 +29,12 @@ public class AuthFilter implements ContainerRequestFilter {
     }
 
     @Override
-    public void filter(final ContainerRequestContext requestContext)
-            throws IOException {
+    public void filter(final ContainerRequestContext requestContext) {
         for (Authenticator authenticator : authenticators) {
-            if (authenticator.canAuth(requestContext)) {
-                LOGGER.info("Fit {}.", authenticator.getClass().getSimpleName());
-                authenticator.auth(requestContext);
+            boolean authPass = authenticator.tryAuth(requestContext);
+            LOGGER.info("{}fit {}", (authPass ? "" : "Not "), authenticator.getClass().getSimpleName());
+            if (authPass) {
                 return;
-            } else {
-                LOGGER.info("Not fit {}.", authenticator.getClass().getSimpleName());
             }
         }
     }
