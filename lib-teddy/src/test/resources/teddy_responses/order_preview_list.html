@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>
+
+</title><meta name="viewport" content="width=1200,maximum-scale=1" /><link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="/js/jquery-1.4.1.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+    <link href="/style/stylenew.css" rel="stylesheet" type="text/css" /><link href="/style/member.css" rel="stylesheet" />
+    <script src="/js/shyjs.js" type="text/javascript"></script>
+    <script src="/js/artDialog.min.js" type="text/javascript"></script>
+    <link href="/skin/chrome/chrome.css" rel="stylesheet" type="text/css" />
+    <script src="/fanjie/panex.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $(".del").click(function () {
+                if (!confirm("确定要取消运单吗？")) {
+                    return false;
+                }
+            });
+            $("#btnSelect").click(function () {
+                var param = "a=1";
+                if ($("#dropSource").val() != "") {
+                    param += "&dropSource=" + $("#dropSource").val() + "";
+                }
+                if ($("#dropColum").val() != "") {
+                    param += "&dropColum=" + $("#dropColum").val() + "";
+                }
+                if ($("#txtText").val() != "") {
+                    param += "&txtText=" + $("#txtText").val() + "";
+                }
+                if ($("#dropDepotID").val() != "") {
+                    param += "&dropDepotID=" + $("#dropDepotID").val() + "";
+                }
+                if ($("#dropStatus").val() != "") {
+                    param += "&dropStatus=" + $("#dropStatus").val() + "";
+                }
+                if ($("#dropRoute").val() != "") {
+                    param += "&dropRoute=" + $("#dropRoute").val() + "";
+                }
+                if (getParam("page") != "") {
+                    param += "&page=1";
+                }
+                var url = "OrderListAll.aspx?" + param;
+                window.location.href = url;
+                return false;
+            });
+            $("#btnAll").click(function () {
+                var param = "a=1";
+                if (getParam("page") != "") {
+                    param += "&page=1";
+                }
+                var url = "OrderListAll.aspx?" + param;
+                window.location.href = url;
+                return false;
+            });
+            $(".checkAll").click(function () {
+                if ($(this).attr("checked")) {
+                    $(".check").attr("checked", "true");
+                } else if (!$(this).attr("checked")) {
+                    $(".check").attr("checked", "");
+                }
+            });
+            $("#btnPrint").click(function () {
+                var str = "";
+                $(".check").each(function () {
+                    if ($(this).attr("checked")) {
+                        str += $(this).attr("rel") + ",";
+                    }
+                });
+                if (str == "") {
+                    alert("请选择要打印的行！");
+                    return false;
+                }
+                window.open("/adminkdUser/User/" + $("#dropPrintType").val() + ".aspx?IDS=" + str + "");
+            });
+            $(".yundan").addClass("hover");
+        });
+    </script>
+</head>
+<body>
+<form name="form1" method="post" action="OrderListAll.aspx" id="form1">
+    <div>
+        <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTczNzQ1NDgwMg9kFgICAw9kFgQCAw8QZA8WAgIBAgIWAhAFD+ilv+mbheWbvuS7k+W6kwUCMTBnEAUP5rOi54m55YWw5LuT5bqTBQIxNGdkZAIEDxBkDxYBAgEWARAFDOm7mOiupOe6v+i3rwUCMzVnZGRkwbSX946ZfxHo0vJtrvsZg23GeUBzNFgouH24hSI83Dk=" />
+    </div>
+
+
+    <div class="topBg">
+        <div class="wrap">
+            您好，欢迎来到小熊快跑！&nbsp;&nbsp;&nbsp;<a href="/Member/">中心</a>/<a href="/logincontent/loginOut.aspx">退出</a>
+        </div>
+    </div>
+
+    <div class="headerBg">
+        <div class="wrap header">
+            <div class="logo">
+                <a href="/index.aspx">
+                    <img alt="Logo" src="/upload/636293272902916485_636241755945182762_logo.gif"></a>
+            </div>
+            <div class="nav">
+                <a ID="124" href="/index.aspx">网站首页</a><a ID="294" href="/content/?294_0_0.html">新闻公告</a><a ID="355" href="/content/?355_0_0.html">打包标准</a><a ID="366" href="/content/?366_0_0.html">联络我们</a><a ID="365" href="/IDCard/">身份证上传</a>
+            </div>
+        </div>
+    </div>
+    <div class="wrap Memeber">
+
+        <div class="MemberLeft">
+
+            <div class="MemberUserName">
+                <a href="MyInfo.aspx">欢迎您，xiaoxiao</a><br />
+                <a href="MyInfo.aspx">编码：ACAQ</a>
+            </div>
+
+            <div class="MemberUserOther">
+                <a href="MoneyList.aspx" class="MemberUserOtherPart">
+                    <b>应付金额</b><br />$0
+                </a>
+                <a href="MoneyList.aspx" class="MemberUserOtherPart">
+                    <b>账户余额</b><br />$0
+                </a>
+            </div>
+            <div class="MemberHangContent">
+                <a class="baoguo" href="PackageListYDk.aspx">我的包裹</a>
+                <a class="yundan" href="OrderListAll.aspx">我的运单
+                </a>
+                <a href="MoneyList.aspx" class="caiwu">我的财务
+                </a>
+                <a href="DeliverList.aspx" class="deliver">发件人管理
+                </a>
+                <a href="ReceiverList.aspx" class="receiver">收件人管理
+                </a>
+                <a href="MyInfo.aspx" class="info">
+                    我的资料
+                </a>
+            </div>
+        </div>
+
+        <div class="MemberRight">
+            <div class="path">
+
+                <a href="OrderAdd.aspx">在线下单</a>
+                <a href="OrderListDcl.aspx">待处理<b>0</b></a>
+                <a href="OrderListDkk.aspx">待付款<b>0</b></a>
+                <a href="OrderListDfh.aspx">待发货<b>0</b></a>
+                <a href="OrderListYfh.aspx">已发货</a>
+                <a href="OrderListAll.aspx" class="hover">所有运单</a>
+            </div>
+            <div class="showContent">
+                <div class="select">
+                    <select name="dropSource" id="dropSource" class="form-control" style="width:80px">
+                        <option value="">=来源=</option>
+                        <option value="转运">转运</option>
+                        <option value="快递">快递</option>
+
+                    </select>
+                    <select name="dropDepotID" id="dropDepotID" class="form-control">
+                        <option value="">=送达仓库=</option>
+                        <option value="10">西雅图仓库</option>
+                        <option value="14">波特兰仓库</option>
+
+                    </select>
+                    <select name="dropRoute" id="dropRoute" class="form-control">
+                        <option value="">=线路名称=</option>
+                        <option value="35">默认线路</option>
+
+                    </select>
+                    <select name="dropStatus" id="dropStatus" class="form-control">
+                        <option value="">=运单状态=</option>
+                        <option value="待处理">待处理</option>
+                        <option value="待付款">待付款</option>
+                        <option value="待发货">待发货</option>
+                        <option value="已发货">已发货</option>
+
+                    </select>
+                    <select name="dropColum" id="dropColum" class="form-control">
+                        <option value="CNum">运单号</option>
+                        <option value="DeliverName">发件人</option>
+                        <option value="ReceiverName">收件人</option>
+                        <option value="OtherNum">转运单号</option>
+                        <option value="KuaiDiNum">包裹追踪号</option>
+                        <option value="Detail">物品名称</option>
+
+                    </select>
+                    <input name="txtText" type="text" id="txtText" class="form-control" style="width:200px;" />
+                    <input type="submit" name="btnSelect" value="搜索" id="btnSelect" />
+                    <input type="submit" name="btnAll" value="全部" id="btnAll" />
+                    <select name="dropPrintType" id="dropPrintType" class="form-control" style="width: 80px;">
+                        <option value="OrderViewLabel">标签</option>
+
+                    </select>
+                    <input type="button" value="批量打印运单" id="btnPrint" />
+                </div>
+                <table class="tableList tableListX"><tr><th style="width:30px;"><input class="checkAll" value="" type="checkbox" /></th><th style="width:35px;">序号</th><th>来源</th><th>运单号</th><th>仓库/线路</th><th>运单状态</th><th>重量(磅)</th><th>总计($)</th><th>发件人</th><th>收件人</th><th style="width:150px;">物品</th><th style="width:100px;">运输状态</th><th style="width:50px;">操作</th><th style="width:50px;">操作</th><th style="width:50px;">打印</th></tr><tr><td><input class="check" rel="132556" type="checkbox" /></td><td>1</td><td>快递</td><td><a href="OrderView.aspx?ID=132556">RB100132556</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">1</td><td class="money">4</td><td>娇妮</td><td>侯秀丽<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>Costco维骨力0*1;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132556">详情</a></td><td><a target="_blank" href="/select/?num=RB100132556">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132556," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="132555" type="checkbox" /></td><td>2</td><td>快递</td><td><a href="OrderView.aspx?ID=132555">RB100132555</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">1.5</td><td class="money">6</td><td>娇妮</td><td>建蓓蓓<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costco小熊糖0*1;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132555">详情</a></td><td><a target="_blank" href="/select/?num=RB100132555">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132555," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="132554" type="checkbox" /></td><td>3</td><td>快递</td><td><a href="OrderView.aspx?ID=132554">RB100132554</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">5</td><td class="money">20</td><td>娇妮</td><td>李东阳<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>雅培奶粉0*2;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132554">详情</a></td><td><a target="_blank" href="/select/?num=RB100132554">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132554," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="132553" type="checkbox" /></td><td>4</td><td>快递</td><td><a href="OrderView.aspx?ID=132553">RB100132553</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">1.5</td><td class="money">6</td><td>娇妮</td><td>潘科<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>costco小安素0*1;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132553">详情</a></td><td><a target="_blank" href="/select/?num=RB100132553">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132553," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="132552" type="checkbox" /></td><td>5</td><td>快递</td><td><a href="OrderView.aspx?ID=132552">RB100132552</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">2.4</td><td class="money">9.6</td><td>娇妮</td><td>张春妍<br/><b style="color:#FF0000;font-weight:normal;">没有身份证照片</b></td><td class="TableTdDetail"><b></b>bodyshop洗发水0*2;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132552">详情</a></td><td><a target="_blank" href="/select/?num=RB100132552">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132552," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="132457" type="checkbox" /></td><td>6</td><td>快递</td><td><a href="OrderView.aspx?ID=132457">RB100132457</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">10</td><td class="money">50</td><td>娇妮</td><td>郑军<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>lasko电暖器0*1;lasko电暖器0*1;lasko电暖器0*1;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132457">详情</a></td><td><a target="_blank" href="/select/?num=RB100132457">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132457," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="132456" type="checkbox" /></td><td>7</td><td>快递</td><td><a href="OrderView.aspx?ID=132456">RB100132456</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-06<br/>18:32:52</td><td class="money">9.8</td><td class="money">49</td><td>娇妮</td><td>郑军<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>lasko电暖器0*1;lasko电暖器0*1;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=132456">详情</a></td><td><a target="_blank" href="/select/?num=RB100132456">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=132456," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131989" type="checkbox" /></td><td>8</td><td>快递</td><td><a href="OrderView.aspx?ID=131989">RB100131989</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">1.3</td><td class="money">5.2</td><td>娇妮</td><td>刘新燕<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>bodyshaop洗发水0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131989">详情</a></td><td><a target="_blank" href="/select/?num=RB100131989">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131989," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131988" type="checkbox" /></td><td>9</td><td>快递</td><td><a href="OrderView.aspx?ID=131988">RB100131988</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">1.4</td><td class="money">5.6</td><td>娇妮</td><td>王芳<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costco鞋0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131988">详情</a></td><td><a target="_blank" href="/select/?num=RB100131988">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131988," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131987" type="checkbox" /></td><td>10</td><td>快递</td><td><a href="OrderView.aspx?ID=131987">RB100131987</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">1.1</td><td class="money">4.4</td><td>娇妮</td><td>王韵<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>starbucks咖啡杯0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131987">详情</a></td><td><a target="_blank" href="/select/?num=RB100131987">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131987," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131985" type="checkbox" /></td><td>11</td><td>快递</td><td><a href="OrderView.aspx?ID=131985">RB100131985</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">0.9</td><td class="money">4</td><td>娇妮</td><td>王艳芳<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>ck内裤0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131985">详情</a></td><td><a target="_blank" href="/select/?num=RB100131985">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131985," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131982" type="checkbox" /></td><td>12</td><td>快递</td><td><a href="OrderView.aspx?ID=131982">RB100131982</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">2.3</td><td class="money">9.2</td><td>娇妮</td><td>谢丽仪<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>coach鞋0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131982">详情</a></td><td><a target="_blank" href="/select/?num=RB100131982">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131982," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131977" type="checkbox" /></td><td>13</td><td>快递</td><td><a href="OrderView.aspx?ID=131977">RB100131977</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">1.3</td><td class="money">7.8</td><td>娇妮</td><td>李佩雯<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>倩碧黄油0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131977">详情</a></td><td><a target="_blank" href="/select/?num=RB100131977">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131977," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131973" type="checkbox" /></td><td>14</td><td>快递</td><td><a href="OrderView.aspx?ID=131973">RB100131973</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">5</td><td class="money">20</td><td>娇妮</td><td>潘科<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>costco小熊糖d30*1;costco小熊糖omega30*1;costco小熊糖多维0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131973">详情</a></td><td><a target="_blank" href="/select/?num=RB100131973">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131973," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131966" type="checkbox" /></td><td>15</td><td>快递</td><td><a href="OrderView.aspx?ID=131966">RB100131966</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">0.8</td><td class="money">4</td><td>娇妮</td><td>陈晓玲<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costco急救面膜0*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131966">详情</a></td><td><a target="_blank" href="/select/?num=RB100131966">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131966," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="131949" type="checkbox" /></td><td>16</td><td>快递</td><td><a href="OrderView.aspx?ID=131949">RB100131949</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>18:21:38</td><td class="money">2.6</td><td class="money">10.4</td><td>娇妮</td><td>郭保君<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>nike鞋 2.60*1;</td><td class="money">飞往中国的途中</td><td><a href="OrderView.aspx?ID=131949">详情</a></td><td><a target="_blank" href="/select/?num=RB100131949">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=131949," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130164" type="checkbox" /></td><td>17</td><td>快递</td><td><a href="OrderView.aspx?ID=130164">RB100130164</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1</td><td class="money">4</td><td>娇妮</td><td>马丽<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>schiff维骨力0*1;</td><td>邮政平邮(9975123877969)</td><td><a href="OrderView.aspx?ID=130164">详情</a></td><td><a target="_blank" href="/select/?num=RB100130164">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130164," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130163" type="checkbox" /></td><td>18</td><td>快递</td><td><a href="OrderView.aspx?ID=130163">RB100130163</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">0.6</td><td class="money">4</td><td>娇妮</td><td>黄姗姗<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>ddropsd3滴剂0*1;</td><td>邮政平邮(9975123878322)</td><td><a href="OrderView.aspx?ID=130163">详情</a></td><td><a target="_blank" href="/select/?num=RB100130163">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130163," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130094" type="checkbox" /></td><td>19</td><td>快递</td><td><a href="OrderView.aspx?ID=130094">RB100130094</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">0.8</td><td class="money">4</td><td>娇妮</td><td>严樱<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>玉兰油护肤0*1;</td><td>邮政平邮(9975123878411)</td><td><a href="OrderView.aspx?ID=130094">详情</a></td><td><a target="_blank" href="/select/?num=RB100130094">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130094," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130093" type="checkbox" /></td><td>20</td><td>快递</td><td><a href="OrderView.aspx?ID=130093">RB100130093</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1.4</td><td class="money">5.6</td><td>娇妮</td><td>朱晓纳<br/><b style="color:#FF0000;font-weight:normal;">没有身份证照片</b></td><td class="TableTdDetail"><b></b>nike运动鞋0*1;</td><td>邮政平邮(9975123878295)</td><td><a href="OrderView.aspx?ID=130093">详情</a></td><td><a target="_blank" href="/select/?num=RB100130093">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130093," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130092" type="checkbox" /></td><td>21</td><td>快递</td><td><a href="OrderView.aspx?ID=130092">RB100130092</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1.5</td><td class="money">6</td><td>娇妮</td><td>裴露露<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>nike运动鞋0*1;</td><td>邮政平邮(9975123878305)</td><td><a href="OrderView.aspx?ID=130092">详情</a></td><td><a target="_blank" href="/select/?num=RB100130092">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130092," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130090" type="checkbox" /></td><td>22</td><td>快递</td><td><a href="OrderView.aspx?ID=130090">RB100130090</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1.3</td><td class="money">5.2</td><td>娇妮</td><td>王艳芳<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costco蔓越莓胶囊0*1;olay护肤0*1;</td><td>邮政平邮(9975123878132)</td><td><a href="OrderView.aspx?ID=130090">详情</a></td><td><a target="_blank" href="/select/?num=RB100130090">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130090," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130089" type="checkbox" /></td><td>23</td><td>快递</td><td><a href="OrderView.aspx?ID=130089">RB100130089</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">4</td><td class="money">16</td><td>娇妮</td><td>车景云<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costcoone a day0*1;自然之宝胶原蛋白软糖230*2;</td><td>邮政平邮(9975123878426)</td><td><a href="OrderView.aspx?ID=130089">详情</a></td><td><a target="_blank" href="/select/?num=RB100130089">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130089," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130087" type="checkbox" /></td><td>24</td><td>快递</td><td><a href="OrderView.aspx?ID=130087">RB100130087</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">2.4</td><td class="money">14.4</td><td>娇妮</td><td>鲁丹<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>倩碧黄油套装0*2;</td><td>邮政平邮(9975123878404)</td><td><a href="OrderView.aspx?ID=130087">详情</a></td><td><a target="_blank" href="/select/?num=RB100130087">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130087," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130086" type="checkbox" /></td><td>25</td><td>快递</td><td><a href="OrderView.aspx?ID=130086">RB100130086</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1.6</td><td class="money">6.4</td><td>娇妮</td><td>张薇<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>coach凉鞋0*1;</td><td>邮政平邮(9975123878387)</td><td><a href="OrderView.aspx?ID=130086">详情</a></td><td><a target="_blank" href="/select/?num=RB100130086">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130086," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130084" type="checkbox" /></td><td>26</td><td>快递</td><td><a href="OrderView.aspx?ID=130084">RB100130084</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1.3</td><td class="money">5.2</td><td>娇妮</td><td>石月党<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>美体小铺洗发水0*1;</td><td>邮政平邮(9975123877942)</td><td><a href="OrderView.aspx?ID=130084">详情</a></td><td><a target="_blank" href="/select/?num=RB100130084">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130084," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130083" type="checkbox" /></td><td>27</td><td>快递</td><td><a href="OrderView.aspx?ID=130083">RB100130083</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">1</td><td class="money">4</td><td>娇妮</td><td>王蕾<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>schiff维骨力0*1;</td><td>邮政平邮(9975123877770)</td><td><a href="OrderView.aspx?ID=130083">详情</a></td><td><a target="_blank" href="/select/?num=RB100130083">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130083," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130082" type="checkbox" /></td><td>28</td><td>快递</td><td><a href="OrderView.aspx?ID=130082">RB100130082</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">0.7</td><td class="money">4</td><td>娇妮</td><td>杨玉兰<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>加州宝宝金盏花霜0*1;</td><td>邮政平邮(9975123878328)</td><td><a href="OrderView.aspx?ID=130082">详情</a></td><td><a target="_blank" href="/select/?num=RB100130082">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130082," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130061" type="checkbox" /></td><td>29</td><td>快递</td><td><a href="OrderView.aspx?ID=130061">RB100130061</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">4.5</td><td class="money">18</td><td>娇妮</td><td>董单<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>trunature蔓越莓胶囊0*3;naturemade鱼油0*2;康萃乐益生菌0*2;</td><td class="money">清关中</td><td><a href="OrderView.aspx?ID=130061">详情</a></td><td><a target="_blank" href="/select/?num=RB100130061">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130061," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130060" type="checkbox" /></td><td>30</td><td>快递</td><td><a href="OrderView.aspx?ID=130060">RB100130060</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">7.6</td><td class="money">30.4</td><td>娇妮</td><td>胡洁<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>雅培奶粉0*3;</td><td>邮政平邮(9975123878096)</td><td><a href="OrderView.aspx?ID=130060">详情</a></td><td><a target="_blank" href="/select/?num=RB100130060">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130060," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130059" type="checkbox" /></td><td>31</td><td>快递</td><td><a href="OrderView.aspx?ID=130059">RB100130059</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:21:23</td><td class="money">2</td><td class="money">8</td><td>娇妮</td><td>颜文娟<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>aveeno身体乳530ml*1;</td><td>邮政平邮(9975123877751)</td><td><a href="OrderView.aspx?ID=130059">详情</a></td><td><a target="_blank" href="/select/?num=RB100130059">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130059," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130058" type="checkbox" /></td><td>32</td><td>快递</td><td><a href="OrderView.aspx?ID=130058">RB100130058</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">1.5</td><td class="money">6</td><td>娇妮</td><td>张艳军<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>schiff维骨力0*1;olay护肤0*3;</td><td>邮政平邮(9975123878371)</td><td><a href="OrderView.aspx?ID=130058">详情</a></td><td><a target="_blank" href="/select/?num=RB100130058">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130058," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130057" type="checkbox" /></td><td>33</td><td>快递</td><td><a href="OrderView.aspx?ID=130057">RB100130057</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">1.2</td><td class="money">7.2</td><td>娇妮</td><td>潘越<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>施华洛世奇手链0*3;</td><td class="money">清关中</td><td><a href="OrderView.aspx?ID=130057">详情</a></td><td><a target="_blank" href="/select/?num=RB100130057">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130057," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130055" type="checkbox" /></td><td>34</td><td>快递</td><td><a href="OrderView.aspx?ID=130055">RB100130055</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">3.6</td><td class="money">14.4</td><td>娇妮</td><td>马静<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costco银杏叶0*1;naturemadecoq-100*1;雅培小安素0*2;</td><td>邮政平邮(9975123877773)</td><td><a href="OrderView.aspx?ID=130055">详情</a></td><td><a target="_blank" href="/select/?num=RB100130055">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130055," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130054" type="checkbox" /></td><td>35</td><td>快递</td><td><a href="OrderView.aspx?ID=130054">RB100130054</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">1.1</td><td class="money">4.4</td><td>娇妮</td><td>韩敏<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>ck内衣0*4;</td><td>邮政平邮(9975123877823)</td><td><a href="OrderView.aspx?ID=130054">详情</a></td><td><a target="_blank" href="/select/?num=RB100130054">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130054," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130053" type="checkbox" /></td><td>36</td><td>快递</td><td><a href="OrderView.aspx?ID=130053">RB100130053</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">1</td><td class="money">4</td><td>娇妮</td><td>王耀<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>帕玛氏妊娠纹霜0*2;</td><td>邮政平邮(9975123877757)</td><td><a href="OrderView.aspx?ID=130053">详情</a></td><td><a target="_blank" href="/select/?num=RB100130053">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130053," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130051" type="checkbox" /></td><td>37</td><td>快递</td><td><a href="OrderView.aspx?ID=130051">RB100130051</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">1.6</td><td class="money">6.4</td><td>娇妮</td><td>孙宁宁<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>reduce水杯0*2;costco姜黄素0*2;</td><td>邮政平邮(9975123878274)</td><td><a href="OrderView.aspx?ID=130051">详情</a></td><td><a target="_blank" href="/select/?num=RB100130051">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130051," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130042" type="checkbox" /></td><td>38</td><td>快递</td><td><a href="OrderView.aspx?ID=130042">RB100130042</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-09-04<br/>19:28:46</td><td class="money">1</td><td class="money">6</td><td>娇妮</td><td>张丽<br/><b style="color:#FF0000;">没有身份证号</b></td><td class="TableTdDetail"><b></b>glamglow面膜套装0*1;</td><td class="money">运单创建成功</td><td><a href="OrderView.aspx?ID=130042">详情</a></td><td><a target="_blank" href="/select/?num=RB100130042">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130042," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130041" type="checkbox" /></td><td>39</td><td>快递</td><td><a href="OrderView.aspx?ID=130041">RB100130041</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">1</td><td class="money">4</td><td>娇妮</td><td>岳姝婧<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>schiff维骨力0*1;</td><td>邮政平邮(9975123878034)</td><td><a href="OrderView.aspx?ID=130041">详情</a></td><td><a target="_blank" href="/select/?num=RB100130041">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130041," target="_blank">标签</a></td></tr><tr><td><input class="check" rel="130040" type="checkbox" /></td><td>40</td><td>快递</td><td><a href="OrderView.aspx?ID=130040">RB100130040</a></td><td>西雅图仓库<br/>默认线路</td><td>已发货<br/>2018-08-30<br/>15:22:02</td><td class="money">0.8</td><td class="money">4</td><td>娇妮</td><td>朱丽萍<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td><td class="TableTdDetail"><b></b>costco褪黑素0*1;</td><td>邮政平邮(9975123878105)</td><td><a href="OrderView.aspx?ID=130040">详情</a></td><td><a target="_blank" href="/select/?num=RB100130040">追踪</a></td><td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=130040," target="_blank">标签</a></td></tr></table>
+                <div class="page"><span style="color:#FF0000;border: 1px solid #FF0000;">共<b>1282</b>条记录</span>，<span><b>33</b>页</span>，<input type="text" style="width: 30px;height: 18px;text-align: center;text-indent: 0px;color: #FF0000;font-weight: bold;float:left;margin-right:5px;" class="pageInsert" style="" /><span href="http://rnbex.us/Member/OrderListAll.aspx?page=" style="float:left;margin-right:25px;cursor: pointer;" class="pageTiao">跳转</span><span>1</span><a href="http://rnbex.us/Member/OrderListAll.aspx?page=2">2</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=3">3</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=4">4</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=5">5</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=6">6</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=7">7</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=8">8</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=2">&gt;</a><a href="http://rnbex.us/Member/OrderListAll.aspx?page=9">&gt;&gt;</a></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footerBg">
+        <div class="wrap">
+            <p>
+                美国客服微信号：seattleexpress&nbsp;&nbsp;&nbsp;
+                国内客服微信号：xxkdgnkf&nbsp;&nbsp;&nbsp;
+                美国客服qq号：3503236669&nbsp;&nbsp;&nbsp;
+                中国客服qq号：3465119819
+            </p>
+            <p>
+                版权所有© 2016 www.RNBex.us 小熊快跑国际速递
+            </p>
+        </div>
+    </div>
+
+</form>
+</body>
+</html>

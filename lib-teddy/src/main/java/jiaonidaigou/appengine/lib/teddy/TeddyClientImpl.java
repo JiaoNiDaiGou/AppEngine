@@ -10,6 +10,7 @@ import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import jiaonidaigou.appengine.common.utils.Secrets;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
+import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
 import jiaonidaigou.appengine.lib.teddy.model.Product;
 import jiaonidaigou.appengine.lib.teddy.model.Receiver;
 import jiaonidaigou.appengine.lib.teddy.model.ShippingHistoryEntry;
@@ -227,6 +228,45 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @Override
+    public Map<Long, OrderPreview> getOrderPreviews(int pageNum) {
+        checkArgument(pageNum >= 1);
+
+        Document page = autoLogin(() -> client
+                .doGet()
+                .url(MEMBER_ORDER_LIST_ALL_URL)
+                .pathParam("page", pageNum)
+                .request()
+                .callToHtml());
+
+        Map<Long, OrderPreview> toReturn = new HashMap<>();
+        Element table = page.selectFirst("table.tableList");
+        if (table == null) {
+            return toReturn;
+        }
+        Elements trList = table.getElementsByTag("tr");
+        for (int i = 1; i < trList.size(); i++) { // First <tr> is header
+            Element tr = trList.get(i);
+            OrderPreview orderPreview = parseOrderPreviewElement(tr);
+            toReturn.put(orderPreview.getId(), orderPreview);
+        }
+
+        LOGGER.info("Load {} orders in page {}.", toReturn.size(), pageNum);
+        return toReturn;
+    }
+
+    @Override
+    public Map<Long, OrderPreview> getOrderPreviews(final Range<Integer> pageRange) {
+        checkNotNull(pageRange);
+        checkArgument(pageRange.hasLowerBound() && pageRange.hasUpperBound());
+
+        Map<Long, OrderPreview> toReturn = new HashMap<>();
+        for (int pageNum = pageRange.lowerEndpoint(); pageNum <= pageRange.upperEndpoint(); pageNum++) {
+            toReturn.putAll(getOrderPreviews(pageNum));
+        }
+        return toReturn;
+    }
+
+    @Override
     public Order getOrderDetails(final long orderId,
                                  final boolean includeShippingInfo) {
         Document orderViewPage = autoLogin(() -> client
@@ -269,82 +309,11 @@ public class TeddyClientImpl implements TeddyClient {
                 productSummary.append(";");
             }
         }
+
         String idCardNumber = getElementTextById(orderViewPage, "lblReceiverIDCardNum");
 
-        List<ShippingHistoryEntry> shippingHistory = new ArrayList<>();
-        String rawShippingStatus = null;
-        String trackingNumber = null;
-        PostManInfo postManInfo = null;
-
-        if (includeShippingInfo) {
-            Document shippingHistoryPage = autoLogin(() -> client
-                    .doGet()
-                    .url(ORDER_SHIPPING_TRACK)
-                    .pathParam("num", formattedIdFromPage)
-                    .request()
-                    .callToHtml());
-
-            Element table = shippingHistoryPage.selectFirst("table.yundanTable");
-            if (table != null) {
-                Elements trList = table.getElementsByTag("tr");
-
-                // Line[0] is: 运单编号：RB100110251
-                // Line[1] is table header: 处理时间	运单状态
-                for (int i = 2; i < trList.size(); i++) {
-                    Elements tdList = trList.get(i).getElementsByTag("td");
-                    if (tdList.size() == 2) {
-                        DateTime timestamp = parseTimestamp(tdList.get(0).text());
-                        String status = tdList.get(1).text();
-                        shippingHistory.add(ShippingHistoryEntry.builder()
-                                .withStatus(status)
-                                .withTimestamp(timestamp)
-                                .build());
-                    } else if (tdList.size() == 1) {
-                        String text = tdList.get(0).text();
-                        if (StringUtils.isNotBlank(text)) {
-                            if (text.startsWith("转运至：")) {
-                                text = text.substring("转运至：".length());
-                            }
-                            Pair<String, String> trackingNumberPair = parseTrackingNumber(text);
-                            if (trackingNumberPair != null && rawShippingStatus == null && trackingNumber == null) {
-                                rawShippingStatus = trackingNumberPair.getLeft();
-                                trackingNumber = trackingNumberPair.getRight();
-                            }
-                        }
-                    }
-                }
-
-                shippingHistory.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
-
-                if (!shippingHistory.isEmpty()) {
-                    if (StringUtils.isBlank(rawShippingStatus)) {
-                        rawShippingStatus = shippingHistory.get(0).getStatus();
-                    }
-
-                    for (ShippingHistoryEntry entry : shippingHistory) {
-                        postManInfo = parsePostman(entry.getStatus());
-                        if (postManInfo != null) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        Order.Status status = Order.Status.PENDING;
-        if (StringUtils.isNotBlank(trackingNumber)) {
-            if (postManInfo != null && StringUtils.isNotBlank(postManInfo.postmanPhone)) {
-                status = Order.Status.POSTMAN_ASSIGNED;
-            } else {
-                status = Order.Status.TRACKING_NUMBER_ASSIGNED;
-            }
-        } else if ("运单创建成功".equals(rawShippingStatus)) {
-            status = Order.Status.CREATED;
-        }
-
-        return Order.builder()
+        Order.Builder builder = Order.builder()
                 .withId(orderId)
-                .withStatus(status)
                 .withFormattedId(formattedIdFromPage)
                 .withSenderName(getElementTextById(orderViewPage, "lblDeliverName")) // senderPhone is lblDeliverMobilePhone
                 .withReceiver(Receiver.builder()
@@ -356,14 +325,96 @@ public class TeddyClientImpl implements TeddyClient {
                 .withCreationTime(parseTimestamp(getElementTextById(orderViewPage, "lblCreatime")))
                 .withProducts(products)
                 .withProductSummary(productSummary.toString())
-                .withPrice(totalPrice)
-                .withRawShippingStatus(rawShippingStatus)
+                .withPrice(totalPrice);
+
+
+        Order.Status status = Order.Status.PENDING;
+        if (includeShippingInfo) {
+            status = syncOrderShippingHistory(formattedIdFromPage, builder);
+        }
+
+        return builder.withStatus(status)
+                .build();
+    }
+
+    private Order.Status syncOrderShippingHistory(final String formattedId, final Order.Builder builder) {
+        Document page = autoLogin(() -> client
+                .doGet()
+                .url(ORDER_SHIPPING_TRACK)
+                .pathParam("num", formattedId)
+                .request()
+                .callToHtml());
+
+        Element table = page.selectFirst("table.yundanTable");
+        if (table == null) {
+            return Order.Status.PENDING;
+        }
+
+        List<ShippingHistoryEntry> shippingHistory = new ArrayList<>();
+        String rawShippingStatus = null;
+        String trackingNumber = null;
+        Elements trList = table.getElementsByTag("tr");
+
+        // Line[0] is: 运单编号：RB100110251
+        // Line[1] is table header: 处理时间	运单状态
+        for (int i = 2; i < trList.size(); i++) {
+            Elements tdList = trList.get(i).getElementsByTag("td");
+            if (tdList.size() == 2) {
+                DateTime timestamp = parseTimestamp(tdList.get(0).text());
+                String status = tdList.get(1).text();
+                shippingHistory.add(ShippingHistoryEntry.builder()
+                        .withStatus(status)
+                        .withTimestamp(timestamp)
+                        .build());
+            } else if (tdList.size() == 1) {
+                String text = tdList.get(0).text();
+                if (StringUtils.isNotBlank(text)) {
+                    if (text.startsWith("转运至：")) {
+                        text = text.substring("转运至：".length());
+                    }
+                    Pair<String, String> trackingNumberPair = parseTrackingNumber(text);
+                    if (trackingNumberPair != null && rawShippingStatus == null && trackingNumber == null) {
+                        rawShippingStatus = trackingNumberPair.getLeft();
+                        trackingNumber = trackingNumberPair.getRight();
+                    }
+                }
+            }
+        }
+
+        shippingHistory.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+
+        PostManInfo postManInfo = null;
+        if (!shippingHistory.isEmpty()) {
+            if (StringUtils.isBlank(rawShippingStatus)) {
+                rawShippingStatus = shippingHistory.get(0).getStatus();
+            }
+
+            for (ShippingHistoryEntry entry : shippingHistory) {
+                postManInfo = parsePostman(entry.getStatus());
+                if (postManInfo != null) {
+                    break;
+                }
+            }
+        }
+
+        builder.withRawShippingStatus(rawShippingStatus)
                 .withTrackingNumber(trackingNumber)
                 .withPostmanName(postManInfo == null ? null : postManInfo.postmanName)
                 .withPostmanPhone(postManInfo == null ? null : postManInfo.postmanPhone)
                 .withDelivered(postManInfo != null && postManInfo.delivered)
-                .withShippingHistory(shippingHistory)
-                .build();
+                .withShippingHistory(shippingHistory);
+
+        Order.Status status = Order.Status.PENDING;
+        if (StringUtils.isNotBlank(trackingNumber)) {
+            if (postManInfo != null && StringUtils.isNotBlank(postManInfo.postmanPhone)) {
+                status = Order.Status.POSTMAN_ASSIGNED;
+            } else {
+                status = Order.Status.TRACKING_NUMBER_ASSIGNED;
+            }
+        } else if ("运单创建成功".equals(rawShippingStatus)) {
+            status = Order.Status.CREATED;
+        }
+        return status;
     }
 
     /**
@@ -450,6 +501,58 @@ public class TeddyClientImpl implements TeddyClient {
             timestampFormat = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss");
         }
         return DateTime.parse(text, timestampFormat);
+    }
+
+    private static OrderPreview parseOrderPreviewElement(final Element tr) {
+        // E.g.
+        // <tr>
+        //   <td><input class="check" rel="108602" type="checkbox"></td>
+        //   <td>1</td>
+        //   <td>快递</td>
+        //   <td><a href="OrderView.aspx?ID=108602">RB100108602</a></td>
+        //   <td>西雅图仓库<br/>默认线路</td>
+        //   <td>已发货<br/>2018-06-05<br/>15:30:03</td>
+        //   <td class="money">3.5</td>
+        //   <td class="money">14</td>
+        //   <td>娇妮</td>
+        //   <td>黄桂<br/><b style="color:#049945;font-weight:normal;">有身份证照片</b></td>
+        //   <td class="TableTdDetail"><b></b>nature made 叶酸0*1;schiff维骨力200粒*2;nature made钙0*1;</td>
+        //   <td>邮政平邮(9975123725790)</td>
+        //   <td><a href="OrderView.aspx?ID=108602">详情</a></td>
+        //   <td><a target="_blank" href="/select/?num=RB100108602">追踪</a></td>
+        //   <td><a class="linkWin" wintitle="标签" winhref="/adminkdUser/User/OrderViewLabel.aspx?IDS=108602," target="_blank">标签</a></td>
+        // </tr>
+        String formattedId = getChildText(tr, 3, 0);
+        long id = Long.parseLong(StringUtils.substringAfterLast(tr.child(3).child(0).attr("href"), "="));
+
+        String rawStatus = null;
+        DateTime lastUpdateTime = null;
+        String[] orderStatusStrs = StringUtils.split(getChildText(tr, 5));
+        if (orderStatusStrs != null && orderStatusStrs.length > 0) {
+            rawStatus = orderStatusStrs[0];
+            if (orderStatusStrs.length > 2) {
+                lastUpdateTime = parseTimestamp(orderStatusStrs[1] + " " + orderStatusStrs[2]);
+            }
+        }
+
+        String shippingStatusStr = getChildText(tr, 11);
+        Pair<String, String> trackingNumberResult = Pair.of(null, null);
+        if (StringUtils.isNotBlank(shippingStatusStr)) {
+            trackingNumberResult = parseTrackingNumber(shippingStatusStr);
+        }
+
+        return OrderPreview.builder()
+                .withId(id)
+                .withFormattedId(formattedId)
+                .withRawStatus(rawStatus)
+                .withLastUpdatedTime(lastUpdateTime)
+                .withPrice(Doubles.tryParse(getChildText(tr, 7)))
+                .withReceiverName(StringUtils.split(getChildText(tr, 9))[0])
+                .withIdCardUploaded("有身份证照片".equals(getChildText(tr, 9, 1)))
+                .withProductSummary(getChildText(tr, 10))
+                .withRawShippingStatus(trackingNumberResult.getLeft())
+                .withTrackingNumber(trackingNumberResult.getRight())
+                .build();
     }
 
     @VisibleForTesting

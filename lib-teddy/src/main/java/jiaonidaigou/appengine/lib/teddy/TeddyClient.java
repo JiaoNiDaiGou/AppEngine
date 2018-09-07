@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.lib.teddy;
 
 import com.google.common.collect.Range;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
+import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
 import jiaonidaigou.appengine.lib.teddy.model.Product;
 import jiaonidaigou.appengine.lib.teddy.model.Receiver;
 
@@ -45,4 +46,20 @@ public interface TeddyClient {
     Order makeOrder(final Receiver receiver,
                     final List<Product> products,
                     final double totalWeight);
+
+    /**
+     * Load order previews on given page number.
+     *
+     * @param pageNum Page number. 1 based.
+     * @return Order previews by order ID.
+     */
+    Map<Long, OrderPreview> getOrderPreviews(final int pageNum);
+
+    /**
+     * Load order previews on given page number ranges.
+     *
+     * @param pageRange Page number range. 1 based. Must have lower and upper bound.
+     * @return Order previews by order ID.
+     */
+    Map<Long, OrderPreview> getOrderPreviews(final Range<Integer> pageRange);
 }

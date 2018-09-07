@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.common.utils;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
@@ -21,7 +22,7 @@ public class Secrets {
     private Secrets(final String name) {
         LOGGER.info("Loading secrets for {}.", name);
         try (Reader reader = new InputStreamReader(
-                Resources.getResource(SECRETS_RESOURCE_PATH + name).openStream())) {
+                Resources.getResource(SECRETS_RESOURCE_PATH + name).openStream(), Charsets.UTF_8)) {
             this.value = CharStreams.toString(reader);
         } catch (IOException e) {
             throw new InternalIOException(e);
