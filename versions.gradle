@@ -3,7 +3,6 @@ ext {
 
     // Dependencies
     appengine_sdk_ver = '1.9.63'
-    autovalue_ver = '1.6'
     commons_collections4_ver = '4.1'
     commons_csv_ver = '1.5'
     commons_lang3_ver = '3.7'

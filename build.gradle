@@ -1,13 +1,13 @@
 apply from: "$rootDir/versions.gradle"
-apply plugin: 'idea'
 
 allprojects {
     version = '1.0'
     group = 'JiaoNiDaiGou.AppEngine'
 
     repositories {   // repositories for Jar's you access in your code
+        google()
+        jcenter()
         mavenLocal()
         mavenCentral()
-        jcenter()
     }
 }

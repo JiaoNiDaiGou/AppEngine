@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+    <cron>
+        <url>/cron/notification/xiaoxiong/orderStatus</url>
+        <description>XiaoXiong daily updates</description>
+        <schedule>every day 21:00</schedule>
+        <timezone>Asia/Shanghai</timezone>
+    </cron>
+    <cron>
+        <url>/cron/notification/xiaoxiong/ordersDump?taskLimit=10&amp;forward=true</url>
+        <description>XiaoXiong orders daily dump</description>
+        <schedule>every day 04:00</schedule>
+        <timezone>America/Los_Angeles</timezone>
+    </cron>
+</cronentries>

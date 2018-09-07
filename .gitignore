@@ -19,3 +19,8 @@ target/
 # Ignore common/resources/secrets
 /common/src/main/resources/secrets/*
 !/common/src/main/resources/secrets/do_not_commit_anything_here
+
+# Ignore api/ generated xml from template
+api/**/WEB-INF/appengine-web.xml
+api/**/WEB-INF/cron.xml
+api/**/WEB-INF/queue.xml
