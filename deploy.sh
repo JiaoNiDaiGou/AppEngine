@@ -3,6 +3,8 @@
 #
 # Script to build the whole project
 #
+# Usage:
+#   VERSION=some_version ./deploy.sh
 
 set -o pipefail
 
