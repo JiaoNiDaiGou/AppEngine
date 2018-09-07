@@ -16,3 +16,6 @@ target/
 # Ignore generated src
 */generated-src/
 
+# Ignore common/resources/secrets
+/common/src/main/resources/secrets/*
+!/common/src/main/resources/secrets/do_not_commit_anything_here

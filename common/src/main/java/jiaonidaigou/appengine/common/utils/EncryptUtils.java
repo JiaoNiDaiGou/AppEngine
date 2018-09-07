@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.common.utils;
 
-import jiaonidaigou.appengine.common.model.RuntimeIOException;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.ByteArrayInputStream;
@@ -14,7 +14,7 @@ public class EncryptUtils {
         try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
             return DigestUtils.md5Hex(inputStream);
         } catch (Exception e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 
@@ -22,7 +22,7 @@ public class EncryptUtils {
         try (InputStream inputStream = new FileInputStream(file)) {
             return DigestUtils.md5Hex(inputStream);
         } catch (Exception e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 
@@ -30,7 +30,7 @@ public class EncryptUtils {
         try (InputStream inputStream = url.openStream()) {
             return DigestUtils.md5Hex(inputStream);
         } catch (Exception e) {
-            throw new RuntimeIOException(e);
+            throw new InternalIOException(e);
         }
     }
 }
