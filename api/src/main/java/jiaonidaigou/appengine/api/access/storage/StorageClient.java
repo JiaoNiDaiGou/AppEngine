@@ -8,13 +8,11 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 public interface StorageClient {
@@ -23,19 +21,15 @@ public interface StorageClient {
     /**
      * If a file or a directory exists.
      */
-    boolean exists(final String path)
-            throws IOException;
+    boolean exists(final String path);
 
-    Metadata getMetadata(final String path)
-            throws IOException;
+    Metadata getMetadata(final String path);
 
-    InputStream inputStream(final String path)
-            throws IOException;
+    InputStream inputStream(final String path);
 
     OutputStream outputStream(final String path, final MediaType mediaType);
 
-    default Reader read(final String path)
-            throws IOException {
+    default Reader read(final String path) {
         return new InputStreamReader(inputStream(path));
     }
 
@@ -43,32 +37,25 @@ public interface StorageClient {
         return new OutputStreamWriter(outputStream(path, mediaType));
     }
 
-    void copy(final String fromPath, final String toPath)
-            throws IOException;
+    void copy(final String fromPath, final String toPath);
 
-    String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration)
-            throws UnsupportedEncodingException;
+    String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration);
 
-    default String getSignedUploadUrl(final String path, final MediaType mediaType, final Duration duration)
-            throws UnsupportedEncodingException {
+    default String getSignedUploadUrl(final String path, final MediaType mediaType, final Duration duration) {
         return getSignedUploadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedUploadUrl(final String path, final MediaType mediaType)
-            throws UnsupportedEncodingException {
+    default String getSignedUploadUrl(final String path, final MediaType mediaType) {
         return getSignedUploadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 
-    String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration)
-            throws UnsupportedEncodingException;
+    String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration);
 
-    default String getSignedDownloadUrl(final String path, final MediaType mediaType, final Duration duration)
-            throws UnsupportedEncodingException {
+    default String getSignedDownloadUrl(final String path, final MediaType mediaType, final Duration duration) {
         return getSignedDownloadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedDownloadUrl(final String path, final MediaType mediaType)
-            throws UnsupportedEncodingException {
+    default String getSignedDownloadUrl(final String path, final MediaType mediaType) {
         return getSignedDownloadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 

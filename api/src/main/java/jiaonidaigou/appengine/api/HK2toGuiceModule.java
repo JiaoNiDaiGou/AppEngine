@@ -1,7 +1,8 @@
 package jiaonidaigou.appengine.api;
 
 import com.google.inject.Injector;
-import jiaonidaigou.appengine.api.interfaces.Ping;
+import jiaonidaigou.appengine.api.interfaces.MediaInterface;
+import jiaonidaigou.appengine.api.interfaces.PingInterface;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
@@ -16,7 +17,12 @@ public class HK2toGuiceModule extends AbstractBinder {
 
     @Override
     protected void configure() {
-        bindFactory(new ServiceFactory<>(guiceInjector, Ping.class)).to(Ping.class);
+        bindInterface(MediaInterface.class);
+        bindInterface(PingInterface.class);
+    }
+
+    private <T> void bindInterface(final Class<T> interfaceType) {
+        bindFactory(new ServiceFactory<>(guiceInjector, interfaceType)).to(interfaceType);
     }
 
     private static class ServiceFactory<T> implements Factory<T> {

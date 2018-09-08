@@ -11,7 +11,7 @@
         <!-- Register JAX-RS Application. -->
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>jiaonidaigou.appengine.interface.ApiApplication</param-value>
+            <param-value>jiaonidaigou.appengine.api.ApiApplication</param-value>
         </init-param>
 
         <load-on-startup>1</load-on-startup>

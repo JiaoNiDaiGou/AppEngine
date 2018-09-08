@@ -17,12 +17,12 @@ import java.nio.file.Files;
 
 public class FakeFileStorageClient implements StorageClient {
     @Override
-    public boolean exists(String path) throws IOException {
+    public boolean exists(String path) {
         return toFile(path).exists();
     }
 
     @Override
-    public Metadata getMetadata(String path) throws IOException {
+    public Metadata getMetadata(String path) {
         File file = toFile(path);
         if (!file.exists()) {
             return null;

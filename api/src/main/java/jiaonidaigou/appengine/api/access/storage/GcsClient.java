@@ -10,6 +10,8 @@ import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import jiaonidaigou.appengine.common.model.InternalIOException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -23,12 +25,12 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.channels.Channels;
-import javax.inject.Inject;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 
+@Singleton
 public class GcsClient implements StorageClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageClient.class);
 
@@ -56,7 +58,7 @@ public class GcsClient implements StorageClient {
      * object is 'file.ext'
      */
     private static GcsFilename toGcsFilename(final String path) {
-        checkArgument(StringUtils.startsWithIgnoreCase(path, "gs://"));
+        checkArgument(StringUtils.startsWithIgnoreCase(path, "gs://"), path + " is not a valid GCS path.");
         int lastSlash = StringUtils.lastIndexOf(path, '/');
         String bucket = StringUtils.substring(path, "gs://".length(), lastSlash);
         String object = StringUtils.substring(path, lastSlash + 1);
@@ -64,19 +66,27 @@ public class GcsClient implements StorageClient {
     }
 
     @Override
-    public boolean exists(final String path)
-            throws IOException {
+    public boolean exists(final String path) {
         meterOn(this.getClass());
-        boolean toReturn = gcsService.getMetadata(toGcsFilename(path)) != null;
+        boolean toReturn;
+        try {
+            toReturn = gcsService.getMetadata(toGcsFilename(path)) != null;
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
         meterOff();
         return toReturn;
     }
 
     @Override
-    public Metadata getMetadata(final String path)
-            throws IOException {
+    public Metadata getMetadata(final String path) {
         meterOn(this.getClass());
-        GcsFileMetadata metadata = gcsService.getMetadata(toGcsFilename(path));
+        GcsFileMetadata metadata;
+        try {
+            metadata = gcsService.getMetadata(toGcsFilename(path));
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
         if (metadata == null) {
             meterOff();
             return null;
@@ -118,44 +128,47 @@ public class GcsClient implements StorageClient {
     }
 
     @Override
-    public void copy(String fromPath, String toPath)
-            throws IOException {
+    public void copy(String fromPath, String toPath) {
         meterOn(this.getClass());
         GcsFilename fromFilename = toGcsFilename(fromPath);
         GcsFilename toFilename = toGcsFilename(toPath);
-        gcsService.copy(fromFilename, toFilename);
+        try {
+            gcsService.copy(fromFilename, toFilename);
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
         meterOff();
     }
 
     @Override
-    public String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration)
-            throws UnsupportedEncodingException {
+    public String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration) {
         return getSignedUrl(HTTPMethod.PUT, toGcsFilename(path), mediaType, expiration);
     }
 
     @Override
-    public String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration)
-            throws UnsupportedEncodingException {
+    public String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration) {
         return getSignedUrl(HTTPMethod.GET, toGcsFilename(path), mediaType, expiration);
     }
 
     private String getSignedUrl(final HTTPMethod httpMethod,
                                 final GcsFilename filename,
                                 final MediaType mediaType,
-                                final DateTime expiration)
-            throws UnsupportedEncodingException {
-        meterOn(this.getClass());
-        String unsigned = stringToSign(httpMethod, filename, mediaType.toString(), expiration);
-        String signature = sign(unsigned);
-        meterOff();
-        return String.format("%s/%s/%s?GoogleAccessId=%s&Expires=%d&Signature=%s",
-                BASE_URL,
-                filename.getBucketName(),
-                filename.getObjectName(),
-                appIdentityService.getServiceAccountName(),
-                expiration.getMillis() / 1000,
-                URLEncoder.encode(signature, Charsets.UTF_8.name()));
-
+                                final DateTime expiration) {
+        try {
+            meterOn(this.getClass());
+            String unsigned = stringToSign(httpMethod, filename, mediaType.toString(), expiration);
+            String signature = sign(unsigned);
+            meterOff();
+            return String.format("%s/%s/%s?GoogleAccessId=%s&Expires=%d&Signature=%s",
+                    BASE_URL,
+                    filename.getBucketName(),
+                    filename.getObjectName(),
+                    appIdentityService.getServiceAccountName(),
+                    expiration.getMillis() / 1000,
+                    URLEncoder.encode(signature, Charsets.UTF_8.name()));
+        } catch (UnsupportedEncodingException e) {
+            throw new InternalIOException(e);
+        }
     }
 
     private String sign(final String unsigned)

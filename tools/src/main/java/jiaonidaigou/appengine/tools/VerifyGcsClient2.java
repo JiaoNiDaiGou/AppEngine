@@ -1,5 +1,6 @@
-package jiaonidaigou.appengine.tools.client;
+package jiaonidaigou.appengine.tools;
 
+import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
 
 import java.util.UUID;
@@ -7,19 +8,15 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/**
- * An example calling API to upload files to GCS.
- */
-public class UploadAndDownloadFileToGcs {
+public class VerifyGcsClient2 {
     public static void main(String[] args) {
-        ApiClient client = new ApiClient();
+        ApiClient client = new ApiClient(Environments.MAIN_VERSION_GAE_HOSTNAME);
         String filename = UUID.randomUUID().toString();
 
         // Get signed upload URL
         Response response = client.newTarget("Get signed upload URL")
-                .path("/interface/media/signedUploadUrl")
-                .queryParam("use", "example")
-                .queryParam("filename", filename)
+                .path("/api/media/url/upload")
+                .queryParam("path", filename)
                 .request()
                 .get();
         System.out.println("Get signed upload URL");
@@ -34,8 +31,8 @@ public class UploadAndDownloadFileToGcs {
 
         // Get signed download URL
         response = client.newTarget("Get signed download URL")
-                .path("/api/media/signedDownloadUrl")
-                .queryParam("path", "example/" + filename)
+                .path("/api/media/url/download")
+                .queryParam("path", filename)
                 .request()
                 .get();
         System.out.println("\nGet signed download URL");
