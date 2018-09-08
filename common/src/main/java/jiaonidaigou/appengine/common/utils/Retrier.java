@@ -66,7 +66,7 @@ public class Retrier {
                 if (retryOnResult == null || !retryOnResult.test(toReturn)) {
                     return toReturn;
                 }
-                LOGGER.warn("Try Attempt {} error meterOn result.", attempt);
+                LOGGER.warn("Try Attempt {} error on result.", attempt);
                 lastCaughtException = new RuntimeException("Result not valid: " + toReturn);
             } catch (Exception e) {
                 if (retryOnError == null || !retryOnError.test(e)) {

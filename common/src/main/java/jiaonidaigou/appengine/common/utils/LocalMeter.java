@@ -60,7 +60,7 @@ public class LocalMeter {
     private static String callerMethodName(final Class clazz) {
         // 0: Thread.getStackTrace
         // 1: LocalMeter.callerMethodName
-        // 2: LocalMeter.startOp/endOp
+        // 2: LocalMeter.meterOn/meterOff
         // 3: Actual caller
         StackTraceElement[] elements = Thread.currentThread().getStackTrace();
         if (elements.length < 4) {

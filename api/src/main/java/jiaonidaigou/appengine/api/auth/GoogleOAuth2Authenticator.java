@@ -15,7 +15,7 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
 
 /**
- * Authenticator based meterOn Google OAuth2.
+ * Authenticator based on Google OAuth2.
  * See https://developers.google.com/identity/protocols/OAuth2
  */
 public class GoogleOAuth2Authenticator implements Authenticator {

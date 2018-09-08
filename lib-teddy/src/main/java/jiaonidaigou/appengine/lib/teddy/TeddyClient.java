@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface TeddyClient {
     /**
-     * Load receivers meterOn given page number.
+     * Load receivers on given page number.
      *
      * @param pageNum Page number. 1 based.
      * @return Receivers by phone.
@@ -19,7 +19,7 @@ public interface TeddyClient {
     Map<String, Receiver> getReceivers(final int pageNum);
 
     /**
-     * Load receivers meterOn given page number ranges.
+     * Load receivers on given page number ranges.
      *
      * @param pageRange Page number range. 1 based. Must have lower and upper bound.
      * @return Receivers by phone.
@@ -48,7 +48,7 @@ public interface TeddyClient {
                     final double totalWeight);
 
     /**
-     * Load order previews meterOn given page number.
+     * Load order previews on given page number.
      *
      * @param pageNum Page number. 1 based.
      * @return Order previews by order ID.
@@ -56,7 +56,7 @@ public interface TeddyClient {
     Map<Long, OrderPreview> getOrderPreviews(final int pageNum);
 
     /**
-     * Load order previews meterOn given page number ranges.
+     * Load order previews on given page number ranges.
      *
      * @param pageRange Page number range. 1 based. Must have lower and upper bound.
      * @return Order previews by order ID.
