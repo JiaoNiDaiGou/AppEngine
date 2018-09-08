@@ -5,9 +5,7 @@ import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.common.utils.Environments;
 import org.jvnet.hk2.annotations.Service;
 
-import java.io.UnsupportedEncodingException;
 import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -33,23 +31,15 @@ public class MediaInterface {
     @Produces(MediaType.TEXT_PLAIN)
     public Response getUploadSignedUrl(@QueryParam("path") final String path) {
         String fullPath = PATH_BASE + path;
-        try {
-            String signedUrl = storageClient.getSignedUploadUrl(fullPath, DEFAULT_MEDIA_TYPE);
-            return Response.ok(signedUrl).build();
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalServerErrorException();
-        }
+        String signedUrl = storageClient.getSignedUploadUrl(fullPath, DEFAULT_MEDIA_TYPE);
+        return Response.ok(signedUrl).build();
     }
 
     @GET
     @Path("/url/download")
     public Response getSignedDownloadUrl(@QueryParam("path") final String path) {
         String fullPath = PATH_BASE + path;
-        try {
-            String signedUrl = storageClient.getSignedDownloadUrl(fullPath, DEFAULT_MEDIA_TYPE);
-            return Response.ok(signedUrl).build();
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalServerErrorException();
-        }
+        String signedUrl = storageClient.getSignedDownloadUrl(fullPath, DEFAULT_MEDIA_TYPE);
+        return Response.ok(signedUrl).build();
     }
 }

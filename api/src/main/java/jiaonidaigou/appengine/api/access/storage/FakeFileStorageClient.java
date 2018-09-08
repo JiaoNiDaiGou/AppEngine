@@ -12,7 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 
 public class FakeFileStorageClient implements StorageClient {
@@ -35,8 +34,12 @@ public class FakeFileStorageClient implements StorageClient {
     }
 
     @Override
-    public InputStream inputStream(String path) throws IOException {
-        return new FileInputStream(toFile(path));
+    public InputStream inputStream(String path) {
+        try {
+            return new FileInputStream(toFile(path));
+        } catch (FileNotFoundException e) {
+            throw new InternalIOException(e);
+        }
     }
 
     @Override
@@ -49,18 +52,22 @@ public class FakeFileStorageClient implements StorageClient {
     }
 
     @Override
-    public void copy(String fromPath, String toPath) throws IOException {
-        Files.copy(toFile(fromPath).toPath(), toFile(toPath).toPath());
+    public void copy(String fromPath, String toPath) {
+        try {
+            Files.copy(toFile(fromPath).toPath(), toFile(toPath).toPath());
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
     }
 
     @Override
-    public String getSignedUploadUrl(String path, MediaType mediaType, DateTime expiration) throws UnsupportedEncodingException {
-        throw new UnsupportedEncodingException();
+    public String getSignedUploadUrl(String path, MediaType mediaType, DateTime expiration) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getSignedDownloadUrl(String path, MediaType mediaType, DateTime expiration) throws UnsupportedEncodingException {
-        throw new UnsupportedEncodingException();
+    public String getSignedDownloadUrl(String path, MediaType mediaType, DateTime expiration) {
+        throw new UnsupportedOperationException();
     }
 
     private static File toFile(String path) {
