@@ -15,7 +15,7 @@ import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/")
 public class ApiApplication extends ResourceConfig {
-    private static final String ROOT_PACKAGE = "jiaonidaigou.appengine.interface";
+    private static final String ROOT_PACKAGE = "jiaonidaigou.appengine.api";
 
     public ApiApplication() {
         register(JacksonJaxbJsonProvider.class);
