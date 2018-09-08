@@ -4,9 +4,9 @@ apply plugin: 'war'
 apply from: './appengine-web-xml-template.gradle'
 
 buildscript {
-    repositories {
-        mavenCentral()
-    }
+//    repositories {
+//        mavenCentral()
+//    }
 
     dependencies {
         classpath 'com.google.appengine:gradle-appengine-plugin:1.9.59'
@@ -30,15 +30,14 @@ dependencies {
     compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"
     compile "com.github.qcloudsms:qcloudsms:$qcloudsms_ver"
     compile "com.google.api-client:google-api-client:$google_http_client_ver"
-    compile "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"
     compile "com.google.apis:google-api-services-oauth2:$google_apis_oauth2_ver"
 //    compile "com.google.apis:google-api-services-sheets:v4-rev527-$google_api_client_ver"
     compile "com.google.appengine.tools:appengine-gcs-client:$appengine_gcs_client"
+    compile "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"
     compile "com.google.inject:guice:$guice_ver"
     compile "com.google.guava:guava:$guava_ver"
 //    compile "com.google.oauth-client:google-oauth-client-jetty:$google_api_client_ver"
 //    compile "com.google.protobuf:protobuf-java-util:$protobuf_ver"
-//    compile "com.googlecode.libphonenumber:libphonenumber:$libphonenumber_ver"
     compile "com.twilio.sdk:twilio:$twilio_sdk_ver"
     compile "javax.inject:javax.inject:$javax_inject_ver"
     compile "javax.mail:mail:$javax_mail_ver"
@@ -59,8 +58,8 @@ dependencies {
 //
 //    testCompile "com.google.appengine:appengine-testing:1.9.64"
 //    testCompile "com.google.appengine:appengine-tools-sdk:1.9.64"
-//    testCompile "com.google.appengine:appengine-interface-stubs:1.9.64"
-//    testCompile "com.google.interface-client:google-interface-client-appengine:$google_api_client_ver"
+//    testCompile "com.google.appengine:appengine-api-stubs:1.9.64"
+//    testCompile "com.google.api-client:google-api-client-appengine:$google_api_client_ver"
 //    testCompile "junit:junit:$junit_ver"
 //    testCompile "org.hamcrest:hamcrest-all:$hamcrest_ver"
 //    testCompile "org.mockito:mockito-core:$mockito_ver"

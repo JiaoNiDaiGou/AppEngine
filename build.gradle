@@ -40,7 +40,7 @@ allprojects {
 //            force "com.google.protobuf:protobuf-java:$protobuf_ver"
             force "commons-codec:commons-codec:$commons_codec_ver"
             force "commons-collections:commons-collections:$commons_collections_ver"
-//            force "commons-io:commons-io:2.6"
+            force "commons-io:commons-io:$commons_io_ver"
             force "commons-logging:commons-logging:$commons_logging_ver"
 //            force "io.grpc:grpc-context:1.11.0"
 //            force "io.opencensus:opencensus-interface:0.12.3"
@@ -49,9 +49,6 @@ allprojects {
             force "org.apache.httpcomponents:httpclient:$httpcomponents_httpclient_ver"
             force "org.apache.httpcomponents:httpcore:$httpcomponents_httpcore_ver"
             force "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"
-//            force "org.glassfish.hk2:hk2-interface:2.5.0-b61"
-//            force "org.glassfish.hk2:hk2-utils:2.5.0-b61"
-//            force "org.glassfish.hk2.external:aopalliance-repackaged:2.5.0-b61"
             force "org.javassist:javassist:3.21.0-GA"
             force "org.slf4j:slf4j-api:$slf4j_ver"
         }

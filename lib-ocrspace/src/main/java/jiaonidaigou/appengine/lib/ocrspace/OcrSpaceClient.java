@@ -22,7 +22,7 @@ import java.util.Base64;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OcrSpaceClient {
-    private static final String ENDPOINT_IMAGEURL = "https://interface.ocr.space/parse/image";
+    private static final String ENDPOINT_IMAGEURL = "https://api.ocr.space/parse/image";
 
     private final String apiKey;
     private final MockBrowserClient client;

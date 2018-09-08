@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.channels.Channels;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
@@ -165,7 +166,7 @@ public class GcsClient implements StorageClient {
                     filename.getObjectName(),
                     appIdentityService.getServiceAccountName(),
                     expiration.getMillis() / 1000,
-                    URLEncoder.encode(signature, Charsets.UTF_8.name()));
+                    URLEncoder.encode(signature, UTF_8.name()));
         } catch (UnsupportedEncodingException e) {
             throw new InternalIOException(e);
         }
@@ -174,8 +175,8 @@ public class GcsClient implements StorageClient {
     private String sign(final String unsigned)
             throws UnsupportedEncodingException {
         // Note that the algorithm used by AppIdentity.signForApp() is "SHA256withRSA"
-        AppIdentityService.SigningResult signingResult = appIdentityService.signForApp(unsigned.getBytes());
-        return new String(Base64.encodeBase64(signingResult.getSignature(), false), Charsets.UTF_8.name());
+        AppIdentityService.SigningResult signingResult = appIdentityService.signForApp(unsigned.getBytes(UTF_8));
+        return new String(Base64.encodeBase64(signingResult.getSignature(), false), UTF_8.name());
     }
 
     private String stringToSign(final HTTPMethod httpMethod,
@@ -186,7 +187,7 @@ public class GcsClient implements StorageClient {
         String canonicalizedExtensionHeaders = "";
         String canonicalizedResource = String.format("/%s/%s", filename.getBucketName(), filename.getObjectName());
         // expiration needs to be in seconds
-        return String.format("%s\n%s\n%s\n%d\n%s%s",
+        return String.format("%s%n%s%n%s%n%d%n%s%s",
                 httpMethod,
                 contentMD5,
                 contentType,

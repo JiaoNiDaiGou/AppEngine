@@ -44,7 +44,7 @@ public class DatastoreEntityExtractor {
 
     Boolean getAsBoolean(final String prop) {
         if (!entity.hasProperty(prop)) {
-            return null;
+            return false;
         }
         return (Boolean) entity.getProperty(prop);
     }

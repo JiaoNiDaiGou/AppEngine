@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.access.storage;
 
+import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -30,11 +31,11 @@ public interface StorageClient {
     OutputStream outputStream(final String path, final MediaType mediaType);
 
     default Reader read(final String path) {
-        return new InputStreamReader(inputStream(path));
+        return new InputStreamReader(inputStream(path), Charsets.UTF_8);
     }
 
     default Writer write(final String path, final MediaType mediaType) {
-        return new OutputStreamWriter(outputStream(path, mediaType));
+        return new OutputStreamWriter(outputStream(path, mediaType), Charsets.UTF_8);
     }
 
     void copy(final String fromPath, final String toPath);

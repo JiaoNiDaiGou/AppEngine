@@ -1,10 +1,12 @@
 package jiaonidaigou.appengine.api.access.email;
 
+import com.google.common.base.Charsets;
 import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import jiaonidaigou.appengine.common.utils.Environments;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 
 public class FakePopupEmailSender implements EmailClient {
     @Override
@@ -25,7 +27,7 @@ public class FakePopupEmailSender implements EmailClient {
                       final String subject,
                       final String text) {
         String file = Environments.LOCAL_TEMP_DIR_ENDSLASH + "fake_email.html";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8))) {
             writer.write("[" + to + "]" + subject + "\n");
             writer.write(text);
             Runtime.getRuntime().exec("open " + file);
