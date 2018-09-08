@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
-public class LogUtils {
+public class LocalMeter {
     private static class Context {
         private final Stopwatch stopwatch;
         private final String name;
@@ -22,9 +22,9 @@ public class LogUtils {
 
     private static final ThreadLocal<Stack<Context>> THREAD_LOCAL_CONTEXTS = new ThreadLocal<>();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalMeter.class);
 
-    public synchronized static void startOp(final String opName) {
+    public synchronized static void meterOn(final String opName) {
         Stack<Context> stack = THREAD_LOCAL_CONTEXTS.get();
         if (stack == null) {
             stack = new Stack<>();
@@ -34,15 +34,15 @@ public class LogUtils {
         LOGGER.info("{} START.", opName);
     }
 
-    public synchronized static void startOp(final Class opClazz) {
-        startOp(callerMethodName(opClazz));
+    public synchronized static void meterOn(final Class opClazz) {
+        meterOn(callerMethodName(opClazz));
     }
 
-    public synchronized static void startOp() {
-        startOp(callerMethodName(null));
+    public synchronized static void meterOn() {
+        meterOn(callerMethodName(null));
     }
 
-    public synchronized static void endOp() {
+    public synchronized static void meterOff() {
         Stack<Context> stack = THREAD_LOCAL_CONTEXTS.get();
         if (stack == null) {
             stack = new Stack<>();
@@ -59,8 +59,8 @@ public class LogUtils {
 
     private static String callerMethodName(final Class clazz) {
         // 0: Thread.getStackTrace
-        // 1: LogUtils.callerMethodName
-        // 2: LogUtils.startOp/endOp
+        // 1: LocalMeter.callerMethodName
+        // 2: LocalMeter.startOp/endOp
         // 3: Actual caller
         StackTraceElement[] elements = Thread.currentThread().getStackTrace();
         if (elements.length < 4) {

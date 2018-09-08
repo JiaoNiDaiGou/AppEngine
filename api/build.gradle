@@ -21,50 +21,55 @@ dependencies {
     compile project(':common')
     compile project(':lib-teddy')
 
-//    compile "commons-validator:commons-validator:$commons_validator_ver"
-//    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
-//    compile "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
-//    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"
-//    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jackson_ver"
-//    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"
-//    compile "com.github.qcloudsms:qcloudsms:$qcloudsms_ver"
-//    compile "com.google.api-client:google-api-client:$google_api_client_ver"
-//    compile "com.google.apis:google-api-services-cloudkms:$google_apis_cloudkms_ver"
-    compile "com.google.apis:google-api-services-oauth2:$google_apis_oauth2_ver"
-//    compile "com.google.apis:google-api-services-sheets:v4-rev527-$google_api_client_ver"
-//    compile "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"
-//    compile "com.google.appengine.tools:appengine-gcs-client:0.7"
+    compile "commons-io:commons-io:$commons_io_ver"
+    compile "commons-validator:commons-validator:$commons_validator_ver"
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
+    compile "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jackson_ver"
+    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"
+    compile "com.github.qcloudsms:qcloudsms:$qcloudsms_ver"
+    compile "com.google.interface-client:google-interface-client:$google_http_client_ver"
+    compile "com.google.appengine:appengine-interface-1.0-sdk:$appengine_sdk_ver"
+    compile "com.google.apis:google-interface-services-oauth2:$google_apis_oauth2_ver"
+//    compile "com.google.apis:google-interface-services-sheets:v4-rev527-$google_api_client_ver"
+    compile "com.google.appengine.tools:appengine-gcs-client:$appengine_gcs_client"
     compile "com.google.inject:guice:$guice_ver"
     compile "com.google.guava:guava:$guava_ver"
 //    compile "com.google.oauth-client:google-oauth-client-jetty:$google_api_client_ver"
 //    compile "com.google.protobuf:protobuf-java-util:$protobuf_ver"
 //    compile "com.googlecode.libphonenumber:libphonenumber:$libphonenumber_ver"
-//    compile "com.twilio.sdk:twilio:$twilio_sdk_ver"
+    compile "com.twilio.sdk:twilio:$twilio_sdk_ver"
     compile "javax.inject:javax.inject:$javax_inject_ver"
-//    compile "javax.mail:mail:$javax_mail_ver"
-    compile "javax.ws.rs:javax.ws.rs-api:$javax_ws_rs_ver"
-//    compile "joda-time:joda-time:$jodatime_ver"
-//    compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
-//    compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
+    compile "javax.mail:mail:$javax_mail_ver"
+    compile "javax.ws.rs:javax.ws.rs-interface:$javax_ws_rs_ver"
+    compile "joda-time:joda-time:$jodatime_ver"
+    compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
+    compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
 //    compile "org.freemarker:freemarker:$freemarker_ver"
     compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
     compile "org.glassfish.jersey.core:jersey-server:$jersey_ver"
     compile "org.glassfish.jersey.containers:jersey-container-servlet-core:$jersey_ver"
-//    compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey_ver"
-//    compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"
+    compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"
 //    compile "org.reflections:reflections:$reflections_ver"
-//    compile "org.slf4j:slf4j-api:$slf4j_ver"
-//    compile "org.slf4j:slf4j-jdk14:$slf4j_ver"
+    compile "org.slf4j:slf4j-interface:$slf4j_ver"
+    compile "org.slf4j:slf4j-jdk14:$slf4j_ver"
 //
 //    testCompile project(':lib-test')
 //
 //    testCompile "com.google.appengine:appengine-testing:1.9.64"
 //    testCompile "com.google.appengine:appengine-tools-sdk:1.9.64"
-//    testCompile "com.google.appengine:appengine-api-stubs:1.9.64"
-//    testCompile "com.google.api-client:google-api-client-appengine:$google_api_client_ver"
+//    testCompile "com.google.appengine:appengine-interface-stubs:1.9.64"
+//    testCompile "com.google.interface-client:google-interface-client-appengine:$google_api_client_ver"
 //    testCompile "junit:junit:$junit_ver"
 //    testCompile "org.hamcrest:hamcrest-all:$hamcrest_ver"
 //    testCompile "org.mockito:mockito-core:$mockito_ver"
+
+    // TODO:
+    // Use
+    // google-interface-services-datastore
+    // google-interface-services-storage
+    // to make it not depends on GAE
 }
 
 appengine {

@@ -1,0 +1,49 @@
+apply from: "$rootDir/standard-java.gradle"
+apply plugin: 'com.google.protobuf'
+
+buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_plugin_ver"
+    }
+}
+
+def protobufGeneratedFileDir = "$projectDir/build/generated/source/proto"
+
+sourceSets {
+    main {
+        java {
+            srcDir "$protobufGeneratedFileDir/main/java"
+        }
+        proto {
+            // In addition to the default 'src/main/proto'
+            srcDir 'src/main/third-party'
+        }
+    }
+}
+
+dependencies {
+    compile "com.google.protobuf:protobuf-java:$protobuf_ver"
+}
+
+protobuf {
+    generatedFilesBaseDir = protobufGeneratedFileDir
+
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobuf_ver"
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {}
+//                python {}
+//                js {
+//                    option "import_style=commonjs"
+//                    option "binary"
+//                }
+            }
+        }
+    }
+}

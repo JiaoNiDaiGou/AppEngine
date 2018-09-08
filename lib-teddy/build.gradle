@@ -19,7 +19,7 @@ dependencies {
     compile "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"
     compile "org.jsoup:jsoup:$jsoup_ver"
     compile "org.reflections:reflections:$reflections_ver"
-    compile "org.slf4j:slf4j-api:$slf4j_ver"
+    compile "org.slf4j:slf4j-interface:$slf4j_ver"
     compile "org.slf4j:slf4j-jdk14:$slf4j_ver"
 
     testCompile project(":common-test")

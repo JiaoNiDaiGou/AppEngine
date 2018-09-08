@@ -176,7 +176,7 @@ public class TeddyClientImpl implements TeddyClient {
                 .formBodyParam("txtDeliverName", admin.getSenderName())
                 .formBodyParam("txtDeliverMobilePhone", admin.getSenderPhone())
                 .formBodyParam("txtDeliverAddress", admin.getSenderAddress())
-                .formBodyParam("checkIsSaveDeliver", "on")
+                .formBodyParam("checkIsSaveDeliver", "meterOn")
                 .formBodyParam("txtReceiverName", receiver.getName())
                 .formBodyParam("txtReceiverMobilePhone", receiver.getPhone()) // E.g. 15006235507
                 .formBodyParam("hidReceiverMobilePhone", receiver.getPhone())
@@ -187,7 +187,7 @@ public class TeddyClientImpl implements TeddyClient {
                 .formBodyParam("dropReceiverIDCardType", "身份证")
                 .formBodyParam("txtReceiverIDCardNum", "")
                 .formBodyParam("hidReceiverID", receiver.getUserId())
-                .formBodyParam("checkIsSaveReceiver", "on")
+                .formBodyParam("checkIsSaveReceiver", "meterOn")
                 .formBodyParam("hidTax", "")
                 .formBodyParam("hidTr", productsStr) // E.g. mingcheng—pingpai—3—2——包包—0—@mingcheng2—pingpai2—4—3——小电器类—0—@
                 .formBodyParam("txtWeight", String.valueOf(totalWeight))

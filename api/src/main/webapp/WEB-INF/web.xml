@@ -11,7 +11,7 @@
         <!-- Register JAX-RS Application. -->
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>jiaonidaigou.appengine.api.ApiApplication</param-value>
+            <param-value>jiaonidaigou.appengine.interface.ApiApplication</param-value>
         </init-param>
 
         <load-on-startup>1</load-on-startup>
@@ -25,7 +25,7 @@
         <!--<display-name>Remote API Servlet</display-name>-->
         <!--<servlet-name>RemoteApiServlet</servlet-name>-->
         <!--<servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>-->
-        <!--<load-on-startup>1</load-on-startup>-->
+        <!--<load-meterOn-startup>1</load-meterOn-startup>-->
     <!--</servlet>-->
     <!--<servlet-mapping>-->
         <!--<servlet-name>RemoteApiServlet</servlet-name>-->
