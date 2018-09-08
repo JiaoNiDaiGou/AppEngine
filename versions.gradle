@@ -2,16 +2,22 @@ ext {
     // Please keep them in alphabetical order
 
     // Dependencies
+    appengine_gcs_client = '0.8'
     appengine_sdk_ver = '1.9.63'
+    commons_codec_ver = '1.11'
+    commons_collections_ver = '3.2.2'
     commons_collections4_ver = '4.1'
     commons_csv_ver = '1.5'
+    commons_io_ver = '2.6'
     commons_lang3_ver = '3.7'
+    commons_logging_ver = '1.2'
     commons_validator_ver = '1.6'
     freemarker_ver = '2.3.28'
-    google_api_client_ver = '1.23.0'
-    google_apis_oauth2_ver = 'v2-rev141-1.25.0'
-    google_apis_sheets_ver = 'v4-rev516-1.23.0'
-    google_apis_cloudkms_ver = 'v1-rev59-1.24.1'
+    google_http_client_ver = '1.25.0'
+    google_apis_datastore_ver = "v1-rev61-$google_http_client_ver"
+    google_apis_oauth2_ver = "v2-rev141-$google_http_client_ver"
+    google_apis_sheets_ver = "v4-rev516-$google_http_client_ver"
+    google_apis_storage_ver = "v1-rev136-$google_http_client_ver"
     guava_ver = '25.1-jre'
     guice_ver = '4.2.0'
     httpcomponents_httpclient_ver = '4.5.5'
@@ -32,7 +38,7 @@ ext {
     qcloudsms_ver = '1.0.5'
     reflections_ver = '0.9.11'
     slf4j_ver = '1.7.25'
-    twilio_sdk_ver = '7.17.+'
+    twilio_sdk_ver = '7.24.2'
 
     // Test dependencies
     hamcrest_ver = '1.3'

@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 @Path("/api/ping")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
-public class Ping {
+public class PingInterface {
     @GET
     @PermitAll
     public Response ping(@QueryParam("input") final String text) {

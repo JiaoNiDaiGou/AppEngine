@@ -8,11 +8,11 @@ dependencies {
     compile project(":common")
 
     compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
-//    compile "org.glassfish.jersey.core:jersey-server:$jersey_ver"
-//    compile "org.glassfish.jersey.containers:jersey-container-servlet-core:$jersey_ver"
     compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey_ver"
-//    compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"
+    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
 
+//    compile "com.google.appengine:appengine-tools-sdk:$appengine_sdk_ver"
+//    compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"
 //    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
 //    compile "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
 //    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"

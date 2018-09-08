@@ -11,4 +11,46 @@ allprojects {
         mavenLocal()
         mavenCentral()
     }
+
+    configurations.all {
+        resolutionStrategy {
+            // Use ./gradlew :api:dependencyInsight --configuration compile --dependency <dependency> -PdebugDeps
+            // to check dependencies
+            if (!project.hasProperty('debugDeps')) {
+                failOnVersionConflict()
+            }
+
+            force "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
+            force "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
+            force "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"
+            force "com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:$jackson_ver"
+            force "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"
+            force "com.google.api-client:google-api-client:$google_http_client_ver"
+//            force "com.google.interface.grpc:proto-google-cloud-db-v1:0.10.0"
+//            force "com.google.interface.grpc:proto-google-common-protos:1.9.0"
+            force "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"
+//            force "com.google.code.findbugs:jsr305:$jsr_305_ver"
+//            force "com.google.errorprone:error_prone_annotations:2.3.0"
+            force "com.google.guava:guava:$guava_ver"
+            force "com.google.http-client:google-http-client-jackson2:$google_http_client_ver"
+            force "com.google.http-client:google-http-client-jackson:$google_http_client_ver"
+            force "com.google.http-client:google-http-client:$google_http_client_ver"
+//            force "com.google.inject:guice:$guice_ver"
+            force "com.google.oauth-client:google-oauth-client:$google_http_client_ver"
+//            force "com.google.protobuf:protobuf-java:$protobuf_ver"
+            force "commons-codec:commons-codec:$commons_codec_ver"
+            force "commons-collections:commons-collections:$commons_collections_ver"
+            force "commons-io:commons-io:$commons_io_ver"
+            force "commons-logging:commons-logging:$commons_logging_ver"
+//            force "io.grpc:grpc-context:1.11.0"
+//            force "io.opencensus:opencensus-interface:0.12.3"
+            force "javax.ws.rs:javax.ws.rs-api:$javax_ws_rs_ver"
+            force "joda-time:joda-time:$jodatime_ver"
+            force "org.apache.httpcomponents:httpclient:$httpcomponents_httpclient_ver"
+            force "org.apache.httpcomponents:httpcore:$httpcomponents_httpcore_ver"
+            force "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"
+            force "org.javassist:javassist:3.21.0-GA"
+            force "org.slf4j:slf4j-api:$slf4j_ver"
+        }
+    }
 }
