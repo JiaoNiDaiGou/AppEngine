@@ -1,7 +1,5 @@
 package jiaonidaigou.appengine.api.access.storage;
 
-import com.google.common.base.Charsets;
-import com.google.common.net.MediaType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -9,12 +7,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import javax.ws.rs.core.MediaType;
 
 public interface StorageClient {
     Duration DEFAULT_EXPIRATION_DURATION = Duration.standardHours(12);
@@ -26,17 +19,9 @@ public interface StorageClient {
 
     Metadata getMetadata(final String path);
 
-    InputStream inputStream(final String path);
+    byte[] read(final String path);
 
-    OutputStream outputStream(final String path, final MediaType mediaType);
-
-    default Reader read(final String path) {
-        return new InputStreamReader(inputStream(path), Charsets.UTF_8);
-    }
-
-    default Writer write(final String path, final MediaType mediaType) {
-        return new OutputStreamWriter(outputStream(path, mediaType), Charsets.UTF_8);
-    }
+    void write(final String path, final byte[] bytes);
 
     void copy(final String fromPath, final String toPath);
 

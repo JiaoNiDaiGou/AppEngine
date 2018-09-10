@@ -1,0 +1,26 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.entity;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.entity";
+option java_multiple_files = true;
+
+import "entity/address.proto";
+import "entity/media_object.proto";
+
+message Customer {
+    message SocialContacts {
+        string wechat_id = 1;
+        string teddy_user_id = 2;
+    }
+    
+    string id = 1;
+    string name = 2;
+    string phone = 3;
+    Address address = 4;
+    string id_card = 5;
+    MediaObject id_card_front_media = 6;
+    MediaObject id_card_back_media = 7;
+    SocialContacts social_contacts = 30;
+}
+
+

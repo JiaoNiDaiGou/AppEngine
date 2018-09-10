@@ -1,2 +1,6 @@
 <FindBugsFilter>
+    <Match>
+        <Class name="~jiaonidaigou.appengine.wiremodel.*"/>
+        <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
+    </Match>
 </FindBugsFilter>

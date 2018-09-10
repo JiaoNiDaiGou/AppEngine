@@ -1,0 +1,49 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.entity;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.entity";
+option java_multiple_files = true;
+
+import "entity/customer.proto";
+import "entity/product.proto";
+import "entity/price.proto";
+
+message ShippingOrder {
+    enum Status {
+        CREATED = 0;
+        PENDING = 1;
+        CN_TRACKING_NUMBER_ASSIGNED = 2;
+        CN_POSTMAN_ASSIGNED = 3;
+        DELIVERED = 4;
+    }
+
+    message ProductEntry {
+        Product product = 1;
+        int32 quantity = 2;
+        Price sell_price = 3;
+    }
+
+    message ShippingHistoryEntry {
+        int64 timestamp = 1;
+        string status = 2;
+    }
+
+    string id = 1;
+    Status status = 2;
+    Customer receiver = 3;
+
+    // When the order is created.
+    int64 creation_time = 4;
+
+    repeated ProductEntry product_entries = 5;
+
+    double total_weight_lb = 6;
+
+    string postman_name = 30;
+    string postman_phone = 31;
+    string tracking_number = 32;
+
+    repeated ShippingHistoryEntry shipping_history = 40;
+
+    string teddy_order_id = 100;
+}

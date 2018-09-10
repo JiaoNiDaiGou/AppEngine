@@ -6,6 +6,8 @@ import com.google.inject.Injector;
 import jiaonidaigou.appengine.api.filters.AuthFilter;
 import jiaonidaigou.appengine.api.filters.CorsFilter;
 import jiaonidaigou.appengine.api.filters.WireLogFilter;
+import jiaonidaigou.appengine.api.guice.HK2toGuiceModule;
+import jiaonidaigou.appengine.api.guice.ServiceModule;
 import jiaonidaigou.appengine.api.utils.ExceptionMappingFeature;
 import jiaonidaigou.appengine.api.utils.ObjectMapperContextResolver;
 import org.glassfish.jersey.server.ResourceConfig;

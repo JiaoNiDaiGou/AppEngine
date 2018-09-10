@@ -1,10 +1,16 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import com.google.inject.Inject;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
+import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,12 +18,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static jiaonidaigou.appengine.api.Consts.GCS_MEDIA_ROOT_ENDSLASH;
+
 @Path("/api/media")
-@Produces(MediaType.TEXT_PLAIN)
+@Produces(MediaType.APPLICATION_JSON)
 @Service
+@Singleton
 public class MediaInterface {
-    private static final String PATH_BASE = Environments.GCS_ROOT_ENDSLASH + "test/";
-    private static final com.google.common.net.MediaType DEFAULT_MEDIA_TYPE = com.google.common.net.MediaType.OCTET_STREAM;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MediaInterface.class);
 
     private final StorageClient storageClient;
 
@@ -28,18 +36,50 @@ public class MediaInterface {
 
     @GET
     @Path("/url/upload")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response getUploadSignedUrl(@QueryParam("path") final String path) {
-        String fullPath = PATH_BASE + path;
-        String signedUrl = storageClient.getSignedUploadUrl(fullPath, DEFAULT_MEDIA_TYPE);
-        return Response.ok(signedUrl).build();
+    public Response getUploadSignedUrl(@QueryParam("ext") final String fileExtension) {
+        RequestValidator.validateNotBlank(fileExtension, "fileExtension");
+
+        String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
+        MediaType mediaType = determineMediaType(fileExtension);
+        String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
+
+        String signedUrl = storageClient.getSignedUploadUrl(path, mediaType);
+        return Response.ok(MediaObject.newBuilder()
+                .setId(mediaId)
+                .setFullPath(path)
+                .setSignedUploadUrl(signedUrl)
+                .build())
+                .build();
     }
 
     @GET
     @Path("/url/download")
-    public Response getSignedDownloadUrl(@QueryParam("path") final String path) {
-        String fullPath = PATH_BASE + path;
-        String signedUrl = storageClient.getSignedDownloadUrl(fullPath, DEFAULT_MEDIA_TYPE);
-        return Response.ok(signedUrl).build();
+    public Response getSignedDownloadUrl(@QueryParam("media_id") final String mediaId) {
+        RequestValidator.validateNotBlank(mediaId, "media_id");
+
+        String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        MediaType mediaType = determineMediaType(path);
+        LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
+
+        String signedUrl = storageClient.getSignedDownloadUrl(path, mediaType);
+        return Response.ok(MediaObject.newBuilder()
+                .setId(mediaId)
+                .setFullPath(path)
+                .setSignedDownloadUrl(signedUrl)
+                .build())
+                .build();
+    }
+
+    private static MediaType determineMediaType(final String pathOrFileExtension) {
+        String ext = pathOrFileExtension.contains(".")
+                ? StringUtils.substringAfterLast(pathOrFileExtension, ".").toLowerCase()
+                : pathOrFileExtension.toLowerCase();
+        switch (ext) {
+            case "txt":
+                return MediaType.TEXT_PLAIN_TYPE;
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        }
     }
 }

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.api;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.api";
+option java_multiple_files = true;
+
+import "entity/customer.proto";
+import "entity/shipping_oder.proto";
+
+message CreateShippingOrderRequest {
+    jiaonidaigou.appengine.wiremodel.entity.Customer receiver = 1;
+    repeated jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.ProductEntry product_entries = 2;
+    double total_weight_lb = 3;
+}
+
+message CreateShippingOrderResponse {
+    jiaonidaigou.appengine.wiremodel.entity.ShippingOrder shipping_order = 1;
+}

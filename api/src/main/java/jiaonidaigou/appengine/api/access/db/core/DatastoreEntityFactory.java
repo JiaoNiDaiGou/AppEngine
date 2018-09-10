@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.access.db;
+package jiaonidaigou.appengine.api.access.db.core;
 
 import com.google.appengine.api.datastore.Entity;
 

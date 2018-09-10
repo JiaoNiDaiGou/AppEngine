@@ -2,9 +2,6 @@ apply from: "$rootDir/standard-java.gradle"
 apply plugin: 'com.google.protobuf'
 
 buildscript {
-//    repositories {
-//        mavenCentral()
-//    }
     dependencies {
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_plugin_ver"
     }
@@ -16,10 +13,6 @@ sourceSets {
     main {
         java {
             srcDir "$protobufGeneratedFileDir/main/java"
-        }
-        proto {
-            // In addition to the default 'src/main/proto'
-            srcDir 'src/main/third-party'
         }
     }
 }

@@ -16,7 +16,7 @@ ext {
     google_http_client_ver = '1.25.0'
     google_apis_datastore_ver = "v1-rev61-$google_http_client_ver"
     google_apis_oauth2_ver = "v2-rev141-$google_http_client_ver"
-    google_apis_sheets_ver = "v4-rev516-$google_http_client_ver"
+    google_apis_sheets_ver = "v4-rev539-$google_http_client_ver"
     google_apis_storage_ver = "v1-rev136-$google_http_client_ver"
     guava_ver = '25.1-jre'
     guice_ver = '4.2.0'

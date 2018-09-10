@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.access.db;
+package jiaonidaigou.appengine.api.access.db.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.appengine.api.datastore.Blob;
@@ -42,21 +42,21 @@ public class DatastoreEntityExtractor {
         return (String) entity.getProperty(prop);
     }
 
-    Boolean getAsBoolean(final String prop) {
+    public Boolean getAsBoolean(final String prop) {
         if (!entity.hasProperty(prop)) {
             return false;
         }
         return (Boolean) entity.getProperty(prop);
     }
 
-    Long getAsLong(final String prop) {
+    public Long getAsLong(final String prop) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
         return (Long) entity.getProperty(prop);
     }
 
-    DateTime getAsTimestamp(final String prop) {
+    public DateTime getAsTimestamp(final String prop) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
@@ -64,7 +64,7 @@ public class DatastoreEntityExtractor {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends Message> T getAsProtobuf(final String prop, final Class<T> type) {
+    public <T extends Message> T getAsProtobuf(final String prop, final Class<T> type) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
@@ -80,7 +80,7 @@ public class DatastoreEntityExtractor {
         }
     }
 
-    DateTime getAsDateTime(final String prop) {
+    public DateTime getAsDateTime(final String prop) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
@@ -88,8 +88,8 @@ public class DatastoreEntityExtractor {
         return new DateTime(date);
     }
 
-    <T> T getAsJson(final String prop,
-                    final Class<T> type) {
+    public <T> T getAsJson(final String prop,
+                           final Class<T> type) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
@@ -109,8 +109,8 @@ public class DatastoreEntityExtractor {
         }
     }
 
-    <T> T getAsJson(final String prop,
-                    final TypeReference<T> type) {
+    public <T> T getAsJson(final String prop,
+                           final TypeReference<T> type) {
         String json = getAsText(prop);
         if (json == null) {
             return null;
@@ -122,7 +122,7 @@ public class DatastoreEntityExtractor {
         }
     }
 
-    String getAsText(final String prop) {
+    public String getAsText(final String prop) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
