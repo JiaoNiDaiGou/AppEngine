@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.db.ShippingOrderDbClient;
+import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -33,6 +35,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
+@RolesAllowed({ Roles.ADMIN })
 public class ShippingOrderInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShippingOrderInterface.class);
 
