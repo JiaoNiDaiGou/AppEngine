@@ -28,6 +28,23 @@ public class GcsClient implements StorageClient {
         this.storage = storage;
     }
 
+    /**
+     * Path is in format of
+     * gcs://bucket_a/bucket_b/file.ext
+     * bucket is 'bucket_a/bucket_b'
+     * object is 'file.ext'
+     */
+    private static BlobId blobId(final String path) {
+        checkArgument(StringUtils.startsWithIgnoreCase(path, GS_SCHEME));
+        String pathWithoutScheme = path.substring(GS_SCHEME.length());
+        int firstSlash = StringUtils.indexOf(pathWithoutScheme, '/');
+        String bucket = StringUtils.substring(pathWithoutScheme, 0, firstSlash);
+        String object = StringUtils.substring(pathWithoutScheme, firstSlash + 1);
+        BlobId blobId = BlobId.of(bucket, object);
+        LOGGER.info("convert path {} to {}", path, blobId);
+        return blobId;
+    }
+
     @Override
     public boolean exists(final String path) {
         return storage.get(blobId(path)).exists();
@@ -79,22 +96,5 @@ public class GcsClient implements StorageClient {
                 Storage.SignUrlOption.httpMethod(HttpMethod.GET)
 //                Storage.SignUrlOption.withContentType()
         );
-    }
-
-    /**
-     * Path is in format of
-     * gcs://bucket_a/bucket_b/file.ext
-     * bucket is 'bucket_a/bucket_b'
-     * object is 'file.ext'
-     */
-    private static BlobId blobId(final String path) {
-        checkArgument(StringUtils.startsWithIgnoreCase(path, GS_SCHEME));
-        String pathWithoutScheme = path.substring(GS_SCHEME.length());
-        int firstSlash = StringUtils.indexOf(pathWithoutScheme, '/');
-        String bucket = StringUtils.substring(pathWithoutScheme, 0, firstSlash);
-        String object = StringUtils.substring(pathWithoutScheme, firstSlash + 1);
-        BlobId blobId = BlobId.of(bucket, object);
-        LOGGER.info("convert path {} to {}", path, blobId);
-        return blobId;
     }
 }

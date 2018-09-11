@@ -36,10 +36,6 @@ public class GoogleApisClientFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleApisClientFactory.class);
     private static final JacksonFactory JACKSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    public enum InitStyle {
-        LOCAL, GAE
-    }
-
     public static Sheets sheets() {
         return sheets(InitStyle.LOCAL);
     }
@@ -111,5 +107,9 @@ public class GoogleApisClientFactory {
         } catch (IOException e) {
             throw new InternalIOException(e);
         }
+    }
+
+    public enum InitStyle {
+        LOCAL, GAE
     }
 }

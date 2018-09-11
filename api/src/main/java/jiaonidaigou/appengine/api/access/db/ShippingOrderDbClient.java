@@ -16,6 +16,11 @@ public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
     private static final String KIND = "ShippingOrder";
     private static final String FIELD_DATA = "data";
 
+    @Inject
+    public ShippingOrderDbClient(final DatastoreService datastoreService) {
+        super(datastoreService, new EntityFactory());
+    }
+
     private static class EntityFactory implements DatastoreEntityFactory<ShippingOrder> {
 
         @Override
@@ -50,10 +55,5 @@ public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
         public ShippingOrder mergeId(ShippingOrder obj, String id) {
             return obj.toBuilder().setId(id).build();
         }
-    }
-
-    @Inject
-    public ShippingOrderDbClient(final DatastoreService datastoreService) {
-        super(datastoreService, new EntityFactory());
     }
 }

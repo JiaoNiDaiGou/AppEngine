@@ -29,7 +29,6 @@ dependencies {
     compile "com.github.qcloudsms:qcloudsms:$qcloudsms_ver"
     compile "com.google.api-client:google-api-client:$google_http_client_ver"
     compile "com.google.apis:google-api-services-oauth2:$google_apis_oauth2_ver"
-//    compile "com.google.apis:google-api-services-storage:$google_apis_storage_ver"
     compile "com.google.apis:google-api-services-sheets:$google_apis_sheets_ver"
     compile "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"
     compile "com.google.cloud:google-cloud-storage:$google_cloud_storage_ver"
@@ -62,12 +61,6 @@ dependencies {
 //    testCompile "junit:junit:$junit_ver"
 //    testCompile "org.hamcrest:hamcrest-all:$hamcrest_ver"
 //    testCompile "org.mockito:mockito-core:$mockito_ver"
-
-    // TODO:
-    // Use
-    // google-api-services-datastore
-    // google-api-services-storage
-    // to make it not depends on GAE
 }
 
 appengine {
