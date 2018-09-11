@@ -35,7 +35,8 @@ public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
 
         @Override
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, ShippingOrder obj) {
-            return partialBuilder.unindexedBytes(FIELD_DATA, obj)
+            return partialBuilder
+                    .unindexedBytes(FIELD_DATA, obj)
                     .unindexedLastUpdatedTimestampAsNow()
                     .build();
         }

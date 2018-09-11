@@ -79,7 +79,7 @@ public class VerifyDbClient {
 
         @Override
         public String getKind() {
-            return "VerifyDbClient";
+            return "suibian";
         }
 
         @Override

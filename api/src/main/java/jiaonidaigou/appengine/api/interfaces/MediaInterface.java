@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.interfaces;
 
+import com.google.common.base.Charsets;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
@@ -35,12 +36,20 @@ public class MediaInterface {
     }
 
     @GET
+    @Path("/write")
+    public Response write(@QueryParam("input") final String input) {
+        String path = GCS_MEDIA_ROOT_ENDSLASH + "temp.txt";
+        storageClient.write(path, MediaType.TEXT_PLAIN.toString(), "tehis is write".getBytes(Charsets.UTF_8));
+        return Response.ok(path).build();
+    }
+
+    @GET
     @Path("/url/upload")
     public Response getUploadSignedUrl(@QueryParam("ext") final String fileExtension) {
         RequestValidator.validateNotBlank(fileExtension, "fileExtension");
 
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
-        MediaType mediaType = determineMediaType(fileExtension);
+        String mediaType = determineMediaType(fileExtension);
         String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
@@ -59,7 +68,7 @@ public class MediaInterface {
         RequestValidator.validateNotBlank(mediaId, "media_id");
 
         String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
-        MediaType mediaType = determineMediaType(path);
+        String mediaType = determineMediaType(path);
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
         String signedUrl = storageClient.getSignedDownloadUrl(path, mediaType);
@@ -71,15 +80,15 @@ public class MediaInterface {
                 .build();
     }
 
-    private static MediaType determineMediaType(final String pathOrFileExtension) {
+    private static String determineMediaType(final String pathOrFileExtension) {
         String ext = pathOrFileExtension.contains(".")
                 ? StringUtils.substringAfterLast(pathOrFileExtension, ".").toLowerCase()
                 : pathOrFileExtension.toLowerCase();
         switch (ext) {
             case "txt":
-                return MediaType.TEXT_PLAIN_TYPE;
+                return MediaType.TEXT_PLAIN_TYPE.toString();
             default:
-                return MediaType.APPLICATION_OCTET_STREAM_TYPE;
+                return MediaType.APPLICATION_OCTET_STREAM_TYPE.toString();
         }
     }
 }

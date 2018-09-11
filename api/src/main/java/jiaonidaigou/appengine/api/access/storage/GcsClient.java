@@ -1,16 +1,13 @@
 package jiaonidaigou.appengine.api.access.storage;
 
-import com.google.api.services.storage.Storage;
-import com.google.api.services.storage.model.StorageObject;
-import jiaonidaigou.appengine.common.model.InternalIOException;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.core.MediaType;
 
 @Singleton
 public class GcsClient implements StorageClient {
@@ -37,23 +34,7 @@ public class GcsClient implements StorageClient {
 
     @Override
     public Metadata getMetadata(final String path) {
-        BucketPath bucketPath = BucketPath.of(path);
-        StorageObject obj;
-        try {
-            obj = storage.objects()
-                    .get(bucketPath.getBucket(), bucketPath.getObject())
-                    .execute();
-        } catch (IOException e) {
-            throw new InternalIOException(e);
-        }
-        if (obj == null) {
-            return null;
-        }
-        return Metadata.builder()
-                .withPath(path)
-                .withLastModified(new DateTime(obj.getUpdated().getValue()))
-                .withLength(obj.getSize().longValue())
-                .build();
+        return null;
     }
 
     @Override
@@ -62,8 +43,14 @@ public class GcsClient implements StorageClient {
     }
 
     @Override
-    public void write(String path, byte[] bytes) {
-
+    public void write(final String path, final String mediaType, byte[] bytes) {
+        BucketPath bucketPath = BucketPath.of(path);
+        System.out.println(bucketPath);
+        storage.create(
+                BlobInfo.newBuilder(bucketPath.getBucket(), bucketPath.getObject())
+                        .setContentType(mediaType)
+                        .build(),
+                bytes);
     }
 
     @Override
@@ -72,12 +59,12 @@ public class GcsClient implements StorageClient {
     }
 
     @Override
-    public String getSignedUploadUrl(String path, MediaType mediaType, DateTime expiration) {
+    public String getSignedUploadUrl(String path, String mediaType, DateTime expiration) {
         return null;
     }
 
     @Override
-    public String getSignedDownloadUrl(String path, MediaType mediaType, DateTime expiration) {
+    public String getSignedDownloadUrl(String path, String mediaType, DateTime expiration) {
         return null;
     }
 //

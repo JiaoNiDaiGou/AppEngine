@@ -7,8 +7,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
-import javax.ws.rs.core.MediaType;
-
 public interface StorageClient {
     Duration DEFAULT_EXPIRATION_DURATION = Duration.standardHours(12);
 
@@ -21,27 +19,27 @@ public interface StorageClient {
 
     byte[] read(final String path);
 
-    void write(final String path, final byte[] bytes);
+    void write(final String path, final String mediaType, final byte[] bytes);
 
     void copy(final String fromPath, final String toPath);
 
-    String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration);
+    String getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration);
 
-    default String getSignedUploadUrl(final String path, final MediaType mediaType, final Duration duration) {
+    default String getSignedUploadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedUploadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedUploadUrl(final String path, final MediaType mediaType) {
+    default String getSignedUploadUrl(final String path, final String mediaType) {
         return getSignedUploadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 
-    String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration);
+    String getSignedDownloadUrl(final String path, final String mediaType, final DateTime expiration);
 
-    default String getSignedDownloadUrl(final String path, final MediaType mediaType, final Duration duration) {
+    default String getSignedDownloadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedDownloadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedDownloadUrl(final String path, final MediaType mediaType) {
+    default String getSignedDownloadUrl(final String path, final String mediaType) {
         return getSignedDownloadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 

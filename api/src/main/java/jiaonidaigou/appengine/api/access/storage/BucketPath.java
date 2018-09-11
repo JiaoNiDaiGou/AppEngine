@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.access.storage;
 
+import com.google.common.base.MoreObjects;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.google.api.client.util.Preconditions.checkArgument;
@@ -20,9 +21,10 @@ class BucketPath {
      */
     static BucketPath of(final String path) {
         checkArgument(StringUtils.startsWithIgnoreCase(path, GS_SCHEME));
-        int lastSlash = StringUtils.lastIndexOf(path, '/');
-        String bucket = StringUtils.substring(path, GS_SCHEME.length(), lastSlash);
-        String object = StringUtils.substring(path, lastSlash + 1);
+        String pathWithoutScheme = path.substring(GS_SCHEME.length());
+        int firstSlash = StringUtils.indexOf(pathWithoutScheme, '/');
+        String bucket = StringUtils.substring(pathWithoutScheme, 0, firstSlash);
+        String object = StringUtils.substring(pathWithoutScheme, firstSlash + 1);
         return new BucketPath(GS_SCHEME, bucket, object);
     }
 
@@ -46,5 +48,14 @@ class BucketPath {
 
     public String fullPath() {
         return scheme + bucket + "/" + object;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("scheme", scheme)
+                .add("bucket", bucket)
+                .add("object", object)
+                .toString();
     }
 }

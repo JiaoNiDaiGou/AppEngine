@@ -4,10 +4,12 @@ import com.google.appengine.api.appidentity.AppIdentityService;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.cloud.storage.Storage;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import jiaonidaigou.appengine.api.access.gcp.GoogleCloudLibFactory;
 import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
@@ -55,5 +57,11 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     OcrSpaceClient provideOcrSpaceClient() {
         return new OcrSpaceClient(new MockBrowserClient("ocrspaceclient", new InMemoryCookieStore()));
+    }
+
+    @Provides
+    @Singleton
+    Storage provideStorage() {
+        return GoogleCloudLibFactory.storage();
     }
 }
