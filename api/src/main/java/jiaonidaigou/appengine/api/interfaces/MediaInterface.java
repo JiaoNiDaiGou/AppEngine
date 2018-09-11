@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
+import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.UUID;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -25,6 +27,7 @@ import static jiaonidaigou.appengine.common.utils.Environments.GCS_MEDIA_ROOT_EN
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
+@RolesAllowed({ Roles.ADMIN })
 public class MediaInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(MediaInterface.class);
 
