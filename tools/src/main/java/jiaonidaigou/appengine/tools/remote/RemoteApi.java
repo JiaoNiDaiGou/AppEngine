@@ -4,8 +4,6 @@ import com.google.appengine.api.appidentity.AppIdentityService;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import jiaonidaigou.appengine.common.utils.Environments;
@@ -60,9 +58,9 @@ public class RemoteApi implements AutoCloseable {
         return DatastoreServiceFactory.getDatastoreService();
     }
 
-    public GcsService getGcsService() {
-        return GcsServiceFactory.createGcsService();
-    }
+//    public GcsService getGcsService() {
+//        return GcsServiceFactory.createGcsService();
+//    }
 
     public AppIdentityService getAppIdentityService() {
         return AppIdentityServiceFactory.getAppIdentityService();

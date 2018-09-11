@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.access.db;
+package jiaonidaigou.appengine.api.access.db.core;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Entity;
@@ -78,7 +78,7 @@ public class DatastoreEntityBuilder {
         return setProp(prop, dateTime == null ? null : dateTime.toDate(), false);
     }
 
-    DatastoreEntityBuilder unindexedLastUpdatedTimestampAsNow() {
+    public DatastoreEntityBuilder unindexedLastUpdatedTimestampAsNow() {
         return unindexedTimestamp(COMMON_PROP_LAST_UPDATE, DateTime.now(DateTimeZone.UTC));
     }
 

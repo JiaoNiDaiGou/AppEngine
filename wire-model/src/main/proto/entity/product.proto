@@ -1,0 +1,37 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.entity;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.entity";
+option java_multiple_files = true;
+
+import "entity/media_object.proto";
+import "entity/price.proto";
+
+message Product {
+    ProductCategory category = 1;
+    string name = 2;
+    string brand = 3;
+    MediaObject main_media = 4;
+    repeated MediaObject other_media = 5;
+    string description = 6;
+    Price suggested_unit_price = 7;
+}
+
+enum ProductCategory {
+    UNKNOWN = 0;
+    ACCESSORIES = 1;
+    BABY_PRODUCTS = 2;
+    BAGS = 3;
+    CLOTHES = 4;
+    DAILY_NECESSITIES = 5;
+    FOOD = 6;
+    HEALTH_SUPPLEMENTS = 7;
+    LARGE_COMMERCIAL_GOODS = 8;
+    LARGE_ITEMS = 9;
+    MAKE_UP = 10;
+    MILK_POWDER = 11;
+    SHOES = 12;
+    SMALL_APPLIANCES = 13;
+    TOYS = 14;
+    WATCHES = 15;
+}

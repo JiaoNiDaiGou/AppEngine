@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api;
+package jiaonidaigou.appengine.api.guice;
 
 import com.google.inject.Injector;
 import jiaonidaigou.appengine.api.interfaces.MediaInterface;

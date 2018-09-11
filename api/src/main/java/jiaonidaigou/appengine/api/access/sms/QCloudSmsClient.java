@@ -3,14 +3,14 @@ package jiaonidaigou.appengine.api.access.sms;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import jiaonidaigou.appengine.common.utils.Secrets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static jiaonidaigou.appengine.api.access.sms.SmsUtils.NATION_CODE_CN;

@@ -2,11 +2,11 @@ package jiaonidaigou.appengine.tools;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import jiaonidaigou.appengine.api.access.db.DatastoreClient;
-import jiaonidaigou.appengine.api.access.db.DatastoreEntityBuilder;
-import jiaonidaigou.appengine.api.access.db.DatastoreEntityExtractor;
-import jiaonidaigou.appengine.api.access.db.DatastoreEntityFactory;
-import jiaonidaigou.appengine.api.access.db.DbClient;
+import jiaonidaigou.appengine.api.access.db.core.DatastoreClient;
+import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
+import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
+import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
+import jiaonidaigou.appengine.api.access.db.core.DbClient;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -79,7 +79,7 @@ public class VerifyDbClient {
 
         @Override
         public String getKind() {
-            return "VerifyDbClient";
+            return "suibian";
         }
 
         @Override

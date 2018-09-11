@@ -11,6 +11,7 @@ public class Environments {
     public static final String GAE_HOSTNAME = GAE_PROJECT_ID + ".appspot.com";
     public static final String MAIN_VERSION_GAE_HOSTNAME = "jiaonidaigou-dot-" + GAE_HOSTNAME;
     public static final String GCS_ROOT_ENDSLASH = "gs://" + GAE_HOSTNAME + "/";
+    public static final String GCS_MEDIA_ROOT_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "media/";
     public static final OSType OS_TYPE;
     public static final String LOCAL_TEMP_DIR_ENDSLASH;
     public static final String GAE_ADMIN_EMAIL = "songfan.rfu@gmail.com";

@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -24,6 +26,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Serialize/Deserialize protobuf objects to json.
  */
 public class ProtobufJsonModule extends SimpleModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProtobufJsonModule.class);
+    private static final String[] KNOWN_PROTO_PACKAGES = {
+            "jiaonidaigou.appengine.wiremodel"
+    };
+
     @SuppressWarnings("unchecked")
     public <T extends Message> ProtobufJsonModule register(final T defaultInstance) {
         Class<T> type = (Class<T>) defaultInstance.getClass();
@@ -87,15 +94,19 @@ public class ProtobufJsonModule extends SimpleModule {
     private static List<? extends Message> loadAllMessageDefaultInstances() {
         try {
             List<Message> toReturn = new ArrayList<>();
-            Reflections reflections = new Reflections("songfan.proto");
-            for (Class<? extends Message> clazz : reflections.getSubTypesOf(Message.class)) {
-                int modifiers = clazz.getModifiers();
-                if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || !Modifier.isPublic(modifiers)) {
-                    continue;
+            for (String packageName : KNOWN_PROTO_PACKAGES) {
+                LOGGER.info("register ProtobufJsonModule for package {}", packageName);
+
+                Reflections reflections = new Reflections(packageName);
+                for (Class<? extends Message> clazz : reflections.getSubTypesOf(Message.class)) {
+                    int modifiers = clazz.getModifiers();
+                    if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || !Modifier.isPublic(modifiers)) {
+                        continue;
+                    }
+                    Method method = clazz.getMethod("getDefaultInstance");
+                    Message instance = (Message) method.invoke(clazz);
+                    toReturn.add(instance);
                 }
-                Method method = clazz.getMethod("getDefaultInstance");
-                Message instance = (Message) method.invoke(clazz);
-                toReturn.add(instance);
             }
             return toReturn;
         } catch (Exception e) {

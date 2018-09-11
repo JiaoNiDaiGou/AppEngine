@@ -1,7 +1,5 @@
 package jiaonidaigou.appengine.api.access.storage;
 
-import com.google.common.base.Charsets;
-import com.google.common.net.MediaType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -9,12 +7,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.net.URL;
 
 public interface StorageClient {
     Duration DEFAULT_EXPIRATION_DURATION = Duration.standardHours(12);
@@ -26,37 +19,29 @@ public interface StorageClient {
 
     Metadata getMetadata(final String path);
 
-    InputStream inputStream(final String path);
+    byte[] read(final String path);
 
-    OutputStream outputStream(final String path, final MediaType mediaType);
-
-    default Reader read(final String path) {
-        return new InputStreamReader(inputStream(path), Charsets.UTF_8);
-    }
-
-    default Writer write(final String path, final MediaType mediaType) {
-        return new OutputStreamWriter(outputStream(path, mediaType), Charsets.UTF_8);
-    }
+    void write(final String path, final String mediaType, final byte[] bytes);
 
     void copy(final String fromPath, final String toPath);
 
-    String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration);
+    URL getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration);
 
-    default String getSignedUploadUrl(final String path, final MediaType mediaType, final Duration duration) {
+    default URL getSignedUploadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedUploadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedUploadUrl(final String path, final MediaType mediaType) {
+    default URL getSignedUploadUrl(final String path, final String mediaType) {
         return getSignedUploadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 
-    String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration);
+    URL getSignedDownloadUrl(final String path, final String mediaType, final DateTime expiration);
 
-    default String getSignedDownloadUrl(final String path, final MediaType mediaType, final Duration duration) {
+    default URL getSignedDownloadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedDownloadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedDownloadUrl(final String path, final MediaType mediaType) {
+    default URL getSignedDownloadUrl(final String path, final String mediaType) {
         return getSignedDownloadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 

@@ -1,55 +1,31 @@
 package jiaonidaigou.appengine.api.access.storage;
 
-import com.google.appengine.api.appidentity.AppIdentityService;
-import com.google.appengine.api.urlfetch.HTTPMethod;
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFileOptions;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsInputChannel;
-import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.common.base.Charsets;
-import com.google.common.net.MediaType;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import jiaonidaigou.appengine.common.model.InternalIOException;
-import org.apache.commons.codec.binary.Base64;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.HttpMethod;
+import com.google.cloud.storage.Storage;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.channels.Channels;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 
 @Singleton
 public class GcsClient implements StorageClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageClient.class);
+    private static final String GS_SCHEME = "gs://";
 
-    /**
-     * Used below to determine the size of chucks to read in. Should be > 1kb and < 10MB
-     */
-    private static final int BUFFER_SIZE = 2 * 1024 * 1024;
-
-    private static final String BASE_URL = "https://storage.googleapis.com";
-
-    private final AppIdentityService appIdentityService;
-    private final GcsService gcsService;
+    private final Storage storage;
 
     @Inject
-    public GcsClient(final AppIdentityService appIdentityService,
-                     final GcsService gcsService) {
-        this.appIdentityService = appIdentityService;
-        this.gcsService = gcsService;
+    public GcsClient(final Storage storage) {
+        this.storage = storage;
     }
 
     /**
@@ -58,141 +34,67 @@ public class GcsClient implements StorageClient {
      * bucket is 'bucket_a/bucket_b'
      * object is 'file.ext'
      */
-    private static GcsFilename toGcsFilename(final String path) {
-        checkArgument(StringUtils.startsWithIgnoreCase(path, "gs://"), path + " is not a valid GCS path.");
-        int lastSlash = StringUtils.lastIndexOf(path, '/');
-        String bucket = StringUtils.substring(path, "gs://".length(), lastSlash);
-        String object = StringUtils.substring(path, lastSlash + 1);
-        return new GcsFilename(bucket, object);
+    private static BlobId blobId(final String path) {
+        checkArgument(StringUtils.startsWithIgnoreCase(path, GS_SCHEME));
+        String pathWithoutScheme = path.substring(GS_SCHEME.length());
+        int firstSlash = StringUtils.indexOf(pathWithoutScheme, '/');
+        String bucket = StringUtils.substring(pathWithoutScheme, 0, firstSlash);
+        String object = StringUtils.substring(pathWithoutScheme, firstSlash + 1);
+        BlobId blobId = BlobId.of(bucket, object);
+        LOGGER.info("convert path {} to {}", path, blobId);
+        return blobId;
     }
 
     @Override
     public boolean exists(final String path) {
-        meterOn(this.getClass());
-        boolean toReturn;
-        try {
-            toReturn = gcsService.getMetadata(toGcsFilename(path)) != null;
-        } catch (IOException e) {
-            throw new InternalIOException(e);
-        }
-        meterOff();
-        return toReturn;
+        return storage.get(blobId(path)).exists();
     }
 
     @Override
     public Metadata getMetadata(final String path) {
-        meterOn(this.getClass());
-        GcsFileMetadata metadata;
-        try {
-            metadata = gcsService.getMetadata(toGcsFilename(path));
-        } catch (IOException e) {
-            throw new InternalIOException(e);
-        }
-        if (metadata == null) {
-            meterOff();
-            return null;
-        }
-        meterOff();
-        return Metadata.builder()
-                .withPath(path)
-                .withLastModified(new DateTime(metadata.getLastModified()))
-                .withLength(metadata.getLength())
-                .build();
+
+
+        return null;
     }
 
     @Override
-    public InputStream inputStream(final String path) {
-        meterOn(this.getClass());
-        GcsFilename filename = toGcsFilename(path);
-        LOGGER.info("InputStream from {}", filename);
-        GcsInputChannel channel = gcsService.openPrefetchingReadChannel(filename, 0, BUFFER_SIZE);
-        meterOff();
-        return Channels.newInputStream(channel);
+    public byte[] read(final String path) {
+        return storage.readAllBytes(blobId(path));
     }
 
     @Override
-    public OutputStream outputStream(final String path, final MediaType mediaType) {
-        meterOn(this.getClass());
-        GcsFilename filename = toGcsFilename(path);
-        LOGGER.info("OutputStream from {}", filename);
-        GcsFileOptions options = new GcsFileOptions.Builder()
-                .mimeType(mediaType.toString())
-                .build();
-        GcsOutputChannel channel;
-        try {
-            channel = gcsService.createOrReplace(filename, options);
-        } catch (IOException e) {
-            throw new InternalIOException(e);
-        }
-        meterOff();
-        return Channels.newOutputStream(channel);
+    public void write(final String path, final String mediaType, byte[] bytes) {
+        storage.create(
+                BlobInfo.newBuilder(blobId(path))
+                        .setContentType(mediaType)
+                        .build(),
+                bytes);
     }
 
     @Override
-    public void copy(String fromPath, String toPath) {
-        meterOn(this.getClass());
-        GcsFilename fromFilename = toGcsFilename(fromPath);
-        GcsFilename toFilename = toGcsFilename(toPath);
-        try {
-            gcsService.copy(fromFilename, toFilename);
-        } catch (IOException e) {
-            throw new InternalIOException(e);
-        }
-        meterOff();
+    public void copy(final String fromPath, final String toPath) {
+        storage.copy(Storage.CopyRequest.of(blobId(fromPath), blobId(toPath)));
     }
 
     @Override
-    public String getSignedUploadUrl(final String path, final MediaType mediaType, final DateTime expiration) {
-        return getSignedUrl(HTTPMethod.PUT, toGcsFilename(path), mediaType, expiration);
+    public URL getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration) {
+        return storage.signUrl(
+                BlobInfo.newBuilder(blobId(path)).setContentType(mediaType).build(),
+                expiration.getMillis(),
+                TimeUnit.MILLISECONDS,
+                Storage.SignUrlOption.httpMethod(HttpMethod.POST),
+                Storage.SignUrlOption.withContentType()
+        );
     }
 
     @Override
-    public String getSignedDownloadUrl(final String path, final MediaType mediaType, final DateTime expiration) {
-        return getSignedUrl(HTTPMethod.GET, toGcsFilename(path), mediaType, expiration);
-    }
-
-    private String getSignedUrl(final HTTPMethod httpMethod,
-                                final GcsFilename filename,
-                                final MediaType mediaType,
-                                final DateTime expiration) {
-        try {
-            meterOn(this.getClass());
-            String unsigned = stringToSign(httpMethod, filename, mediaType.toString(), expiration);
-            String signature = sign(unsigned);
-            meterOff();
-            return String.format("%s/%s/%s?GoogleAccessId=%s&Expires=%d&Signature=%s",
-                    BASE_URL,
-                    filename.getBucketName(),
-                    filename.getObjectName(),
-                    appIdentityService.getServiceAccountName(),
-                    expiration.getMillis() / 1000,
-                    URLEncoder.encode(signature, UTF_8.name()));
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalIOException(e);
-        }
-    }
-
-    private String sign(final String unsigned)
-            throws UnsupportedEncodingException {
-        // Note that the algorithm used by AppIdentity.signForApp() is "SHA256withRSA"
-        AppIdentityService.SigningResult signingResult = appIdentityService.signForApp(unsigned.getBytes(UTF_8));
-        return new String(Base64.encodeBase64(signingResult.getSignature(), false), UTF_8.name());
-    }
-
-    private String stringToSign(final HTTPMethod httpMethod,
-                                final GcsFilename filename,
-                                final String contentType,
-                                final DateTime expiration) {
-        String contentMD5 = "";
-        String canonicalizedExtensionHeaders = "";
-        String canonicalizedResource = String.format("/%s/%s", filename.getBucketName(), filename.getObjectName());
-        // expiration needs to be in seconds
-        return String.format("%s%n%s%n%s%n%d%n%s%s",
-                httpMethod,
-                contentMD5,
-                contentType,
-                expiration.getMillis() / 1000,
-                canonicalizedExtensionHeaders,
-                canonicalizedResource);
+    public URL getSignedDownloadUrl(final String path, final String mediaType, final DateTime expiration) {
+        return storage.signUrl(
+                BlobInfo.newBuilder(blobId(path)).setContentType(mediaType).build(),
+                expiration.getMillis(),
+                TimeUnit.MILLISECONDS,
+                Storage.SignUrlOption.httpMethod(HttpMethod.GET),
+                Storage.SignUrlOption.withContentType()
+        );
     }
 }

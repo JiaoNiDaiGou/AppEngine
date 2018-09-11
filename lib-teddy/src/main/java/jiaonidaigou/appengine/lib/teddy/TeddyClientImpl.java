@@ -60,7 +60,7 @@ public class TeddyClientImpl implements TeddyClient {
 
     public TeddyClientImpl(final String adminUsername,
                            final MockBrowserClient client) {
-        this(Secrets.of("teddy." + adminUsername).getAsJson(Admin.class), client);
+        this(Secrets.of("teddy." + adminUsername + ".json").getAsJson(Admin.class), client);
     }
 
     TeddyClientImpl(final Admin admin,

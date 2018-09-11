@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.access.db;
+package jiaonidaigou.appengine.api.access.db.core;
 
 import jiaonidaigou.appengine.common.model.PaginatedResults;
 

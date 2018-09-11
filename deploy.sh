@@ -13,7 +13,7 @@ export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 
 VERSION="${1:-jiaonidaigou}"
 
-echo "Fetching secrets ..."
+# echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
 ./gradlew :api:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION

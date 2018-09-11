@@ -8,9 +8,12 @@ import jiaonidaigou.appengine.common.model.InternalIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 
 public class Secrets {
     private static final Logger LOGGER = LoggerFactory.getLogger(Secrets.class);
@@ -44,5 +47,13 @@ public class Secrets {
         } catch (IOException e) {
             throw new InternalIOException(e);
         }
+    }
+
+    public InputStream getAsInputStream() {
+        return new ByteArrayInputStream(value.getBytes(Charsets.UTF_8));
+    }
+
+    public Reader getAsReader() {
+        return new StringReader(value);
     }
 }
