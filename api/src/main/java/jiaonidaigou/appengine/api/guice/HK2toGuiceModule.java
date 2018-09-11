@@ -2,7 +2,6 @@ package jiaonidaigou.appengine.api.guice;
 
 import com.google.inject.Injector;
 import jiaonidaigou.appengine.api.interfaces.MediaInterface;
-import jiaonidaigou.appengine.api.interfaces.ParserInterface;
 import jiaonidaigou.appengine.api.interfaces.PingInterface;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -20,7 +19,6 @@ public class HK2toGuiceModule extends AbstractBinder {
     protected void configure() {
         bindInterface(MediaInterface.class);
         bindInterface(PingInterface.class);
-        bindInterface(ParserInterface.class);
     }
 
     private <T> void bindInterface(final Class<T> interfaceType) {

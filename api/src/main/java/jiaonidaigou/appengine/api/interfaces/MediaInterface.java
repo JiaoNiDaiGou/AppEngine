@@ -19,7 +19,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.api.Consts.GCS_MEDIA_ROOT_ENDSLASH;
+import static jiaonidaigou.appengine.common.utils.Environments.GCS_MEDIA_ROOT_ENDSLASH;
 
 @Path("/api/media")
 @Produces(MediaType.APPLICATION_JSON)
@@ -50,6 +50,7 @@ public class MediaInterface {
                 .setId(mediaId)
                 .setFullPath(path)
                 .setSignedUploadUrl(signedUrl.toString())
+                .setMediaType(mediaType)
                 .build())
                 .build();
     }
@@ -68,6 +69,7 @@ public class MediaInterface {
                 .setId(mediaId)
                 .setFullPath(path)
                 .setSignedDownloadUrl(signedUrl.toString())
+                .setMediaType(mediaType)
                 .build())
                 .build();
     }
@@ -78,9 +80,9 @@ public class MediaInterface {
                 : pathOrFileExtension.toLowerCase();
         switch (ext) {
             case "txt":
-                return MediaType.TEXT_PLAIN_TYPE.toString();
+                return MediaType.TEXT_PLAIN;
             default:
-                return MediaType.APPLICATION_OCTET_STREAM_TYPE.toString();
+                return MediaType.APPLICATION_OCTET_STREAM;
         }
     }
 }
