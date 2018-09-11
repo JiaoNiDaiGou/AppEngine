@@ -12,7 +12,7 @@ message Customer {
         string wechat_id = 1;
         string teddy_user_id = 2;
     }
-    
+
     string id = 1;
     string name = 2;
     string phone = 3;

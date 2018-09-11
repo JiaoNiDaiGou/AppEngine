@@ -20,7 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/worker")
+@Path("/tasks")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @RolesAllowed({ Roles.ADMIN, Roles.SYS_TASK_QUEUE_OR_CRON })
@@ -37,7 +37,7 @@ public class TaskQueueInterface {
     }
 
     @POST
-    @Path("tasks/{taskName}")
+    @Path("/{taskName}")
     public Response simpleTask(@PathParam("taskName") final String taskName,
                                final byte[] body)
             throws IOException {
