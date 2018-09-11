@@ -7,6 +7,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
+import java.net.URL;
+
 public interface StorageClient {
     Duration DEFAULT_EXPIRATION_DURATION = Duration.standardHours(12);
 
@@ -23,23 +25,23 @@ public interface StorageClient {
 
     void copy(final String fromPath, final String toPath);
 
-    String getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration);
+    URL getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration);
 
-    default String getSignedUploadUrl(final String path, final String mediaType, final Duration duration) {
+    default URL getSignedUploadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedUploadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedUploadUrl(final String path, final String mediaType) {
+    default URL getSignedUploadUrl(final String path, final String mediaType) {
         return getSignedUploadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 
-    String getSignedDownloadUrl(final String path, final String mediaType, final DateTime expiration);
+    URL getSignedDownloadUrl(final String path, final String mediaType, final DateTime expiration);
 
-    default String getSignedDownloadUrl(final String path, final String mediaType, final Duration duration) {
+    default URL getSignedDownloadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedDownloadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
     }
 
-    default String getSignedDownloadUrl(final String path, final String mediaType) {
+    default URL getSignedDownloadUrl(final String path, final String mediaType) {
         return getSignedDownloadUrl(path, mediaType, DEFAULT_EXPIRATION_DURATION);
     }
 

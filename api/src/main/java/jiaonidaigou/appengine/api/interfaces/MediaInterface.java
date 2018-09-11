@@ -1,6 +1,5 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import com.google.common.base.Charsets;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
@@ -9,6 +8,7 @@ import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,14 +36,6 @@ public class MediaInterface {
     }
 
     @GET
-    @Path("/write")
-    public Response write(@QueryParam("input") final String input) {
-        String path = GCS_MEDIA_ROOT_ENDSLASH + "temp.txt";
-        storageClient.write(path, MediaType.TEXT_PLAIN.toString(), "tehis is write".getBytes(Charsets.UTF_8));
-        return Response.ok(path).build();
-    }
-
-    @GET
     @Path("/url/upload")
     public Response getUploadSignedUrl(@QueryParam("ext") final String fileExtension) {
         RequestValidator.validateNotBlank(fileExtension, "fileExtension");
@@ -53,11 +45,11 @@ public class MediaInterface {
         String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
-        String signedUrl = storageClient.getSignedUploadUrl(path, mediaType);
+        URL signedUrl = storageClient.getSignedUploadUrl(path, mediaType);
         return Response.ok(MediaObject.newBuilder()
                 .setId(mediaId)
                 .setFullPath(path)
-                .setSignedUploadUrl(signedUrl)
+                .setSignedUploadUrl(signedUrl.toString())
                 .build())
                 .build();
     }
@@ -71,11 +63,11 @@ public class MediaInterface {
         String mediaType = determineMediaType(path);
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
-        String signedUrl = storageClient.getSignedDownloadUrl(path, mediaType);
+        URL signedUrl = storageClient.getSignedDownloadUrl(path, mediaType);
         return Response.ok(MediaObject.newBuilder()
                 .setId(mediaId)
                 .setFullPath(path)
-                .setSignedDownloadUrl(signedUrl)
+                .setSignedDownloadUrl(signedUrl.toString())
                 .build())
                 .build();
     }

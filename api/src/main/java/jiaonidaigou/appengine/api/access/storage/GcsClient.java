@@ -1,24 +1,20 @@
 package jiaonidaigou.appengine.api.access.storage;
 
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.HttpMethod;
 import com.google.cloud.storage.Storage;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class GcsClient implements StorageClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageClient.class);
-
-    /**
-     * Used below to determine the size of chucks to read in. Should be > 1kb and < 10MB
-     */
-    private static final int BUFFER_SIZE = 2 * 1024 * 1024;
-
-    private static final String BASE_URL = "https://storage.googleapis.com";
 
     private final Storage storage;
 
@@ -38,14 +34,14 @@ public class GcsClient implements StorageClient {
     }
 
     @Override
-    public byte[] read(String path) {
-        return new byte[0];
+    public byte[] read(final String path) {
+        BucketPath bucketPath = BucketPath.of(path);
+        return storage.readAllBytes(bucketPath.getBucket(), bucketPath.getObject());
     }
 
     @Override
     public void write(final String path, final String mediaType, byte[] bytes) {
         BucketPath bucketPath = BucketPath.of(path);
-        System.out.println(bucketPath);
         storage.create(
                 BlobInfo.newBuilder(bucketPath.getBucket(), bucketPath.getObject())
                         .setContentType(mediaType)
@@ -54,33 +50,33 @@ public class GcsClient implements StorageClient {
     }
 
     @Override
-    public void copy(String fromPath, String toPath) {
-
+    public void copy(final String fromPath, final String toPath) {
     }
 
     @Override
-    public String getSignedUploadUrl(String path, String mediaType, DateTime expiration) {
-        return null;
+    public URL getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration) {
+        BucketPath bucketPath = BucketPath.of(path);
+        return storage.signUrl(
+                BlobInfo.newBuilder(bucketPath.getBucket(), bucketPath.getObject()).setContentType(mediaType).build(),
+                expiration.getMillis(),
+                TimeUnit.MILLISECONDS,
+                Storage.SignUrlOption.httpMethod(HttpMethod.POST),
+                Storage.SignUrlOption.withContentType(),
+                Storage.SignUrlOption.withMd5());
     }
 
     @Override
-    public String getSignedDownloadUrl(String path, String mediaType, DateTime expiration) {
-        return null;
+    public URL getSignedDownloadUrl(final String path, final String mediaType, final DateTime expiration) {
+        BucketPath bucketPath = BucketPath.of(path);
+        return storage.signUrl(
+                BlobInfo.newBuilder(bucketPath.getBucket(), bucketPath.getObject()).setContentType(mediaType).build(),
+                expiration.getMillis(),
+                TimeUnit.MILLISECONDS,
+                Storage.SignUrlOption.httpMethod(HttpMethod.GET),
+                Storage.SignUrlOption.withContentType(),
+                Storage.SignUrlOption.withMd5());
     }
-//
-//    /**
-//     * Path is in format of
-//     * gcs://bucket_a/bucket_b/file.ext
-//     * bucket is 'bucket_a/bucket_b'
-//     * object is 'file.ext'
-//     */
-//    private static GcsFilename toGcsFilename(final String path) {
-//        checkArgument(StringUtils.startsWithIgnoreCase(path, "gs://"), path + " is not a valid GCS path.");
-//        int lastSlash = StringUtils.lastIndexOf(path, '/');
-//        String bucket = StringUtils.substring(path, "gs://".length(), lastSlash);
-//        String object = StringUtils.substring(path, lastSlash + 1);
-//        return new GcsFilename(bucket, object);
-//    }
+
 //
 //    @Override
 //    public boolean exists(final String path) {
