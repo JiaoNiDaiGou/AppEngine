@@ -4,13 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Text;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import com.google.protobuf.Parser;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Date;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -64,7 +65,7 @@ public class DatastoreEntityExtractor {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Message> T getAsProtobuf(final String prop, final Class<T> type) {
+    public <T extends Message> T getAsProtobuf(final String prop, final Parser<T> parser) {
         if (!entity.hasProperty(prop)) {
             return null;
         }
@@ -73,10 +74,9 @@ public class DatastoreEntityExtractor {
             return null;
         }
         try {
-            Method method = type.getMethod("parseFrom", byte[].class);
-            return (T) method.invoke(type, (Object) blob.getBytes());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return parser.parseFrom(blob.getBytes());
+        } catch (InvalidProtocolBufferException e) {
+            throw new InternalRuntimeException(e);
         }
     }
 

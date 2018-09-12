@@ -35,7 +35,7 @@ public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
 
         @Override
         public ShippingOrder fromEntity(DatastoreEntityExtractor entity) {
-            return entity.getAsProtobuf(FIELD_DATA, ShippingOrder.class);
+            return entity.getAsProtobuf(FIELD_DATA, ShippingOrder.parser());
         }
 
         @Override
