@@ -7,10 +7,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.Oauth2.Builder;
 import com.google.api.services.oauth2.model.Tokeninfo;
+import com.google.common.collect.Sets;
+import jiaonidaigou.appengine.common.utils.Secrets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
 
@@ -21,10 +25,11 @@ import javax.ws.rs.container.ContainerRequestContext;
 public class GoogleOAuth2Authenticator implements Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleOAuth2Authenticator.class);
 
-    private static final String ADMIN_EMAIL = "songfan.rfu@gmail.com";
+    private static final Set<String> ADMIN_EMAILS = Sets.newHashSet(Secrets.of("gae.admin.email").getAsStringLines());
 
     @Override
-    public boolean tryAuth(ContainerRequestContext requestContext) {
+    public boolean tryAuth(final HttpServletRequest request,
+                           final ContainerRequestContext requestContext) {
         Optional<String> token = AuthUtils.extractBearerToken(requestContext);
         if (!token.isPresent()) {
             return false;
@@ -36,7 +41,8 @@ public class GoogleOAuth2Authenticator implements Authenticator {
         }
 
         String email = tokeninfo.getEmail();
-        if (!ADMIN_EMAIL.equalsIgnoreCase(email)) {
+
+        if (!ADMIN_EMAILS.contains(email.toLowerCase())) {
             throw new ForbiddenException();
         }
 

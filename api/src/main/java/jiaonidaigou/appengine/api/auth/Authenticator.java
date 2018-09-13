@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.auth;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 
 /**
@@ -9,8 +10,9 @@ public interface Authenticator {
     /**
      * Try auth the request.
      *
-     * @param requestContext request.
+     * @param request        request
+     * @param requestContext request context.
      * @return True when auth pass. False when this authenticator cannot auth. throw ForbiddenException when auth failed.
      */
-    boolean tryAuth(final ContainerRequestContext requestContext);
+    boolean tryAuth(final HttpServletRequest request, final ContainerRequestContext requestContext);
 }

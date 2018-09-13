@@ -4,17 +4,23 @@ package jiaonidaigou.appengine.wiremodel.entity;
 option java_package = "jiaonidaigou.appengine.wiremodel.entity";
 option java_multiple_files = true;
 
+import "entity/common.proto";
 import "entity/media_object.proto";
-import "entity/price.proto";
 
 message Product {
-    ProductCategory category = 1;
-    string name = 2;
-    string brand = 3;
-    MediaObject main_media = 4;
-    repeated MediaObject other_media = 5;
-    string description = 6;
-    Price suggested_unit_price = 7;
+    string id = 1;
+    ProductCategory category = 2;
+    string name = 3;
+    string brand = 4;
+    string description = 5;
+
+    MediaObject main_media = 20;
+    repeated MediaObject other_media = 21;
+
+    Price suggested_unit_price = 30;
+
+    // For search use
+    repeated string tags = 40;
 }
 
 enum ProductCategory {

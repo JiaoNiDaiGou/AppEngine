@@ -11,3 +11,22 @@ message Address {
     string address = 4;
     string postal_code = 5;
 }
+
+message PhoneNumber {
+    string country_code = 1;
+    string phone = 2;
+}
+
+message Price {
+    double value = 1;
+    enum Unit {
+        USD = 0;
+        RMB = 1;
+    }
+    Unit unit = 2;
+}
+
+message Postman {
+    string name = 2;
+    PhoneNumber phone = 3;
+}

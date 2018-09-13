@@ -14,6 +14,7 @@ import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.lib.ocrspace.OcrSpaceClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;

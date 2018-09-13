@@ -40,4 +40,43 @@ public class RequestValidator {
         }
         validateRequest(StringUtils.isNotBlank(string), fullMessage);
     }
+
+    public static void validateEmpty(final String string) {
+        validateNotBlank(string, null);
+    }
+
+    public static void validateEmpty(final String string, final String message) {
+        String fullMessage = message;
+        if (StringUtils.isNotBlank(message) && !message.contains(" ")) {
+            // Single word
+            fullMessage = message + " must be empty";
+        }
+        validateRequest(string == null || string.isEmpty(), fullMessage);
+    }
+
+    public static <T> void validateNotEmpty(final T[] array) {
+        validateNotEmpty(array, null);
+    }
+
+    public static <T> void validateNotEmpty(final T[] array, final String message) {
+        String fullMessage = message;
+        if (StringUtils.isNotBlank(message) && !message.contains(" ")) {
+            // Single word
+            fullMessage = message + " must not be empty";
+        }
+        validateRequest(array != null && array.length > 1, fullMessage);
+    }
+
+    public static void validateNotEmpty(final byte[] array) {
+        validateNotEmpty(array, null);
+    }
+
+    public static void validateNotEmpty(final byte[] array, final String message) {
+        String fullMessage = message;
+        if (StringUtils.isNotBlank(message) && !message.contains(" ")) {
+            // Single word
+            fullMessage = message + " must not be empty";
+        }
+        validateRequest(array != null && array.length > 1, fullMessage);
+    }
 }

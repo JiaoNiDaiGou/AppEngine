@@ -11,9 +11,12 @@ import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
+import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME;
+
 @Singleton
 public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
-    private static final String KIND = "ShippingOrder";
+    private static final String KIND = SERVICE_NAME + "." + ENV + ".ShippingOrder";
     private static final String FIELD_DATA = "data";
 
     @Inject
@@ -41,7 +44,7 @@ public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
         @Override
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, ShippingOrder obj) {
             return partialBuilder
-                    .unindexedBytes(FIELD_DATA, obj)
+                    .unindexedProto(FIELD_DATA, obj)
                     .unindexedLastUpdatedTimestampAsNow()
                     .build();
         }

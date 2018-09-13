@@ -4,7 +4,7 @@ package jiaonidaigou.appengine.wiremodel.entity;
 option java_package = "jiaonidaigou.appengine.wiremodel.entity";
 option java_multiple_files = true;
 
-import "entity/address.proto";
+import "entity/common.proto";
 import "entity/media_object.proto";
 
 message Customer {
@@ -15,7 +15,7 @@ message Customer {
 
     string id = 1;
     string name = 2;
-    string phone = 3;
+    PhoneNumber phone = 3;
     Address address = 4;
     string id_card = 5;
     MediaObject id_card_front_media = 6;

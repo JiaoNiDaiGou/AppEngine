@@ -1,0 +1,17 @@
+apply from: "$rootDir/standard-java.gradle"
+
+dependencies {
+    compile project(":common")
+
+    compile "com.google.guava:guava:$guava_ver"
+    compile "com.google.protobuf:protobuf-java-util:$protobuf_ver"
+    compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
+    compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
+    compile "org.freemarker:freemarker:$freemarker_ver"
+    compile "org.slf4j:slf4j-api:$slf4j_ver"
+    compile "org.slf4j:slf4j-jdk14:$slf4j_ver"
+
+    testCompile project(":common-test")
+    testCompile "junit:junit:$junit_ver"
+    testCompile "org.mockito:mockito-core:$mockito_ver"
+}

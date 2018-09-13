@@ -1,0 +1,17 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.entity;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.entity";
+option java_multiple_files = true;
+
+import "entity/common.proto";
+
+message Delivery {
+    string delivery_address_raw = 10;
+    Address delivery_address = 11;
+
+    string delivery_time_raw = 20;
+    int64 delivery_time = 21;
+
+    Postman postman = 30;
+}

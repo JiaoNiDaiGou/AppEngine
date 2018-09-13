@@ -61,7 +61,7 @@ public class DatastoreEntityBuilder {
         return setProp(prop, ArrayUtils.isEmpty(bytes) ? null : new Blob(bytes), false);
     }
 
-    public DatastoreEntityBuilder unindexedBytes(final String prop, final Message message) {
+    public DatastoreEntityBuilder unindexedProto(final String prop, final Message message) {
         byte[] bytes = message == null ? null : message.toByteArray();
         return unindexedBytes(prop, bytes);
     }

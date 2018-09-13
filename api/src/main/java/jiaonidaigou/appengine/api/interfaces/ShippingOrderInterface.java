@@ -94,7 +94,7 @@ public class ShippingOrderInterface {
         return Receiver.builder()
                 .withName(request.getReceiver().getName())
                 .withUserId(request.getReceiver().getSocialContacts().getTeddyUserId())
-                .withPhone(request.getReceiver().getPhone())
+                .withPhone(request.getReceiver().getPhone().getPhone())
                 .withAddressRegion(request.getReceiver().getAddress().getRegion())
                 .withAddressCity(request.getReceiver().getAddress().getCity())
                 .withAddressZone(request.getReceiver().getAddress().getZone())

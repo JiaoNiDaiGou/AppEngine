@@ -1,10 +1,11 @@
 apply from: "$rootDir/standard-java.gradle"
 apply plugin: 'application'
 
-mainClassName = 'jiaonidaigou.appengine.tools.LocalLauncher'
+mainClassName = 'jiaonidaigou.appengine.tools.locallauncher.LocalLauncher'
 
 dependencies {
     compile project(":api")
+    compile project(":content-template")
     compile project(":common")
 
     compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"

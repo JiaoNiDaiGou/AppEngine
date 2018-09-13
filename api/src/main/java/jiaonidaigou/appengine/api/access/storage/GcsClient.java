@@ -82,8 +82,7 @@ public class GcsClient implements StorageClient {
                 BlobInfo.newBuilder(blobId(path)).setContentType(mediaType).build(),
                 expiration.getMillis(),
                 TimeUnit.MILLISECONDS,
-                Storage.SignUrlOption.httpMethod(HttpMethod.POST),
-                Storage.SignUrlOption.withContentType()
+                Storage.SignUrlOption.httpMethod(HttpMethod.PUT)
         );
     }
 
@@ -93,8 +92,7 @@ public class GcsClient implements StorageClient {
                 BlobInfo.newBuilder(blobId(path)).setContentType(mediaType).build(),
                 expiration.getMillis(),
                 TimeUnit.MILLISECONDS,
-                Storage.SignUrlOption.httpMethod(HttpMethod.GET),
-                Storage.SignUrlOption.withContentType()
+                Storage.SignUrlOption.httpMethod(HttpMethod.GET)
         );
     }
 }

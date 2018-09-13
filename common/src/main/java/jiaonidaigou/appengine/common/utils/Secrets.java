@@ -40,6 +40,10 @@ public class Secrets {
         return value;
     }
 
+    public String[] getAsStringLines() {
+        return value.split("\n");
+    }
+
     public <T> T getAsJson(final Class<T> type) {
         try {
             return ObjectMapperProvider.get()

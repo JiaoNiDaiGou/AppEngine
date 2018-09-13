@@ -4,9 +4,9 @@ package jiaonidaigou.appengine.wiremodel.entity;
 option java_package = "jiaonidaigou.appengine.wiremodel.entity";
 option java_multiple_files = true;
 
+import "entity/common.proto";
 import "entity/customer.proto";
 import "entity/product.proto";
-import "entity/price.proto";
 
 message ShippingOrder {
     enum Status {
@@ -39,8 +39,7 @@ message ShippingOrder {
 
     double total_weight_lb = 6;
 
-    string postman_name = 30;
-    string postman_phone = 31;
+    Postman postman = 30;
     string tracking_number = 32;
 
     repeated ShippingHistoryEntry shipping_history = 40;

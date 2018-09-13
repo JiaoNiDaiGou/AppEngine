@@ -15,6 +15,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -58,10 +59,39 @@ public class MediaInterface {
                 .build();
     }
 
+    @POST
+    @Path("/directUpload")
+    public Response directUpload(@QueryParam("ext") final String fileExtension,
+                                 @QueryParam("hasDownloadUrl") final boolean hasDownloadUrl,
+                                 final byte[] body) {
+        RequestValidator.validateNotBlank(fileExtension, "fileExtension");
+        RequestValidator.validateNotEmpty(body);
+
+        String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
+        String mediaType = determineMediaType(fileExtension);
+        String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        LOGGER.info("directUpload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
+
+        storageClient.write(path, mediaType, body);
+
+        URL signedUrl = null;
+        if (hasDownloadUrl) {
+            signedUrl = storageClient.getSignedDownloadUrl(path, mediaType);
+        }
+
+        return Response.ok(MediaObject.newBuilder()
+                .setId(mediaId)
+                .setFullPath(path)
+                .setMediaType(mediaType)
+                .setSignedDownloadUrl(signedUrl == null ? "" : signedUrl.toString())
+                .build())
+                .build();
+    }
+
     @GET
     @Path("/url/download")
-    public Response getSignedDownloadUrl(@QueryParam("media_id") final String mediaId) {
-        RequestValidator.validateNotBlank(mediaId, "media_id");
+    public Response getSignedDownloadUrl(@QueryParam("mediaId") final String mediaId) {
+        RequestValidator.validateNotBlank(mediaId, "mediaId");
 
         String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
         String mediaType = determineMediaType(path);

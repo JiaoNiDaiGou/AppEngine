@@ -13,8 +13,10 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
 @Priority(FilterPriorities.CORS)
+@Provider
 public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Set<String> ALLOWED_ORIGINS = ImmutableSet.of(
             // TODO:

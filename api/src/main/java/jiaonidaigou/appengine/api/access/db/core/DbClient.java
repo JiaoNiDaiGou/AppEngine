@@ -50,6 +50,17 @@ public interface DbClient<T> {
     }
 
     interface DbQuery {
+        static AndDbQuery and(final List<DbQuery> queries) {
+            return new AndDbQuery(queries);
+        }
+
+        static OrDbQuery or(final List<DbQuery> queries) {
+            return new OrDbQuery(queries);
+        }
+
+        static <T> SimpleDbQuery eq(final String prop, final T val) {
+            return new SimpleDbQuery<>(prop, QueryOp.EQ, val);
+        }
     }
 
     class AndDbQuery implements DbQuery {
