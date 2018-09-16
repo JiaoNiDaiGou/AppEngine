@@ -16,6 +16,7 @@ import java.util.List;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
@@ -56,5 +57,6 @@ public class AuthFilter implements ContainerRequestFilter {
                 return;
             }
         }
+        throw new NotAuthorizedException("you are not Authorized");
     }
 }
