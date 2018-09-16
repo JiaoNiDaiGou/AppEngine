@@ -13,4 +13,13 @@ public class Preconditions2 {
         checkArgument(isNotBlank(str), message);
         return str;
     }
+
+    public static String checkValidChineseCell(final String str) {
+        return checkValidChineseCell(str, str + " is not a valid Chinese phone number.");
+    }
+
+    public static String checkValidChineseCell(final String str, final String message) {
+        checkArgument(str != null && str.startsWith("1") && str.length() == 11, message);
+        return str;
+    }
 }

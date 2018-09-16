@@ -87,12 +87,19 @@ public class CnLocations {
         return cities;
     }
 
-    public CnRegion searchRegion(final String text) {
-        return regions.stream().filter(t -> t.getAllPossibleNames().contains(text)).findFirst().orElse(null);
+    public List<CnRegion> searchRegion(final String text) {
+        return regions.stream().filter(t -> t.getAllPossibleNames().contains(text)).collect(Collectors.toList());
     }
 
-    public CnCity searchCity(final String text) {
-        return cities.stream().filter(t -> t.getAllPossibleNames().contains(text)).findFirst().orElse(null);
+    public List<CnCity> searchCity(final String text) {
+        return cities.stream().filter(t -> t.getAllPossibleNames().contains(text)).collect(Collectors.toList());
+    }
+
+    public List<CnCity> searchCity(final CnRegion region, final String text) {
+        return cities.stream()
+                .filter(t -> t.getRegion().equals(region))
+                .filter(t -> t.getAllPossibleNames().contains(text))
+                .collect(Collectors.toList());
     }
 
     private static class LazyHolder {

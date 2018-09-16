@@ -1,11 +1,13 @@
 package jiaonidaigou.appengine.tools;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 class ResponseHandler {
@@ -16,6 +18,12 @@ class ResponseHandler {
         return toReturn;
     }
 
+    static <T> T handle(final Response response, final GenericType<T> genericType) {
+        System.out.println(response.getStatusInfo().getStatusCode() + ":" + response.getStatusInfo().getReasonPhrase());
+        T toReturn = response.readEntity(genericType);
+        System.out.println(toReturn);
+        return toReturn;
+    }
 
     static String handle(final Response response) {
         return handle(response, String.class);
@@ -28,7 +36,7 @@ class ResponseHandler {
         try {
             System.out.println("HTTP response code: " + connection.getResponseCode() + " " + connection.getResponseMessage());
             if (connection.getErrorStream() != null) {
-                try (InputStreamReader reader = new InputStreamReader(connection.getErrorStream())) {
+                try (InputStreamReader reader = new InputStreamReader(connection.getErrorStream(), Charsets.UTF_8)) {
                     String errorMessage = CharStreams.toString(reader);
                     System.out.println("error: " + errorMessage);
                 }

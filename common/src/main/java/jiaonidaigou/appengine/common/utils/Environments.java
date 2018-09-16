@@ -1,13 +1,17 @@
 package jiaonidaigou.appengine.common.utils;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Locale;
+import java.util.Set;
 
 public class Environments {
     public enum OSType {
         WINDOWS, MAC, LINUX, OTHERS
     }
 
-    public static final String SERVICE_NAME = "JiaoNiDaiGou";
+    public static final String SERVICE_NAME_JIAONIDAIGOU = "JiaoNiDaiGou";
+    public static final Set<String> ALL_SERVICE_NAMES = ImmutableSet.of(SERVICE_NAME_JIAONIDAIGOU);
     public static final String GAE_PROJECT_ID = "fluid-crane-200921";
     public static final String GAE_HOSTNAME = GAE_PROJECT_ID + ".appspot.com";
     public static final String MAIN_VERSION_GAE_HOSTNAME = "jiaonidaigou-dot-" + GAE_HOSTNAME;

@@ -2,7 +2,7 @@ package jiaonidaigou.appengine.tools;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreClient;
+import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
@@ -43,7 +43,7 @@ public class VerifyDbClient {
         }
     }
 
-    private static class ItemDbClient extends DatastoreClient<Item> {
+    private static class ItemDbClient extends DatastoreDbClient<Item> {
         ItemDbClient(DatastoreService service) {
             super(service, new ItemFactory());
         }

@@ -1,7 +1,6 @@
 package jiaonidaigou.appengine.api.access.email;
 
 import com.google.common.base.Charsets;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import jiaonidaigou.appengine.common.utils.Environments;
 
 import java.io.BufferedWriter;
@@ -32,7 +31,7 @@ public class FakePopupEmailSender implements EmailClient {
             writer.write(text);
             Runtime.getRuntime().exec("open " + file);
         } catch (Exception e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 }

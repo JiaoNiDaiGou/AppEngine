@@ -1,0 +1,14 @@
+apply from: "$rootDir/standard-java.gradle"
+
+dependencies {
+    compile project(":api")
+    compile project(":common")
+    compile project(":common-test")
+    compile project(":tools")
+
+    compile "junit:junit:$junit_ver"
+    compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
+    compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey_ver"
+    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
+    compile "org.hamcrest:hamcrest-all:$hamcrest_ver"
+}

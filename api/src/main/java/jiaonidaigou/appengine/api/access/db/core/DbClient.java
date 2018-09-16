@@ -1,20 +1,15 @@
 package jiaonidaigou.appengine.api.access.db.core;
 
-import jiaonidaigou.appengine.common.model.PaginatedResults;
+import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public interface DbClient<T> {
     T put(final T obj);
 
-    default List<T> put(final T... objs) {
-        checkState(objs != null);
-        return put(Arrays.asList(objs));
-    }
+    List<T> put(final T... objs);
 
     List<T> put(final List<T> objs);
 
@@ -24,26 +19,19 @@ public interface DbClient<T> {
 
     void delete(final T obj);
 
-    default void delete(final String... ids) {
-        checkState(ids != null);
-        delete(Arrays.asList(ids));
-    }
+    void delete(final String... ids);
 
     void delete(final List<String> ids);
 
     void deleteItems(final List<T> objs);
 
-    default Stream<T> scan() {
-        return queryInStream(null);
-    }
+    Stream<T> scan();
 
     Stream<T> queryInStream(final DbQuery query);
 
-    default PaginatedResults<T> queryInPagination(final int limit, final String nextToken) {
-        return queryInPagination(null, limit, nextToken);
-    }
+    PaginatedResults<T> queryInPagination(final int limit, final PageToken nextToken);
 
-    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, final String nextToken);
+    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, final PageToken nextToken);
 
     enum QueryOp {
         EQ, GT, LT, GE, LE
@@ -60,6 +48,22 @@ public interface DbClient<T> {
 
         static <T> SimpleDbQuery eq(final String prop, final T val) {
             return new SimpleDbQuery<>(prop, QueryOp.EQ, val);
+        }
+
+        static <T> InMemoryQuery<T> inMemory(final Predicate<T> predicate) {
+            return new InMemoryQuery<>(predicate);
+        }
+    }
+
+    class InMemoryQuery<T> implements DbQuery {
+        private final Predicate<T> predicate;
+
+        InMemoryQuery(final Predicate<T> predicate) {
+            this.predicate = predicate;
+        }
+
+        public Predicate<T> getPredicate() {
+            return predicate;
         }
     }
 
@@ -109,5 +113,12 @@ public interface DbClient<T> {
         T getVal() {
             return val;
         }
+    }
+
+    /**
+     * Extract the identifier of the object.
+     */
+    interface IdGetter<T> {
+        String getId(final T obj);
     }
 }

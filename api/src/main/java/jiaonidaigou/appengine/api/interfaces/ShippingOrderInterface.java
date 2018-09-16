@@ -91,15 +91,16 @@ public class ShippingOrderInterface {
     }
 
     private static Receiver toTeddyReceiver(final CreateShippingOrderRequest request) {
-        return Receiver.builder()
-                .withName(request.getReceiver().getName())
-                .withUserId(request.getReceiver().getSocialContacts().getTeddyUserId())
-                .withPhone(request.getReceiver().getPhone().getPhone())
-                .withAddressRegion(request.getReceiver().getAddress().getRegion())
-                .withAddressCity(request.getReceiver().getAddress().getCity())
-                .withAddressZone(request.getReceiver().getAddress().getZone())
-                .withAddress(request.getReceiver().getAddress().getAddress())
-                .build();
+//        return Receiver.builder()
+//                .withName(request.getReceiver().getName())
+//                .withUserId(request.getReceiver().getSocialContacts().getTeddyUserId())
+//                .withPhone(request.getReceiver().getPhone().getPhone())
+//                .withAddressRegion(request.getReceiver().getAddress().getRegion())
+//                .withAddressCity(request.getReceiver().getAddress().getCity())
+//                .withAddressZone(request.getReceiver().getAddress().getZone())
+//                .withAddress(request.getReceiver().getAddress().getAddress())
+//                .build();
+        return null;
     }
 
     private static List<Product> toTeddyProducts(final CreateShippingOrderRequest request) {

@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.guice;
 
 import com.google.inject.Injector;
 import jiaonidaigou.appengine.api.interfaces.CronInterface;
+import jiaonidaigou.appengine.api.interfaces.CustomerInterface;
 import jiaonidaigou.appengine.api.interfaces.MediaInterface;
 import jiaonidaigou.appengine.api.interfaces.PingInterface;
 import jiaonidaigou.appengine.api.interfaces.ProductInterface;
@@ -22,6 +23,7 @@ public class HK2toGuiceModule extends AbstractBinder {
     @Override
     protected void configure() {
         bindInterface(CronInterface.class);
+        bindInterface(CustomerInterface.class);
         bindInterface(MediaInterface.class);
         bindInterface(PingInterface.class);
         bindInterface(ProductInterface.class);

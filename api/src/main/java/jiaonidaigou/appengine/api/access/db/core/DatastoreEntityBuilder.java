@@ -8,7 +8,6 @@ import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import jiaonidaigou.appengine.api.utils.TimestampUtils;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -44,7 +43,7 @@ public class DatastoreEntityBuilder {
         try {
             json = ObjectMapperProvider.get().writeValueAsString(object);
         } catch (Exception e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
         return unindexedText(prop, json);
     }

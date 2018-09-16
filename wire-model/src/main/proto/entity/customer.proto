@@ -16,11 +16,11 @@ message Customer {
     string id = 1;
     string name = 2;
     PhoneNumber phone = 3;
-    Address address = 4;
+    repeated Address addresses = 4;
     string id_card = 5;
     MediaObject id_card_front_media = 6;
     MediaObject id_card_back_media = 7;
-    string email = 8;
+    repeated string emails = 8;
     SocialContacts social_contacts = 30;
 }
 
