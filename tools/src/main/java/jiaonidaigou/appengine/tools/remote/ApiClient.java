@@ -9,7 +9,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.Env;
+import jiaonidaigou.appengine.common.utils.EncryptUtils;
 import jiaonidaigou.appengine.common.utils.Environments;
+import jiaonidaigou.appengine.common.utils.Secrets;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -18,6 +20,7 @@ import java.io.Closeable;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +32,17 @@ import javax.ws.rs.client.WebTarget;
 
 public class ApiClient implements Closeable {
     private static final String API_CLIENT_OP_NAME_HEADER = "API_CLIENT_OP";
+    public static final String CUSTOM_SECRET_HEADER = "X-JNDG-SEC";
+
+    private static final byte[] CLIENT_KEY;
+    private static final byte[] CLIENT_IV;
+
+    static {
+        String[] lines = Secrets.of("gae.global.keyAndIv").getAsStringLines();
+        CLIENT_KEY = Base64.getDecoder().decode(lines[0].getBytes(Charsets.UTF_8));
+        CLIENT_IV = Base64.getDecoder().decode(lines[1].getBytes(Charsets.UTF_8));
+    }
+
     private static final Map<Env, String> HOSTNAMES_BY_ENV = ImmutableMap
             .<Env, String>builder()
             .put(Env.LOCAL, Environments.LOCAL_ENDPOINT)
@@ -95,7 +109,7 @@ public class ApiClient implements Closeable {
         return toReturn;
     }
 
-    public String getGoogleAuthToken() {
+    private String getGoogleAuthToken() {
         try {
             return MY_GOOGLE_TOKEN.get("anywork");
         } catch (ExecutionException e) {
@@ -105,6 +119,13 @@ public class ApiClient implements Closeable {
 
     public String getGoogleAuthTokenBearerHeader() {
         return "Bearer " + getGoogleAuthToken();
+    }
+
+    public String getCustomSecretHeader() {
+        String adminWeUserId = Secrets.of("gae.admin.weUserId").getAsStringLines()[0];
+        byte[] bytes = adminWeUserId.getBytes(Charsets.UTF_8);
+        bytes = EncryptUtils.aesEncrypt(CLIENT_KEY, CLIENT_IV, bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     @Override

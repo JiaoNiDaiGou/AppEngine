@@ -23,7 +23,7 @@ public class GetAllCustomers {
                 .queryParam("ext", "txt")
                 .queryParam("hasDownloadUrl", true)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + client.getGoogleAuthToken())
+                .header(HttpHeaders.AUTHORIZATION, client.getGoogleAuthTokenBearerHeader())
                 .post(Entity.entity("this is some content", MediaType.APPLICATION_OCTET_STREAM));
 
         List<Customer> customers = handle(response, new GenericType<List<Customer>>() {

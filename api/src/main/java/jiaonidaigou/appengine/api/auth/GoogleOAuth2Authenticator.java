@@ -43,6 +43,7 @@ public class GoogleOAuth2Authenticator implements Authenticator {
         String email = tokeninfo.getEmail();
 
         if (!ADMIN_EMAILS.contains(email.toLowerCase())) {
+            LOGGER.error("email:{} is not trusted.", email);
             throw new ForbiddenException();
         }
 

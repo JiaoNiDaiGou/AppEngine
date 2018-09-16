@@ -49,5 +49,6 @@ class UserPrincipal implements Principal {
     enum AuthenticationScheme {
         GOOGLE_OAUTH2,
         GAE_TASK_QUEUE,
+        CUSTOM_SECRET
     }
 }

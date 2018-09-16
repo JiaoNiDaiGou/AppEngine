@@ -10,6 +10,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -25,9 +27,22 @@ public class PingInterface {
     }
 
     @GET
-    @Path("/secure")
+    @Path("/secure/google")
     @RolesAllowed({ Roles.ADMIN })
-    public Response securePing(@QueryParam("input") final String text) {
-        return Response.ok("secure pong: " + text).build();
+    public Response securePingGoogle(@Context ContainerRequestContext context,
+                                     @QueryParam("input") final String text) {
+        return Response.ok(String.format("secure pong from %s: %s", getCaller(context), text)).build();
+    }
+
+    @GET
+    @Path("/secure/customSecret")
+    @RolesAllowed({ Roles.ADMIN })
+    public Response securePingCustomSecret(@Context ContainerRequestContext context,
+                                           @QueryParam("input") final String text) {
+        return Response.ok(String.format("secure pong from %s: %s", getCaller(context), text)).build();
+    }
+
+    private String getCaller(final ContainerRequestContext context) {
+        return context.getSecurityContext().getUserPrincipal().getName();
     }
 }

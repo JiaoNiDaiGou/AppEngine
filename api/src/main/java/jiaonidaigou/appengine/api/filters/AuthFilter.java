@@ -3,6 +3,7 @@ package jiaonidaigou.appengine.api.filters;
 import com.google.common.collect.Lists;
 import jiaonidaigou.appengine.api.auth.Authenticator;
 import jiaonidaigou.appengine.api.auth.BypassAuthenticator;
+import jiaonidaigou.appengine.api.auth.CustomSecretAuthenticator;
 import jiaonidaigou.appengine.api.auth.GoogleOAuth2Authenticator;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.auth.SelfAuthenticator;
@@ -16,7 +17,6 @@ import java.util.List;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
@@ -43,6 +43,7 @@ public class AuthFilter implements ContainerRequestFilter {
             authenticators = Lists.newArrayList(
                     new SelfAuthenticator(),
                     new SysTaskQueueAuthenticator(),
+                    new CustomSecretAuthenticator(),
                     new GoogleOAuth2Authenticator()
             );
         }
@@ -57,6 +58,5 @@ public class AuthFilter implements ContainerRequestFilter {
                 return;
             }
         }
-        throw new NotAuthorizedException("you are not Authorized");
     }
 }
