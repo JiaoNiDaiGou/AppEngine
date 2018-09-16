@@ -1,7 +1,6 @@
 package jiaonidaigou.appengine.api.access.email;
 
 import com.google.inject.Singleton;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import jiaonidaigou.appengine.common.utils.Environments;
 import org.apache.commons.validator.routines.EmailValidator;
 
@@ -63,7 +62,7 @@ public class GaeEmailSender implements EmailClient {
 
             Transport.send(message);
         } catch (Exception e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 }

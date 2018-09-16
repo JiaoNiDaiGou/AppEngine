@@ -3,7 +3,6 @@ package jiaonidaigou.appengine.contenttemplate;
 import com.google.common.collect.ImmutableMap;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -31,7 +30,7 @@ public class Templates {
             freeMarkerTemplate.process(props == null ? ImmutableMap.of() : props, writer);
             return writer.toString();
         } catch (IOException | TemplateException e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 }

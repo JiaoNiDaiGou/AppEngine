@@ -2,7 +2,7 @@ package jiaonidaigou.appengine.api.access.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreClient;
+import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
@@ -12,11 +12,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
-import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME;
+import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAONIDAIGOU;
 
 @Singleton
-public class ShippingOrderDbClient extends DatastoreClient<ShippingOrder> {
-    private static final String KIND = SERVICE_NAME + "." + ENV + ".ShippingOrder";
+public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
+    private static final String KIND = SERVICE_NAME_JIAONIDAIGOU + "." + ENV + ".ShippingOrder";
     private static final String FIELD_DATA = "data";
 
     @Inject

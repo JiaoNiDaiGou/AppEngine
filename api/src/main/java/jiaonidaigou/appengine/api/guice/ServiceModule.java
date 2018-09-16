@@ -9,16 +9,18 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
 import jiaonidaigou.appengine.api.access.gcp.GoogleCloudLibFactory;
 import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.lib.ocrspace.OcrSpaceClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;
+
+import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAONIDAIGOU;
 
 public class ServiceModule extends AbstractModule {
     @Override
@@ -64,5 +66,12 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     Storage provideStorage() {
         return GoogleCloudLibFactory.storage();
+    }
+
+    @Provides
+    @Singleton
+    @JiaoNiDaiGou
+    CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService) {
+        return new CustomerDbClient(datastoreService, SERVICE_NAME_JIAONIDAIGOU);
     }
 }

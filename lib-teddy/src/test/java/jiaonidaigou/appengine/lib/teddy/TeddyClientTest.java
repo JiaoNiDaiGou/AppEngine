@@ -50,10 +50,10 @@ public class TeddyClientTest {
     @Test
     public void testGetReceiversByPageNum() {
         arrangeClient("receiver_list");
-        Map<String, Receiver> receivers = underTest.getReceivers(1);
+        List<Receiver> receivers = underTest.getReceivers(1);
 
         assertEquals(20, receivers.size());
-        for (Receiver receiver : receivers.values()) {
+        for (Receiver receiver : receivers) {
             assertNotNull(receiver.getUserId());
             assertNotNull(receiver.getName());
             assertNotNull(receiver.getPhone());

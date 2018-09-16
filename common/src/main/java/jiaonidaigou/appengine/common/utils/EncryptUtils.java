@@ -8,8 +8,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptUtils {
+    private static final int AES_KEY_SIZE = 256;
+    private static final int AES_IV_LENGTH = 16;
+
     public static String md5(final byte[] bytes) {
         try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
             return DigestUtils.md5Hex(inputStream);
@@ -31,6 +41,63 @@ public class EncryptUtils {
             return DigestUtils.md5Hex(inputStream);
         } catch (Exception e) {
             throw new InternalIOException(e);
+        }
+    }
+
+    public static byte[] generateSecretKey() {
+        getAesCipher();
+        try {
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(AES_KEY_SIZE);
+            return keyGen.generateKey().getEncoded();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] generateIv() {
+        getAesCipher();
+        try {
+            byte[] result = new byte[AES_IV_LENGTH];
+            SecureRandom.getInstance("SHA1PRNG").nextBytes(result);
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] aesEncrypt(final byte[] key, final byte[] iv, final byte[] data) {
+        Cipher cipher = getAesCipher();
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] aesDecrypt(final byte[] key, final byte[] iv, final byte[] data) {
+        Cipher cipher = getAesCipher();
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Cipher getAesCipher() {
+        try {
+            if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
+                throw new IllegalStateException("This environment doesn't support 256 bit key length. Please update JCE policy.");
+            }
+            return Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new IllegalStateException("this environment doesn't have AES supported", e);
         }
     }
 }

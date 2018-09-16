@@ -14,7 +14,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import jiaonidaigou.appengine.common.model.InternalIOException;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.common.utils.Secrets;
 import org.slf4j.Logger;
@@ -49,7 +48,7 @@ public class GoogleApisClientFactory {
                     .setApplicationName(applicationName(Sheets.class))
                     .build();
         } catch (Exception e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 

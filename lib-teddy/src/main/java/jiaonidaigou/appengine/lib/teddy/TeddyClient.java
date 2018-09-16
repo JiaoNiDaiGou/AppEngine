@@ -16,7 +16,7 @@ public interface TeddyClient {
      * @param pageNum Page number. 1 based.
      * @return Receivers by phone.
      */
-    Map<String, Receiver> getReceivers(final int pageNum);
+    List<Receiver> getReceivers(final int pageNum);
 
     /**
      * Load receivers on given page number ranges.
@@ -24,7 +24,7 @@ public interface TeddyClient {
      * @param pageRange Page number range. 1 based. Must have lower and upper bound.
      * @return Receivers by phone.
      */
-    Map<String, Receiver> getReceivers(final Range<Integer> pageRange);
+    List<Receiver> getReceivers(final Range<Integer> pageRange);
 
     /**
      * Get order details by id.

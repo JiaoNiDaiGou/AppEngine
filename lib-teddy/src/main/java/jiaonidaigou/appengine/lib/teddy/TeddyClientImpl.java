@@ -6,7 +6,6 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import jiaonidaigou.appengine.common.utils.Secrets;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
@@ -71,7 +70,7 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @Override
-    public Map<String, Receiver> getReceivers(int pageNum) {
+    public List<Receiver> getReceivers(int pageNum) {
         Document page = autoLogin(() -> client
                 .doGet()
                 .url(MEMBER_RECEIVER_LIST_URL)
@@ -79,7 +78,7 @@ public class TeddyClientImpl implements TeddyClient {
                 .request()
                 .callToHtml());
 
-        Map<String, Receiver> toReturn = new HashMap<>();
+        List<Receiver> toReturn = new ArrayList<>();
 
         Elements allTables = page.select("table.tableList");
         if (allTables.size() == 0) {
@@ -118,7 +117,7 @@ public class TeddyClientImpl implements TeddyClient {
                     .withAddress(getChildText(trElement, 4))
                     .build();
 
-            toReturn.put(receiver.getPhone(), receiver);
+            toReturn.add(receiver);
         }
 
         LOGGER.info("Load {} receivers in page {}.", toReturn.size(), pageNum);
@@ -126,13 +125,13 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @Override
-    public Map<String, Receiver> getReceivers(final Range<Integer> pageRange) {
+    public List<Receiver> getReceivers(final Range<Integer> pageRange) {
         checkNotNull(pageRange);
         checkArgument(pageRange.hasLowerBound() && pageRange.hasUpperBound());
 
-        Map<String, Receiver> toReturn = new HashMap<>();
+        List<Receiver> toReturn = new ArrayList<>();
         for (int pageNum = pageRange.lowerEndpoint(); pageNum <= pageRange.upperEndpoint(); pageNum++) {
-            toReturn.putAll(getReceivers(pageNum));
+            toReturn.addAll(getReceivers(pageNum));
         }
         return toReturn;
     }
@@ -429,11 +428,11 @@ public class TeddyClientImpl implements TeddyClient {
                 document = call.call();
             }
         } catch (Exception e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
 
         if (loginExpired(document)) {
-            throw new InternalRuntimeException("AutoLogin failed for " + admin.getLoginUsername());
+            throw new RuntimeException("AutoLogin failed for " + admin.getLoginUsername());
         }
         return document;
     }

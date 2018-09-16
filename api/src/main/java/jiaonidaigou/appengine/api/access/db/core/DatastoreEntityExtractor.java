@@ -8,7 +8,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -76,7 +75,7 @@ public class DatastoreEntityExtractor {
         try {
             return parser.parseFrom(blob.getBytes());
         } catch (InvalidProtocolBufferException e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -105,7 +104,7 @@ public class DatastoreEntityExtractor {
         try {
             return ObjectMapperProvider.get().readValue(json, type);
         } catch (IOException e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -118,7 +117,7 @@ public class DatastoreEntityExtractor {
         try {
             return ObjectMapperProvider.get().readValue(json, type);
         } catch (IOException e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 

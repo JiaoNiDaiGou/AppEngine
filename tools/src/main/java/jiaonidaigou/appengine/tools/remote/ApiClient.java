@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.tools.remote;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -51,7 +52,7 @@ public class ApiClient implements Closeable {
                 public String load(String key) throws Exception {
                     Process process = Runtime.getRuntime().exec("gcloud auth print-access-token");
                     List<String> output;
-                    try (Reader reader = new InputStreamReader(process.getInputStream())) {
+                    try (Reader reader = new InputStreamReader(process.getInputStream(), Charsets.UTF_8)) {
                         output = CharStreams.readLines(reader);
                     }
                     return output.stream().filter(t -> t.startsWith("ya29")).findFirst()
@@ -100,6 +101,10 @@ public class ApiClient implements Closeable {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getGoogleAuthTokenBearerHeader() {
+        return "Bearer " + getGoogleAuthToken();
     }
 
     @Override

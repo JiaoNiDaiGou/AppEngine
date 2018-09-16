@@ -43,7 +43,6 @@ dependencies {
     compile "joda-time:joda-time:$jodatime_ver"
     compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
     compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
-//    compile "org.freemarker:freemarker:$freemarker_ver"
     compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
     compile "org.glassfish.jersey.core:jersey-server:$jersey_ver"
     compile "org.glassfish.jersey.containers:jersey-container-servlet-core:$jersey_ver"
@@ -51,16 +50,14 @@ dependencies {
     compile "org.reflections:reflections:$reflections_ver"
     compile "org.slf4j:slf4j-api:$slf4j_ver"
     compile "org.slf4j:slf4j-jdk14:$slf4j_ver"
-//
-//    testCompile project(':lib-test')
-//
+
 //    testCompile "com.google.appengine:appengine-testing:1.9.64"
 //    testCompile "com.google.appengine:appengine-tools-sdk:1.9.64"
 //    testCompile "com.google.appengine:appengine-api-stubs:1.9.64"
 //    testCompile "com.google.api-client:google-api-client-appengine:$google_api_client_ver"
-//    testCompile "junit:junit:$junit_ver"
-//    testCompile "org.hamcrest:hamcrest-all:$hamcrest_ver"
-//    testCompile "org.mockito:mockito-core:$mockito_ver"
+    testCompile "junit:junit:$junit_ver"
+    testCompile "org.hamcrest:hamcrest-all:$hamcrest_ver"
+    testCompile "org.mockito:mockito-core:$mockito_ver"
 }
 
 appengine {

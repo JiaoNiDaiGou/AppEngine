@@ -8,7 +8,7 @@ import com.google.appengine.api.datastore.Entity;
  *
  * @param <T> Type of business logic object.
  */
-public interface DatastoreEntityFactory<T> {
+public interface DatastoreEntityFactory<T> extends DbClient.IdGetter<T> {
     KeyType getKeyType();
 
     /**
@@ -25,11 +25,6 @@ public interface DatastoreEntityFactory<T> {
      * Transform business logic object into Datastore entity.
      */
     Entity toEntity(final DatastoreEntityBuilder partialBuilder, final T obj);
-
-    /**
-     * Extract the identifier of the object.
-     */
-    String getId(final T obj);
 
     /**
      * Merges the business logic item with a new Id.

@@ -31,7 +31,7 @@ public class LocalMeter {
             THREAD_LOCAL_CONTEXTS.set(stack);
         }
         stack.push(new Context(opName));
-        LOGGER.info("{} START.", opName);
+        LOGGER.info("{} START", opName);
     }
 
     public synchronized static void meterOn(final Class opClazz) {

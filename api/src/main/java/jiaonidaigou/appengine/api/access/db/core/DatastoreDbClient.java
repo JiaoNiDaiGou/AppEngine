@@ -10,10 +10,11 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.common.collect.Streams;
-import jiaonidaigou.appengine.common.model.PaginatedResults;
+import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,26 +24,31 @@ import static com.google.common.base.Preconditions.checkState;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 
-public class DatastoreClient<T> implements DbClient<T> {
+/**
+ * Implementation of {@link DbClient} by calling Datastore.
+ *
+ * @param <T> Type of entity
+ */
+public class DatastoreDbClient<T> implements DbClient<T> {
     private final DatastoreEntityFactory<T> entityFactory;
     private final DatastoreService service;
 
-    public DatastoreClient(final DatastoreService service,
-                           final DatastoreEntityFactory<T> entityFactory) {
+    public DatastoreDbClient(final DatastoreService service,
+                             final DatastoreEntityFactory<T> entityFactory) {
         this.entityFactory = entityFactory;
         this.service = service;
     }
 
-    public static Query.Filter convertQueryFilter(final DbQuery query) {
+    private static Query.Filter convertQueryFilter(final DbQuery query) {
         if (query instanceof AndDbQuery) {
             return new Query.CompositeFilter(Query.CompositeFilterOperator.AND,
                     ((AndDbQuery) query).getQueries().stream()
-                            .map(DatastoreClient::convertQueryFilter)
+                            .map(DatastoreDbClient::convertQueryFilter)
                             .collect(Collectors.toList()));
         } else if (query instanceof OrDbQuery) {
             return new Query.CompositeFilter(Query.CompositeFilterOperator.OR,
                     ((OrDbQuery) query).getQueries().stream()
-                            .map(DatastoreClient::convertQueryFilter)
+                            .map(DatastoreDbClient::convertQueryFilter)
                             .collect(Collectors.toList()));
         } else if (query instanceof SimpleDbQuery) {
             SimpleDbQuery simpleDbQuery = (SimpleDbQuery) query;
@@ -71,7 +77,7 @@ public class DatastoreClient<T> implements DbClient<T> {
                     throw new UnsupportedOperationException("unexpected op " + simpleDbQuery);
             }
         } else {
-            throw new UnsupportedOperationException("unexpected query " + query.getClass().getName());
+            throw new IllegalStateException("unexpected query " + query.getClass().getName());
         }
     }
 
@@ -92,6 +98,12 @@ public class DatastoreClient<T> implements DbClient<T> {
         T toReturn = entityFactory.mergeId(obj, extractId(key));
         meterOff();
         return toReturn;
+    }
+
+    @Override
+    public List<T> put(T... objs) {
+        checkState(objs != null);
+        return put(Arrays.asList(objs));
     }
 
     @Override
@@ -145,6 +157,12 @@ public class DatastoreClient<T> implements DbClient<T> {
     }
 
     @Override
+    public void delete(String... ids) {
+        checkState(ids != null);
+        delete(Arrays.asList(ids));
+    }
+
+    @Override
     public void delete(final List<String> ids) {
         ids.forEach(t -> checkState(StringUtils.isNotBlank(t)));
         meterOn(this.getClass());
@@ -166,6 +184,11 @@ public class DatastoreClient<T> implements DbClient<T> {
     }
 
     @Override
+    public Stream<T> scan() {
+        return queryInStream(null);
+    }
+
+    @Override
     public Stream<T> queryInStream(final DbQuery query) {
         meterOn(this.getClass());
         Query theQuery = new Query(entityFactory.getKind());
@@ -180,9 +203,14 @@ public class DatastoreClient<T> implements DbClient<T> {
     }
 
     @Override
+    public PaginatedResults<T> queryInPagination(int limit, PageToken nextToken) {
+        return queryInPagination(null, limit, nextToken);
+    }
+
+    @Override
     public PaginatedResults<T> queryInPagination(final DbQuery query,
                                                  final int limit,
-                                                 final String nextToken) {
+                                                 final PageToken pageToken) {
         Query theQuery = new Query(entityFactory.getKind());
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
@@ -190,8 +218,9 @@ public class DatastoreClient<T> implements DbClient<T> {
 
         FetchOptions fetchOptions = FetchOptions.Builder.withDefaults()
                 .limit(limit);
-        if (StringUtils.isNotBlank(nextToken)) {
-            fetchOptions = fetchOptions.startCursor(Cursor.fromWebSafeString(nextToken));
+        if (pageToken != null) {
+            checkState(pageToken.getSource() == PageToken.Source.DATASTORE);
+            fetchOptions = fetchOptions.startCursor(Cursor.fromWebSafeString(pageToken.getToken()));
         }
         QueryResultList<Entity> results = service.prepare(theQuery).asQueryResultList(fetchOptions);
 
@@ -199,11 +228,18 @@ public class DatastoreClient<T> implements DbClient<T> {
                 .map(DatastoreEntityExtractor::of)
                 .map(entityFactory::fromEntity)
                 .collect(Collectors.toList());
+
         String newNextToken = results.getCursor() == null ? null : results.getCursor().toWebSafeString();
-        if (nextToken != null && nextToken.equals(newNextToken)) {
+        if (pageToken != null && pageToken.getToken().equals(newNextToken)) {
             newNextToken = null;
         }
-        return new PaginatedResults<>(content, newNextToken);
+
+        String newPageTokenStr = newNextToken == null ? null : PageToken.datastore(newNextToken).toPageToken();
+
+        return PaginatedResults.<T>builder()
+                .withResults(content)
+                .withPageToken(newPageTokenStr)
+                .build();
     }
 
     private Entity toEntity(final T obj) {

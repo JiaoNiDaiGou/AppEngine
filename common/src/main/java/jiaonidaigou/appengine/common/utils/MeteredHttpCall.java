@@ -7,7 +7,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.InternalRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +81,7 @@ public class MeteredHttpCall {
         try {
             return parser.parseFrom(toBytes());
         } catch (InvalidProtocolBufferException e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -90,7 +89,7 @@ public class MeteredHttpCall {
         try {
             return ObjectMapperProvider.get().readValue(toBytes(), type);
         } catch (IOException e) {
-            throw new InternalRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 

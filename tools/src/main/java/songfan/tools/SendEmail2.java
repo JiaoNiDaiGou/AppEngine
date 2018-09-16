@@ -3,6 +3,7 @@ package songfan.tools;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharStreams;
@@ -26,8 +27,10 @@ import org.joda.time.DateTime;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,7 +91,7 @@ public class SendEmail2 {
         for (Order order : orders) {
             System.out.println(String.format("%s : %s : %s : %s :  %s",
                     order.getCustomer().getName(),
-                    order.getCustomer().getEmail(),
+                    order.getCustomer().getEmails(0),
                     order.getDelivery().getDeliveryTimeRaw(),
                     order.getDelivery().getDeliveryAddressRaw(),
                     order.getEntiresList().stream().map(t -> t.getProduct().getName() + "[" + t.getQuantity() + "]").reduce((a, b) -> a + ", " + b).get()));
@@ -111,8 +114,6 @@ public class SendEmail2 {
             throws Exception {
         Schema schema = new Schema();
 
-        schema.sheetId = sheet.getProperties().getSheetId();
-        schema.sheetTitle = sheet.getProperties().getTitle();
         schema.maxRowCount = sheet.getProperties().getGridProperties().getRowCount();
         schema.maxColCount = sheet.getProperties().getGridProperties().getColumnCount();
 
@@ -285,7 +286,7 @@ public class SendEmail2 {
             Customer customer = Customer.newBuilder()
                     .setName(customerName)
                     .setPhone(PhoneNumber.newBuilder().setCountryCode("1").setPhone(customerPhone))
-                    .setEmail(customerEmail)
+                    .addEmails(customerEmail)
                     .build();
 
             Order order = Order.newBuilder()
@@ -341,7 +342,7 @@ public class SendEmail2 {
         if (!track || !localTrackFile.exists()) {
             emailSent = new HashSet<>();
         } else {
-            try (Reader reader = new FileReader(localTrackFile)) {
+            try (Reader reader = new InputStreamReader(new FileInputStream(localTrackFile), Charsets.UTF_8)) {
                 emailSent = new HashSet<>(CharStreams.readLines(reader));
             }
         }
@@ -355,7 +356,7 @@ public class SendEmail2 {
             Templates templates = TemplatesFactory.instance().getTemplate("order_confirmation_body.zh_tw.ftl");
             for (int i = 0; i < orders.size(); i++) {
                 Order order = orders.get(i);
-                String email = order.getCustomer().getEmail();
+                String email = order.getCustomer().getEmails(0);
 
                 if (StringUtils.isBlank(email)) {
                     System.err.println(order.getCustomer().getName() + " has no email!");
@@ -404,20 +405,20 @@ public class SendEmail2 {
 
                 for (String email : CHEN_EMAILS) {
 //                    if (!emailSent.contains("admin::" + email)) {
-                        String html = templates.toContent(allProps);
-                        sender.sendHtml(
-                                email,
-                                String.format(ADMIN_EMAIL_SUBJECT_TEMPLATE, spreadsheet.getProperties().getTitle()),
-                                html);
-                        emailSent.add("admin::" + email);
-                        System.out.println("Send summary to admin " + email);
+                    String html = templates.toContent(allProps);
+                    sender.sendHtml(
+                            email,
+                            String.format(ADMIN_EMAIL_SUBJECT_TEMPLATE, spreadsheet.getProperties().getTitle()),
+                            html);
+                    emailSent.add("admin::" + email);
+                    System.out.println("Send summary to admin " + email);
 //                    }
                 }
             }
 
         } finally {
             if (track) {
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(localTrackFile))) {
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(localTrackFile), Charsets.UTF_8))) {
                     for (String email : emailSent) {
                         writer.write(email + "\n");
                     }
@@ -462,7 +463,5 @@ public class SendEmail2 {
         Map<Integer, Product> productsIndex = new HashMap<>();
         int maxRowCount = -1;
         int maxColCount = -1;
-        int sheetId = -1;
-        String sheetTitle;
     }
 }
