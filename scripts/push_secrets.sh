@@ -52,6 +52,7 @@ fi
 if ! gsutil ls -L gs://$SECRETS_BUCKET; then
     gsutil mb -l us -c multi_regional -p $PROJECT_ID gs://$SECRETS_BUCKET
     gsutil acl set private gs://$SECRETS_BUCKET
+    gsutil acl ch -g jiaonidaigou@googlegroups.com:O gs://$SECRETS_BUCKET
 fi
 
 for rawfile in $SECRETS_DIR/*; do
@@ -65,7 +66,7 @@ for rawfile in $SECRETS_DIR/*; do
     gcs_obj=gs://$SECRETS_BUCKET/$KEY_RING/$KEY_NAME/$KEY_VERSION/$rawfilename
     gsutil cp $cipher_file $gcs_obj
     gsutil acl set private $gcs_obj
-
+    gsutil acl ch -g jiaonidaigou@googlegroups.com:O $gcs_obj
 done
 
 echo $SECRETS_BUCKET
