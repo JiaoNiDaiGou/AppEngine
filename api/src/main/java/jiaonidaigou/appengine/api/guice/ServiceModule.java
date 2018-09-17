@@ -29,9 +29,10 @@ public class ServiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(StorageClient.class).to(GcsClient.class);
-        bind(CnCustomerContactParser.class).in(Singleton.class);
-        bind(CnAddressParser.class).in(Singleton.class);
-        bind(CnCellPhoneParser.class).in(Singleton.class);
+
+        bind(CnCustomerContactParser.class).toInstance(new CnCustomerContactParser());
+        bind(CnAddressParser.class).toInstance(new CnAddressParser());
+        bind(CnCellPhoneParser.class).toInstance(new CnCellPhoneParser());
     }
 
     @Provides

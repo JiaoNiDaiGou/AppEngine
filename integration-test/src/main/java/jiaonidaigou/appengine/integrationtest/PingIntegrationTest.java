@@ -11,7 +11,7 @@ import static jiaonidaigou.appengine.tools.remote.ApiClient.CUSTOM_SECRET_HEADER
 import static org.junit.Assert.assertEquals;
 
 public class PingIntegrationTest {
-    private ApiClient apiClient = new ApiClient(Env.PROD);
+    private final ApiClient apiClient = new ApiClient(Env.PROD);
 
     @Test
     public void pingUnsecure() {

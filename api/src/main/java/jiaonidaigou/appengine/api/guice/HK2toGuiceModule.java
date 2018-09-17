@@ -1,19 +1,21 @@
 package jiaonidaigou.appengine.api.guice;
 
 import com.google.inject.Injector;
-import jiaonidaigou.appengine.api.interfaces.CronInterface;
-import jiaonidaigou.appengine.api.interfaces.CustomerInterface;
-import jiaonidaigou.appengine.api.interfaces.MediaInterface;
-import jiaonidaigou.appengine.api.interfaces.PingInterface;
-import jiaonidaigou.appengine.api.interfaces.ProductInterface;
-import jiaonidaigou.appengine.api.interfaces.ShippingOrderInterface;
-import jiaonidaigou.appengine.api.interfaces.TaskQueueInterface;
+import com.google.protobuf.Message;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Modifier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HK2toGuiceModule extends AbstractBinder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HK2toGuiceModule.class);
+    private static final String INTERFACES_PACKAGE_NAME = "jiaonidaigou.appengine.api.interfaces";
+
     private Injector guiceInjector;
 
     public HK2toGuiceModule(final Injector guiceInjector) {
@@ -22,13 +24,22 @@ public class HK2toGuiceModule extends AbstractBinder {
 
     @Override
     protected void configure() {
-        bindInterface(CronInterface.class);
-        bindInterface(CustomerInterface.class);
-        bindInterface(MediaInterface.class);
-        bindInterface(PingInterface.class);
-        bindInterface(ProductInterface.class);
-        bindInterface(ShippingOrderInterface.class);
-        bindInterface(TaskQueueInterface.class);
+        bindInterfaces();
+    }
+
+    private void bindInterfaces() {
+        Reflections reflections = new Reflections();
+        for (Class<? extends Message> clazz : reflections.getSubTypesOf(Message.class)) {
+            int modifiers = clazz.getModifiers();
+            if (Modifier.isAbstract(modifiers)
+                    || Modifier.isInterface(modifiers)
+                    || !Modifier.isPublic(modifiers)
+                    || !clazz.getSimpleName().endsWith("Interface")) {
+                continue;
+            }
+            LOGGER.info("Bind interface {}", clazz.getName());
+            bindInterface(clazz);
+        }
     }
 
     private <T> void bindInterface(final Class<T> interfaceType) {
