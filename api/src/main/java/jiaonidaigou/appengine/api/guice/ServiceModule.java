@@ -15,6 +15,9 @@ import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaonidaigou.appengine.contentparser.CnAddressParser;
+import jiaonidaigou.appengine.contentparser.CnCellPhoneParser;
+import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
 import jiaonidaigou.appengine.lib.ocrspace.OcrSpaceClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
@@ -26,6 +29,9 @@ public class ServiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(StorageClient.class).to(GcsClient.class);
+        bind(CnCustomerContactParser.class).in(Singleton.class);
+        bind(CnAddressParser.class).in(Singleton.class);
+        bind(CnCellPhoneParser.class).in(Singleton.class);
     }
 
     @Provides

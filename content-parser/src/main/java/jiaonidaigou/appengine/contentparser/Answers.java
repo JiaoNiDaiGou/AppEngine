@@ -4,9 +4,11 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Answers<T> implements Iterable<Answer<T>> {
     /**
@@ -47,7 +49,9 @@ public class Answers<T> implements Iterable<Answer<T>> {
     private final List<Answer<T>> results;
 
     private Answers(List<Answer<T>> results) {
-        this.results = results;
+        List<Answer<T>> sorted = new ArrayList<>(results);
+        sorted.sort((a, b) -> Integer.compare(b.getConfidence(), a.getConfidence()));
+        this.results = sorted;
     }
 
     public static <T> Answers<T> noAnswer() {
@@ -95,5 +99,9 @@ public class Answers<T> implements Iterable<Answer<T>> {
     @Override
     public Iterator<Answer<T>> iterator() {
         return results.iterator();
+    }
+
+    public Stream<Answer<T>> stream() {
+        return results.stream();
     }
 }
