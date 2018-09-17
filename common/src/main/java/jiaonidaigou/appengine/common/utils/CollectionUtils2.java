@@ -16,7 +16,7 @@ public class CollectionUtils2 {
 
     public static <K> void incCnt(final Map<K, Long> map, final K key, long increase) {
         if (map != null && key != null) {
-            map.put(key, map.getOrDefault(key, increase));
+            map.put(key, map.getOrDefault(key, 0L) + increase);
         }
     }
 

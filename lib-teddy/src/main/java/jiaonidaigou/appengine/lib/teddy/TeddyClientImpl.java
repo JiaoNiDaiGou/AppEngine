@@ -7,6 +7,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.common.utils.Secrets;
+import jiaonidaigou.appengine.common.utils.StringUtils2;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
 import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
@@ -38,7 +39,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static jiaonidaigou.appengine.common.utils.JsoupUtils.getChildText;
 import static jiaonidaigou.appengine.common.utils.JsoupUtils.getElementTextById;
-import static jiaonidaigou.appengine.common.utils.StringUtils2.replaceNonLettersNumbersOrChineseLetters;
+import static jiaonidaigou.appengine.common.utils.StringUtils2.replaceNonCharTypesWith;
 
 public class TeddyClientImpl implements TeddyClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeddyClientImpl.class);
@@ -212,7 +213,13 @@ public class TeddyClientImpl implements TeddyClient {
         // <div class="showContent showContentInfo" style="padding: 60px 200px; font-size: 18px;">
         // 运单号：<b style="color: #8FC320;">RB100113911</b>创建成功！...
         Element outEle = outPage.selectFirst("div.showContent");
-        String formattedId = replaceNonLettersNumbersOrChineseLetters(outEle.text(), ' ');
+        String formattedId = replaceNonCharTypesWith(
+                outEle.text(),
+                new StringUtils2.CharType[]{
+                        StringUtils2.CharType.DIGIT,
+                        StringUtils2.CharType.A2Z,
+                        StringUtils2.CharType.CHINESE },
+                " ");
         formattedId = StringUtils.substringBetween(formattedId, "运单号", "创建成功").trim();
         long id = Long.parseLong(StringUtils.substringAfterLast(link, "="));
         LOGGER.info("Make order success. Order# Id={}, formattedId={}", id, formattedId);
@@ -458,7 +465,13 @@ public class TeddyClientImpl implements TeddyClient {
 
     @VisibleForTesting
     static PostManInfo parsePostman(final String str) {
-        String status = replaceNonLettersNumbersOrChineseLetters(str, ' ');
+        String status = replaceNonCharTypesWith(
+                str,
+                new StringUtils2.CharType[]{
+                        StringUtils2.CharType.DIGIT,
+                        StringUtils2.CharType.A2Z,
+                        StringUtils2.CharType.CHINESE },
+                " ");
         if (status.contains("投递员")) {
             Matcher matcher = POSTMAN_TRACK_ENTRY_PATTERN.matcher(status);
             if (matcher.find()) {

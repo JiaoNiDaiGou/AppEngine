@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CnCity {
@@ -12,6 +13,12 @@ public class CnCity {
     private String name;
     private List<String> alias;
     private boolean municipality;
+
+    public List<CnZone> getZones() {
+        return zones;
+    }
+
+    private List<CnZone> zones;
 
     public static Builder builder() {
         return new Builder();
@@ -55,8 +62,9 @@ public class CnCity {
     public static final class Builder {
         private CnRegion region;
         private String name;
-        private List<String> alias;
+        private List<String> alias = new ArrayList<>();
         private boolean municipality;
+        private List<CnZone> zones = new ArrayList<>();
 
         private Builder() {
         }
@@ -81,12 +89,18 @@ public class CnCity {
             return this;
         }
 
+        public Builder withZones(List<CnZone> zones) {
+            this.zones = zones;
+            return this;
+        }
+
         public CnCity build() {
             CnCity cnCity = new CnCity();
             cnCity.name = this.name;
             cnCity.municipality = this.municipality;
             cnCity.alias = this.alias;
             cnCity.region = this.region;
+            cnCity.zones = this.zones;
             return cnCity;
         }
     }

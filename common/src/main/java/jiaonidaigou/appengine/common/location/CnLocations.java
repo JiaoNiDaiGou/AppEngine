@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.common.location;
 
+import com.google.common.collect.ImmutableList;
 import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.common.utils.DsvParser;
 import org.apache.commons.lang3.ArrayUtils;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CnLocations {
+    public static final List<String> ZONE_FLAGS = ImmutableList.of("县", "区", "市", "旗", "州");
+
     private final DsvParser dsvParser = new DsvParser();
 
     private final List<CnRegion> regions;
@@ -25,7 +29,8 @@ public class CnLocations {
     private CnLocations() {
         try {
             regions = loadRegions();
-            cities = loadCities(regions);
+            List<CnZone> zones = loadZones();
+            cities = loadCities(regions, zones);
         } catch (IOException e) {
             throw new InternalIOException(e);
         }
@@ -47,7 +52,35 @@ public class CnLocations {
         });
     }
 
-    private List<CnCity> loadCities(final List<CnRegion> regions)
+    private List<CnZone> loadZones()
+            throws IOException {
+        return dsvParser.parseResource("location/zones.csv", t -> {
+            String region = t.get("region");
+            String city = t.get("city");
+            String[] zones = StringUtils.split(t.get("zones"), "|");
+            List<CnZone> toReturn = new ArrayList<>();
+
+            for (String zone : zones) {
+                List<String> alias = new ArrayList<>();
+                for (String flag : ZONE_FLAGS) {
+                    if (zone.endsWith(flag)) {
+                        alias.add(zone.substring(0, zone.length() - flag.length()));
+                        break;
+                    }
+                }
+
+                toReturn.add(CnZone.builder()
+                        .withRegionName(region)
+                        .withCityName(city)
+                        .withName(zone)
+                        .withAlias(alias)
+                        .build());
+            }
+            return toReturn;
+        }).stream().flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    private List<CnCity> loadCities(final List<CnRegion> regions, final List<CnZone> zones)
             throws IOException {
         Map<String, CnRegion> regionsByName = regions
                 .stream()
@@ -68,9 +101,15 @@ public class CnLocations {
             }
             CnRegion region = checkNotNull(regionsByName.get(t.get("region")));
             boolean municipality = name.equals(region.getName());
+
+            List<CnZone> itsZones = zones.stream()
+                    .filter(z -> z.getRegionName().equals(region.getName()) && z.getCityName().equals(name))
+                    .collect(Collectors.toList());
+
             return CnCity.builder()
                     .withName(name)
                     .withRegion(region)
+                    .withZones(itsZones)
                     .withAlias(new ArrayList<>(alias))
                     .withMunicipality(municipality)
                     .build();
@@ -85,6 +124,14 @@ public class CnLocations {
 
     public List<CnCity> allCities() {
         return cities;
+    }
+
+    public List<CnCity> allMunicipalityCities() {
+        return cities.stream().filter(CnCity::isMunicipality).collect(Collectors.toList());
+    }
+
+    public List<CnCity> allNonMunicipalityCities() {
+        return cities.stream().filter(t -> !t.isMunicipality()).collect(Collectors.toList());
     }
 
     public List<CnRegion> searchRegion(final String text) {

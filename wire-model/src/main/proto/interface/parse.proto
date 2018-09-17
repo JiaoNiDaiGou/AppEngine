@@ -1,0 +1,38 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.api;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.api";
+option java_multiple_files = true;
+
+import "entity/common.proto";
+import "entity/customer.proto";
+import "entity/product.proto";
+
+message ParseRequest {
+
+    enum Domain {
+        ALL = 0;
+        ADDRESS = 1;
+        CUSTOMER = 2;
+        PRODUCT = 3;
+    }
+
+    Domain domain = 1;
+    repeated string texts = 2;
+    repeated string media_ids = 3;
+}
+
+message ParseResponse {
+    repeated ParsedObject results = 1;
+}
+
+message ParsedObject {
+    // Range from 0 to 100
+    int32 confidence = 1;
+
+    oneof content {
+        jiaonidaigou.appengine.wiremodel.entity.Address address = 50;
+        jiaonidaigou.appengine.wiremodel.entity.Customer customer = 51;
+        jiaonidaigou.appengine.wiremodel.entity.Product product = 52;
+    }
+}

@@ -1,0 +1,28 @@
+apply from: "$rootDir/standard-java.gradle"
+
+dependencies {
+    compile project(":common")
+    compile project(":wire-model")
+
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
+    compile "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jackson_ver"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-guava:$jackson_ver"
+    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"
+    compile "com.google.guava:guava:$guava_ver"
+    compile "com.google.protobuf:protobuf-java-util:$protobuf_ver"
+    compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
+    compile "org.apache.commons:commons-csv:$commons_csv_ver"
+    compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
+    compile "org.apache.httpcomponents:httpclient:$httpcomponents_httpclient_ver"
+    compile "org.apache.httpcomponents:httpcore:$httpcomponents_httpcore_ver"
+    compile "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"
+    compile "org.jsoup:jsoup:$jsoup_ver"
+    compile "org.slf4j:slf4j-api:$slf4j_ver"
+    compile "org.slf4j:slf4j-jdk14:$slf4j_ver"
+
+    testCompile "junit:junit:$junit_ver"
+    testCompile "org.hamcrest:hamcrest-all:$hamcrest_ver"
+    testCompile "org.mockito:mockito-core:$mockito_ver"
+}

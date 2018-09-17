@@ -19,13 +19,13 @@ public class WireLogFilter implements ContainerRequestFilter, ContainerResponseF
     @Override
     public void filter(final ContainerRequestContext requestContext)
             throws IOException {
+        LOGGER.info("Headers: " + requestContext.getHeaders());
         LOGGER.info("PathParams: " + requestContext.getUriInfo().getPathParameters());
         LOGGER.info("QueryParams: " + requestContext.getUriInfo().getQueryParameters());
     }
 
     @Override
     public void filter(final ContainerRequestContext requestContext,
-                       final ContainerResponseContext responseContext)
-            throws IOException {
+                       final ContainerResponseContext responseContext) {
     }
 }
