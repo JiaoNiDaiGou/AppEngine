@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Answers<T> implements Iterable<Answer<T>> {
+    /**
+     * Calculate a confidence based on given answers using weighted average.
+     */
     @SafeVarargs
     public static int weightedAverage(final Pair<Answer, Integer>... answersAndWeight) {
         if (answersAndWeight.length == 0) {
@@ -25,9 +28,12 @@ public class Answers<T> implements Iterable<Answer<T>> {
         return sum / totalWeight;
     }
 
+    /**
+     * Create a new {@link Answers} just wrapping input if given answers has no target.
+     */
     public static <M> Answers<M> useInputIfNoAnswer(final Answers<M> answers,
                                                     final String input) {
-        if (answers.size() != 0) {
+        if (!answers.hasAtLeastOneTarget()) {
             return answers;
         } else {
             Answer<M> answerOfInput = new Answer<M>().setTarget(null, Conf.CONFIRMED)
