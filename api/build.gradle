@@ -4,6 +4,10 @@ apply plugin: 'war'
 apply from: './appengine-web-xml-template.gradle'
 
 buildscript {
+    repositories {   // repositories for Jar's you access in your code
+        jcenter()
+        mavenCentral()
+    }
     dependencies {
         classpath 'com.google.appengine:gradle-appengine-plugin:1.9.59'
     }
@@ -15,6 +19,7 @@ ext.gaeAppId = getAppId()
 
 dependencies {
     compile project(':common')
+    compile project(':content-parser')
     compile project(':lib-ocrspace')
     compile project(':lib-teddy')
     compile project(':wire-model')
