@@ -4,9 +4,11 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Answers<T> implements Iterable<Answer<T>> {
     /**
@@ -33,10 +35,11 @@ public class Answers<T> implements Iterable<Answer<T>> {
      */
     public static <M> Answers<M> useInputIfNoAnswer(final Answers<M> answers,
                                                     final String input) {
-        if (!answers.hasAtLeastOneTarget()) {
+        if (answers.hasAtLeastOneTarget()) {
             return answers;
         } else {
-            Answer<M> answerOfInput = new Answer<M>().setTarget(null, Conf.CONFIRMED)
+            Answer<M> answerOfInput = new Answer<M>()
+                    .setTarget(null, Conf.ZERO)
                     .setRawStringAfterExtraction(input);
             return Answers.of(answerOfInput);
         }
@@ -47,18 +50,20 @@ public class Answers<T> implements Iterable<Answer<T>> {
     private final List<Answer<T>> results;
 
     private Answers(List<Answer<T>> results) {
-        this.results = results;
+        List<Answer<T>> sorted = new ArrayList<>(results);
+        sorted.sort((a, b) -> Integer.compare(b.getConfidence(), a.getConfidence()));
+        this.results = sorted;
     }
 
     public static <T> Answers<T> noAnswer() {
         return NO_ANSWER;
     }
 
-    public static <T> Answers of(final Iterable<Answer<T>> answers) {
+    public static <T> Answers<T> of(final Iterable<Answer<T>> answers) {
         return new Answers<>(ImmutableList.copyOf(answers));
     }
 
-    public static <T> Answers of(final Answer<T> answer) {
+    public static <T> Answers<T> of(final Answer<T> answer) {
         return new Answers<>(ImmutableList.of(answer));
     }
 
@@ -95,5 +100,9 @@ public class Answers<T> implements Iterable<Answer<T>> {
     @Override
     public Iterator<Answer<T>> iterator() {
         return results.iterator();
+    }
+
+    public Stream<Answer<T>> stream() {
+        return results.stream();
     }
 }

@@ -31,7 +31,7 @@ import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.WebTarget;
 
 public class ApiClient implements Closeable {
-    private static final String API_CLIENT_OP_NAME_HEADER = "API_CLIENT_OP";
+    private static final String API_CLIENT_OP_NAME_HEADER = "X-JNDG-ApiClientOp";
     public static final String CUSTOM_SECRET_HEADER = "X-JNDG-SEC";
 
     private static final byte[] CLIENT_KEY;

@@ -28,6 +28,18 @@ public class AnswerMatchers<T> {
         }, "");
     }
 
+    public static <T> AnswersMatcher<T> hasAnswerInTop(final int top, final AnswerMatcher<T> answerMatcher) {
+        return new AnswersMatcher<>(t -> {
+            for (int i = 0; i < t.size() && i < top; i++) {
+                if (answerMatcher.matches(t.getResults().get(i))) {
+                    return true;
+                }
+            }
+            System.out.println("actual:" + t);
+            return false;
+        }, "");
+    }
+
     @SafeVarargs
     public static <A, B> AnswersMatcher<A> hasAnswers(final Function<A, B> transform,
                                                       final AnswerMatcher<B>... answerMatchers) {

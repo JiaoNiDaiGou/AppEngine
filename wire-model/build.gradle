@@ -2,6 +2,10 @@ apply from: "$rootDir/standard-java.gradle"
 apply plugin: 'com.google.protobuf'
 
 buildscript {
+    repositories {   // repositories for Jar's you access in your code
+        jcenter()
+        mavenCentral()
+    }
     dependencies {
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_plugin_ver"
     }
