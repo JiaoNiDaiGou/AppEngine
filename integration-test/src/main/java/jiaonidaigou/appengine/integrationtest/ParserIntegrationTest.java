@@ -10,7 +10,7 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
-public class ParseIntegrationTest {
+public class ParserIntegrationTest {
     private final ApiClient apiClient = new ApiClient(Env.PROD);
 
     @Test

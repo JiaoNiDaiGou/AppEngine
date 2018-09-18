@@ -35,10 +35,11 @@ public class Answers<T> implements Iterable<Answer<T>> {
      */
     public static <M> Answers<M> useInputIfNoAnswer(final Answers<M> answers,
                                                     final String input) {
-        if (!answers.hasAtLeastOneTarget()) {
+        if (answers.hasAtLeastOneTarget()) {
             return answers;
         } else {
-            Answer<M> answerOfInput = new Answer<M>().setTarget(null, Conf.CONFIRMED)
+            Answer<M> answerOfInput = new Answer<M>()
+                    .setTarget(null, Conf.ZERO)
                     .setRawStringAfterExtraction(input);
             return Answers.of(answerOfInput);
         }
@@ -58,11 +59,11 @@ public class Answers<T> implements Iterable<Answer<T>> {
         return NO_ANSWER;
     }
 
-    public static <T> Answers of(final Iterable<Answer<T>> answers) {
+    public static <T> Answers<T> of(final Iterable<Answer<T>> answers) {
         return new Answers<>(ImmutableList.copyOf(answers));
     }
 
-    public static <T> Answers of(final Answer<T> answer) {
+    public static <T> Answers<T> of(final Answer<T> answer) {
         return new Answers<>(ImmutableList.of(answer));
     }
 

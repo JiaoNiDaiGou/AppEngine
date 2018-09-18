@@ -51,15 +51,15 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1F1gf8fIMp7gdu2ZtqqXImhx_6sJVc5RIDQH4BztOUvg/edit#gid=1927658082";
-    private static final boolean SEND_TO_FU = false;
+            "https://docs.google.com/spreadsheets/d/1y31CkS2JvLQahTpUq-CEtOlv3h7nXG2uXxE7tVKoQOg/edit#gid=611704717";
+    private static final boolean SEND_TO_FU = true;
 
     //
     //
     //
     private static final String FU_EMAIL = "furuijie@gmail.com";
     //    private static final String[] CHEN_EMAILS = { "hsiting@yahoo.com" };
-    private static final String[] CHEN_EMAILS = { "furuijie@gmail.com" };
+//    private static final String[] CHEN_EMAILS = { "furuijie@gmail.com" };
 
     private static final String EMAIL_SUBJECT = "感謝訂購 楊媽媽家常菜";
     private static final String ADMIN_EMAIL_SUBJECT_TEMPLATE = "楊媽媽家常菜 %s 总览";
@@ -372,9 +372,9 @@ public class SendEmail2 {
                 String html = templates.toContent(emailProps.get(order));
 
                 if (StringUtils.isNotBlank(html)) {
-//                    sender.sendHtml(email, EMAIL_SUBJECT, html);
+                    sender.sendHtml(email, EMAIL_SUBJECT, html);
                     emailSent.add(email);
-//                    Thread.sleep(2000L);
+                    Thread.sleep(2000L);
                 }
             }
 
@@ -403,17 +403,17 @@ public class SendEmail2 {
                         .add("orderGroupByDelivery", allOrderProps)
                         .build();
 
-                for (String email : CHEN_EMAILS) {
+//                for (String email : CHEN_EMAILS) {
 //                    if (!emailSent.contains("admin::" + email)) {
-                    String html = templates.toContent(allProps);
-                    sender.sendHtml(
-                            email,
-                            String.format(ADMIN_EMAIL_SUBJECT_TEMPLATE, spreadsheet.getProperties().getTitle()),
-                            html);
-                    emailSent.add("admin::" + email);
-                    System.out.println("Send summary to admin " + email);
+//                    String html = templates.toContent(allProps);
+//                    sender.sendHtml(
+//                            email,
+//                            String.format(ADMIN_EMAIL_SUBJECT_TEMPLATE, spreadsheet.getProperties().getTitle()),
+//                            html);
+//                    emailSent.add("admin::" + email);
+//                    System.out.println("Send summary to admin " + email);
 //                    }
-                }
+//                }
             }
 
         } finally {

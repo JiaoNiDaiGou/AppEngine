@@ -25,6 +25,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
+import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+
 @Path("/api/parse")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
@@ -63,11 +66,13 @@ public class ParserInterface {
     }
 
     private ParseResponse parseAddress(final ParseRequest request) {
+        meterOn();
+
         final String text = concatRequestText(request);
 
         Answers<Address> addressAnswers = addressParser.parse(text);
 
-        return ParseResponse
+        ParseResponse toReturn = ParseResponse
                 .newBuilder()
                 .addAllResults(addressAnswers
                         .stream()
@@ -75,14 +80,18 @@ public class ParserInterface {
                         .map(t -> ParsedObject.newBuilder().setAddress(t.getTarget()).build())
                         .collect(Collectors.toList()))
                 .build();
+
+        meterOff();
+        return toReturn;
     }
 
     private ParseResponse parseCustomerContact(final ParseRequest request) {
+        meterOn();
         final String text = concatRequestText(request);
 
         Answers<Customer> addressAnswers = customerContactParser.parse(text);
 
-        return ParseResponse
+        ParseResponse toReturn = ParseResponse
                 .newBuilder()
                 .addAllResults(addressAnswers
                         .stream()
@@ -90,6 +99,9 @@ public class ParserInterface {
                         .map(t -> ParsedObject.newBuilder().setCustomer(t.getTarget()).build())
                         .collect(Collectors.toList()))
                 .build();
+
+        meterOff();
+        return toReturn;
     }
 
     private static String concatRequestText(final ParseRequest request) {

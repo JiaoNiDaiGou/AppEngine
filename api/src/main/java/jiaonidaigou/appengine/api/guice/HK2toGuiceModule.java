@@ -1,20 +1,24 @@
 package jiaonidaigou.appengine.api.guice;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Injector;
-import com.google.protobuf.Message;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.jvnet.hk2.annotations.Service;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HK2toGuiceModule extends AbstractBinder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HK2toGuiceModule.class);
     private static final String INTERFACES_PACKAGE_NAME = "jiaonidaigou.appengine.api.interfaces";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HK2toGuiceModule.class);
 
     private Injector guiceInjector;
 
@@ -27,16 +31,10 @@ public class HK2toGuiceModule extends AbstractBinder {
         bindInterfaces();
     }
 
+    @SuppressWarnings("unchecked")
     private void bindInterfaces() {
-        Reflections reflections = new Reflections();
-        for (Class<? extends Message> clazz : reflections.getSubTypesOf(Message.class)) {
-            int modifiers = clazz.getModifiers();
-            if (Modifier.isAbstract(modifiers)
-                    || Modifier.isInterface(modifiers)
-                    || !Modifier.isPublic(modifiers)
-                    || !clazz.getSimpleName().endsWith("Interface")) {
-                continue;
-            }
+        List<Class> interfaceClasses = findInterfaceClasses();
+        for (Class clazz : interfaceClasses) {
             LOGGER.info("Bind interface {}", clazz.getName());
             bindInterface(clazz);
         }
@@ -44,6 +42,22 @@ public class HK2toGuiceModule extends AbstractBinder {
 
     private <T> void bindInterface(final Class<T> interfaceType) {
         bindFactory(new ServiceFactory<>(guiceInjector, interfaceType)).to(interfaceType);
+    }
+
+    @VisibleForTesting
+    static List<Class> findInterfaceClasses() {
+        List<Class> toReturn = new ArrayList<>();
+
+        Reflections reflections = new Reflections(INTERFACES_PACKAGE_NAME);
+        for (Class clazz : reflections.getTypesAnnotatedWith(Service.class)) {
+            int modifiers = clazz.getModifiers();
+            if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers)) {
+                continue;
+            }
+            toReturn.add(clazz);
+        }
+
+        return toReturn;
     }
 
     private static class ServiceFactory<T> implements Factory<T> {

@@ -5,15 +5,21 @@ import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
+import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 import static jiaonidaigou.appengine.contentparser.Answers.noAnswer;
 import static jiaonidaigou.appengine.contentparser.Answers.useInputIfNoAnswer;
 import static jiaonidaigou.appengine.contentparser.Answers.weightedAverage;
 
 public class CnCustomerContactParser implements Parser<Customer> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CnCustomerContactParser.class);
+
     private CnPeopleNameParser peopleNameParser;
     private CnCellPhoneParser phoneParser;
     private CnAddressParser addressParser;
@@ -26,6 +32,9 @@ public class CnCustomerContactParser implements Parser<Customer> {
 
     @Override
     public Answers<Customer> parse(final String rawInput) {
+        meterOn();
+        LOGGER.info("input: {}", rawInput);
+
         if (rawInput == null) {
             return Answers.noAnswer();
         }
@@ -84,6 +93,8 @@ public class CnCustomerContactParser implements Parser<Customer> {
             return noAnswer();
         }
         customers.sort((a, b) -> Integer.compare(b.getConfidence(), a.getConfidence()));
+
+        meterOff();
         return Answers.of(customers);
     }
 }
