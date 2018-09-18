@@ -6,7 +6,7 @@
 # Usage:
 #   VERSION=some_version ./deploy.sh
 
-set -o pipefail
+set -euo pipefail
 
 export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 . $ROOT/scripts/exports.sh

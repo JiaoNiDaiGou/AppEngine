@@ -15,6 +15,8 @@ import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 public class CnPeopleNameParser implements Parser<String> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CnPeopleNameParser.class);
 
+    private static final char[] ALLOWED_CHARS = { '-', '.', '(', ')', '（', '#' };
+
     private static int confidenceOfChineseName(final String input) {
         if (!StringUtils2.containsOnlyCharTypes(input, StringUtils2.CharType.CHINESE)) {
             return Conf.ZERO;
@@ -68,7 +70,7 @@ public class CnPeopleNameParser implements Parser<String> {
                         StringUtils2.CharType.DIGIT
                 },
                 " ",
-                new char[]{ '-', '.', '(', ')', '（' });
+                ALLOWED_CHARS);
 
         List<Answer<String>> toReturn = new ArrayList<>();
 

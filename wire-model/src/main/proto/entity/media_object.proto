@@ -16,4 +16,6 @@ message MediaObject {
     string signed_download_url = 4;
 
     string media_type = 5;
+
+    bytes bytes = 6;
 }

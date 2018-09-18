@@ -1,19 +1,45 @@
 package jiaonidaigou.appengine.integrationtest;
 
 import jiaonidaigou.appengine.common.model.Env;
+import jiaonidaigou.appengine.common.test.TestUtils;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static jiaonidaigou.appengine.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MediaIntegrationTest {
     private final ApiClient client = new ApiClient(Env.PROD);
+
+    @Test
+    public void test_directUpload_download() {
+        byte[] bytes = TestUtils.readResourceAsBytes("customer_only.jpg");
+        // Direct upload
+        MediaObject uploadObject = client.newTarget()
+                .path("api/media/directUpload")
+                .queryParam("ext", "jpg")
+                .queryParam("hasDownloadUrl", true)
+                .request()
+                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .post(Entity.entity(bytes, MediaType.APPLICATION_OCTET_STREAM_TYPE))
+                .readEntity(MediaObject.class);
+
+        final String downloadUrl = uploadObject.getSignedDownloadUrl();
+
+        byte[] downloadBytes = client.newTarget("download", downloadUrl)
+                .request()
+                .get()
+                .readEntity(byte[].class);
+        assertArrayEquals(bytes, downloadBytes);
+    }
 
     @Test
     public void test_upload_download() {
