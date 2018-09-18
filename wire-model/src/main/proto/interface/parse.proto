@@ -20,6 +20,7 @@ message ParseRequest {
     Domain domain = 1;
     repeated string texts = 2;
     repeated string media_ids = 3;
+    int32 limit = 4; // How many result to return at most
 }
 
 message ParseResponse {

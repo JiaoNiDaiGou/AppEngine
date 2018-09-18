@@ -78,6 +78,7 @@ public class ParserInterface {
                         .stream()
                         .filter(t -> t.getConfidence() > Conf.ZERO)
                         .map(t -> ParsedObject.newBuilder().setAddress(t.getTarget()).build())
+                        .limit(request.getLimit() == 0 ? Integer.MAX_VALUE : request.getLimit())
                         .collect(Collectors.toList()))
                 .build();
 
@@ -97,6 +98,7 @@ public class ParserInterface {
                         .stream()
                         .filter(t -> t.getConfidence() > Conf.ZERO)
                         .map(t -> ParsedObject.newBuilder().setCustomer(t.getTarget()).build())
+                        .limit(request.getLimit() == 0 ? Integer.MAX_VALUE : request.getLimit())
                         .collect(Collectors.toList()))
                 .build();
 
