@@ -20,6 +20,14 @@ message ParseRequest {
     Domain domain = 1;
     repeated string texts = 2;
     repeated string media_ids = 3;
+    repeated DirectUploadImage direct_upload_images = 4;
+
+    int32 limit = 10; // How many result to return at most
+
+    message DirectUploadImage {
+        string ext = 1;
+        bytes bytes = 2;
+    }
 }
 
 message ParseResponse {

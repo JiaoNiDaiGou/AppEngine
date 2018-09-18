@@ -4,7 +4,6 @@ import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
-import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.common.utils.Environments.GCS_MEDIA_ROOT_ENDSLASH;
+import static jiaonidaigou.appengine.api.utils.MediaUtils.determineMediaType;
+import static jiaonidaigou.appengine.api.utils.MediaUtils.toStoragePath;
 
 @Path("/api/media")
 @Produces(MediaType.APPLICATION_JSON)
@@ -46,7 +46,7 @@ public class MediaInterface {
 
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
         String mediaType = determineMediaType(fileExtension);
-        String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        String path = toStoragePath(mediaId);
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
         URL signedUrl = storageClient.getSignedUploadUrl(path, mediaType);
@@ -69,7 +69,7 @@ public class MediaInterface {
 
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
         String mediaType = determineMediaType(fileExtension);
-        String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        String path = toStoragePath(mediaId);
         LOGGER.info("directUpload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
         storageClient.write(path, mediaType, body);
@@ -93,7 +93,7 @@ public class MediaInterface {
     public Response getSignedDownloadUrl(@QueryParam("mediaId") final String mediaId) {
         RequestValidator.validateNotBlank(mediaId, "mediaId");
 
-        String path = GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        String path = toStoragePath(mediaId);
         String mediaType = determineMediaType(path);
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
@@ -105,17 +105,5 @@ public class MediaInterface {
                 .setMediaType(mediaType)
                 .build())
                 .build();
-    }
-
-    private static String determineMediaType(final String pathOrFileExtension) {
-        String ext = pathOrFileExtension.contains(".")
-                ? StringUtils.substringAfterLast(pathOrFileExtension, ".").toLowerCase()
-                : pathOrFileExtension.toLowerCase();
-        switch (ext) {
-            case "txt":
-                return MediaType.TEXT_PLAIN;
-            default:
-                return MediaType.APPLICATION_OCTET_STREAM;
-        }
     }
 }

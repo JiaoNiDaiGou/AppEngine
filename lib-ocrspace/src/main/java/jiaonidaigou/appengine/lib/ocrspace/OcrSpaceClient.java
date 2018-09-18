@@ -16,7 +16,6 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Base64;
 
 import static com.google.common.base.Preconditions.checkNotNull;

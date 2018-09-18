@@ -238,6 +238,13 @@ public class StringUtils2 {
         return replaceNonCharTypesWith(str, charTypesToKeep, String.valueOf(replace), excepts);
     }
 
+    public static String removeDuplicatedSpaces(final String str) {
+        if (str == null) {
+            return null;
+        }
+        return String.join(" ", StringUtils.split(str.trim(), " "));
+    }
+
     public enum CharType {
         DIGIT, // 0 - 9
         A2Z, // a-z && A-Z

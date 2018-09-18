@@ -28,6 +28,8 @@ public class CnAddressParser implements Parser<Address> {
             .add("区", "市", "县", "镇", "乡", "村", "旗", "集")
             .build();
 
+    private static final char[] ALLOWED_CHARS = { '-', '.', '(', ')', '（', '#' };
+
     private static final int SEARCH_ZONE_FLAG_MAX_LENGTH = 6;
 
     /**
@@ -79,7 +81,7 @@ public class CnAddressParser implements Parser<Address> {
     @Override
     public Answers<Address> parse(String input) {
         meterOn();
-        LOGGER.info("input: {}",  input);
+        LOGGER.info("input: {}", input);
 
         if (StringUtils.isBlank(input)) {
             return Answers.noAnswer();
@@ -123,7 +125,7 @@ public class CnAddressParser implements Parser<Address> {
                         StringUtils2.CharType.DIGIT
                 },
                 " ",
-                new char[]{ '-', '.', '(', ')', '（' });
+                ALLOWED_CHARS);
 
         // Find region + city
         loop1:
@@ -198,7 +200,7 @@ public class CnAddressParser implements Parser<Address> {
                         .setRegion(foundCity.getRegion().getName())
                         .setCity(foundCity.getName())
                         .setZone(foundZone == null ? foundCity.getName() : foundZone)
-                        .setAddress(foundAddress)
+                        .setAddress(StringUtils2.removeDuplicatedSpaces(foundAddress))
                         .build(), conf);
     }
 }
