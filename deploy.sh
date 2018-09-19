@@ -11,7 +11,7 @@ set -euo pipefail
 export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 . $ROOT/scripts/exports.sh
 
-VERSION="${1:-jiaonidaigou}"
+VERSION="${VERSION:-jiaonidaigou}"
 
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh

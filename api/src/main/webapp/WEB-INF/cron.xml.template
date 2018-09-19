@@ -4,6 +4,7 @@
         <url>/cron/syncJiaoniCustomers</url>
         <description>Sync JiaoniDaiGou customers</description>
         <schedule>every day 04:00</schedule>
+        <target>VERSION</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
     <cron>
