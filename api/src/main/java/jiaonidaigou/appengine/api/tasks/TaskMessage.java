@@ -1,9 +1,14 @@
 package jiaonidaigou.appengine.api.tasks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.function.Consumer;
 
 public class TaskMessage {
     @JsonProperty
@@ -66,6 +71,14 @@ public class TaskMessage {
             return this;
         }
 
+        public Builder withPayloadJson(final Object payloadJson) {
+            try {
+                return withPayload(ObjectMapperProvider.get().writeValueAsString(payloadJson));
+            } catch (JsonProcessingException e) {
+                throw new InternalIOException(e);
+            }
+        }
+
         public Builder withReachCount(int reachCount) {
             this.reachCount = reachCount;
             return this;
@@ -74,6 +87,10 @@ public class TaskMessage {
         public Builder withHandler(String handler) {
             this.handler = handler;
             return this;
+        }
+
+        public Builder withHandler(final Class<? extends Consumer<TaskMessage>> handleClass) {
+            return withHandler(handleClass.getSimpleName());
         }
 
         public TaskMessage build() {

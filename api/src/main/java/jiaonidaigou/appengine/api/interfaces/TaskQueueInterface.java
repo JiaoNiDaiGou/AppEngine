@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import com.google.common.collect.ImmutableMap;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import org.jvnet.hk2.annotations.Service;
@@ -30,10 +31,10 @@ public class TaskQueueInterface {
     private final Map<String, Consumer<TaskMessage>> consumers;
 
     @Inject
-    public TaskQueueInterface() {
-        consumers = ImmutableMap
-                .<String, Consumer<TaskMessage>>builder()
-                .build();
+    public TaskQueueInterface(final SyncJiaoniCustomersTaskRunner syncJiaoniCustomersTaskRunner) {
+        this.consumers = buildConsumerMap(
+                syncJiaoniCustomersTaskRunner
+        );
     }
 
     @POST
@@ -53,6 +54,14 @@ public class TaskQueueInterface {
         }
         taskConsumer.accept(taskMessage);
         return Response.ok().build();
+    }
+
+    private static Map<String, Consumer<TaskMessage>> buildConsumerMap(final Consumer<TaskMessage>... consumers) {
+        ImmutableMap.Builder<String, Consumer<TaskMessage>> builder = ImmutableMap.builder();
+        for (Consumer<TaskMessage> consumer : consumers) {
+            builder.put(consumer.getClass().getSimpleName(), consumer);
+        }
+        return builder.build();
     }
 }
 
