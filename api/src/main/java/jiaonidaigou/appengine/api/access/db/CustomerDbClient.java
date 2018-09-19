@@ -21,10 +21,10 @@ import static jiaonidaigou.appengine.common.utils.Preconditions2.checkNotBlank;
 public class CustomerDbClient extends BaseDbClient<Customer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDbClient.class);
 
-    public CustomerDbClient(final DatastoreService service, final String appName) {
+    public CustomerDbClient(final DatastoreService service, final String serviceName) {
         super(new DbClientBuilder<Customer>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(appName + ".Customer"))
+                .entityFactory(new EntityFactory(serviceName + ".Customer"))
                 .inMemoryCache()
                 .build());
     }

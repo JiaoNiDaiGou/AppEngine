@@ -37,9 +37,6 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
 
     private static final int MAX_PAGES_TO_LOAD_FROM_TEDDY = 10;
 
-    static class Message {
-    }
-
     private final CustomerDbClient customerDbClient;
     private final TeddyClient teddyClient;
     private final EmailClient emailClient;
@@ -70,32 +67,39 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
         // Log to email
         StringBuilder logger = new StringBuilder()
                 .append(DateTime.now().toString())
-                .append("\n")
+                .append("\n\n")
                 .append("Sync receivers:")
-                .append("\n");
+                .append("\n\n");
         for (int i = 1; i <= MAX_PAGES_TO_LOAD_FROM_TEDDY; i++) {
+            logger.append("Page ").append(i).append(": start\n");
             List<Receiver> receivers = teddyClient.getReceivers(i);
             // No receivers in this page, stop fetching more.
             if (receivers.isEmpty()) {
+                logger.append("Page ").append(i).append(": has no customers. BREAK!\n");
                 break;
             }
 
             // All receivers in this page are the already synced, stop fetching more.
             List<Customer> toUpdateCurPage = getCustomersToUpdate(logger, existingCustomers, receivers);
             if (toUpdateCurPage.isEmpty()) {
+                logger.append("Page ").append(i).append(": all customers has been synced before. BREAK!\n");
                 break;
             }
 
+            logger.append("Page ").append(i).append(": load ").append(toUpdateCurPage.size()).append(" customers\n");
+
             toUpdate.addAll(toUpdateCurPage);
+            logger.append("\n\n");
         }
 
         if (!toUpdate.isEmpty()) {
             LOGGER.info("Update {} customers into DB.", toUpdate.size());
-            customerDbClient.put(toUpdate);
+//            customerDbClient.put(toUpdate);
         }
 
-        logger.append("\n")
-                .append("totally sync " + toUpdate.size() + " new customers.");
+        logger.append("\n\ntotally sync ")
+                .append(toUpdate.size())
+                .append(" new customers.");
 
         for (String adminEmail : Environments.ADMIN_EMAILS) {
             emailClient.sendText(adminEmail, "SyncReceiver report", logger.toString());
@@ -134,7 +138,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
         addIdCard(builder, receiver.getIdCardNumber());
 
         if (!addPhone(builder, phone)) {
-            logger.append("Invalid phone. ").append(receiver).append("\n");
+            logger.append("\tInvalid phone. ").append(receiver).append("\n");
             return null;
         }
 
@@ -143,7 +147,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
                 receiver.getAddressCity(),
                 receiver.getAddressZone(),
                 receiver.getAddress())) {
-            logger.append("Invalid address. ").append(receiver).append("\n");
+            logger.append("\tInvalid address. ").append(receiver).append("\n");
             return null;
         }
 

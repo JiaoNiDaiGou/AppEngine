@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.access.email;
 
 import com.google.common.base.Charsets;
 import jiaonidaigou.appengine.common.utils.Environments;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -19,7 +20,9 @@ public class FakePopupEmailSender implements EmailClient {
     public void sendText(final String to,
                          final String subject,
                          final String text) {
-        send(to, subject, text);
+        String formattedText = StringUtils.replace(text, "\n", "<br />");
+        formattedText = StringUtils.replace(formattedText, "\t", "&#09;");
+        send(to, subject, formattedText);
     }
 
     private void send(final String to,
