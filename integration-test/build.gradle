@@ -12,3 +12,17 @@ dependencies {
     compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
     compile "org.hamcrest:hamcrest-all:$hamcrest_ver"
 }
+
+test {
+    // Exclude all integration tests from unit test.
+    // They can be run separately by ./gradlew :integration-test:integrationTest -Denv=DEV -Dusername=rfu
+    exclude "**/**"
+}
+
+task integrationTest(type: Test) {
+//    systemProperty "env", System.getProperty("env")
+//    systemProperty "hostname", System.getProperty("hostname")
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+}
