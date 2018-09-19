@@ -3,10 +3,10 @@ package jiaonidaigou.appengine.api.interfaces;
 import com.google.common.base.Enums;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.impls.DbEnhancedCustomerParser;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.contentparser.Answers;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
-import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
 import jiaonidaigou.appengine.contentparser.Conf;
 import jiaonidaigou.appengine.lib.ocrspace.OcrSpaceClient;
 import jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest.FileType;
@@ -45,17 +45,17 @@ public class ParserInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParserInterface.class);
 
     private final CnAddressParser addressParser;
-    private final CnCustomerContactParser customerContactParser;
+    private final DbEnhancedCustomerParser customerParser;
     private final OcrSpaceClient ocrSpaceClient;
     private final StorageClient storageClient;
 
     @Inject
     public ParserInterface(final CnAddressParser addressParser,
-                           final CnCustomerContactParser customerContactParser,
+                           final DbEnhancedCustomerParser customerParser,
                            final OcrSpaceClient ocrSpaceClient,
                            final StorageClient storageClient) {
         this.addressParser = addressParser;
-        this.customerContactParser = customerContactParser;
+        this.customerParser = customerParser;
         this.ocrSpaceClient = ocrSpaceClient;
         this.storageClient = storageClient;
     }
@@ -106,7 +106,7 @@ public class ParserInterface {
         meterOn();
         final String text = extractRequestText(request);
 
-        Answers<Customer> addressAnswers = customerContactParser.parse(text);
+        Answers<Customer> addressAnswers = customerParser.parse(text);
 
         ParseResponse toReturn = ParseResponse
                 .newBuilder()

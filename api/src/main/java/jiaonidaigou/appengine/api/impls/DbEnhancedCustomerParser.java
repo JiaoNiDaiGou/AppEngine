@@ -4,6 +4,7 @@ import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
 import jiaonidaigou.appengine.contentparser.Answer;
 import jiaonidaigou.appengine.contentparser.Answers;
 import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
+import jiaonidaigou.appengine.contentparser.Conf;
 import jiaonidaigou.appengine.contentparser.Parser;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
@@ -35,10 +36,16 @@ public class DbEnhancedCustomerParser implements Parser<Customer> {
         for (Answer<Customer> answer : customerAnswers) {
             if (answer.hasTarget() && StringUtils.isNotBlank(answer.getTarget().getName())
                     && answer.getTarget().hasPhone()) {
-
+                String key = CustomerDbClient.computeKey(answer.getTarget().getPhone(), answer.getTarget().getName());
+                Customer knownCustomer = dbClient.getById(key);
+                if (knownCustomer != null) {
+                    knownCustomers.add(knownCustomer);
+                }
             }
         }
 
-        return null;
+        List<Answer<Customer>> enhancedAnswers = new ArrayList<>(customerAnswers.getResults());
+        knownCustomers.stream().map(t -> new Answer<Customer>().setTarget(t, Conf.HIGH)).forEach(enhancedAnswers::add);
+        return Answers.of(enhancedAnswers);
     }
 }
