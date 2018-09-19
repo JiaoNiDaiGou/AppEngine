@@ -21,6 +21,7 @@ public class Environments {
     public static final String LOCAL_TEMP_DIR_ENDSLASH;
     public static final String LOCAL_ENDPOINT = "http://127.0.0.1:33256";
     public static final String GAE_ADMIN_EMAIL = "songfan.rfu@gmail.com";
+    public static final String[] ADMIN_EMAILS = { "furuijie@gmail.com" };
 
     static {
         OS_TYPE = determineOSType();
