@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.api.impls;
 
 import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
+import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.contentparser.Answer;
 import jiaonidaigou.appengine.contentparser.Answers;
 import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
@@ -10,7 +11,9 @@ import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -23,7 +26,7 @@ public class DbEnhancedCustomerParser implements Parser<Customer> {
 
     @Inject
     public DbEnhancedCustomerParser(final CnCustomerContactParser customerContactParser,
-                                    final CustomerDbClient dbClient) {
+                                    @JiaoNiDaiGou final CustomerDbClient dbClient) {
         this.parser = checkNotNull(customerContactParser);
         this.dbClient = checkNotNull(dbClient);
     }
@@ -32,14 +35,18 @@ public class DbEnhancedCustomerParser implements Parser<Customer> {
     public Answers<Customer> parse(final String input) {
         Answers<Customer> customerAnswers = parser.parse(input);
 
-        List<Customer> knownCustomers = new ArrayList<>();
+        Set<Customer> knownCustomers = new HashSet<>();
         for (Answer<Customer> answer : customerAnswers) {
-            if (answer.hasTarget() && StringUtils.isNotBlank(answer.getTarget().getName())
-                    && answer.getTarget().hasPhone()) {
-                String key = CustomerDbClient.computeKey(answer.getTarget().getPhone(), answer.getTarget().getName());
-                Customer knownCustomer = dbClient.getById(key);
-                if (knownCustomer != null) {
-                    knownCustomers.add(knownCustomer);
+            if (answer.hasTarget()) {
+                if (StringUtils.isNotBlank(answer.getTarget().getName())) {
+                    dbClient.scan()
+                            .filter(t -> t.getName().equals(answer.getTarget().getName()))
+                            .forEach(knownCustomers::add);
+                }
+                if (answer.getTarget().hasPhone()) {
+                    dbClient.scan()
+                            .filter(t -> t.getPhone().equals(answer.getTarget().getPhone()))
+                            .forEach(knownCustomers::add);
                 }
             }
         }
