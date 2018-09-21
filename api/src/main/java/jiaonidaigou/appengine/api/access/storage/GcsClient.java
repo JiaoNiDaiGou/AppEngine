@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.access.storage;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.HttpMethod;
@@ -47,13 +48,12 @@ public class GcsClient implements StorageClient {
 
     @Override
     public boolean exists(final String path) {
-        return storage.get(blobId(path)).exists();
+        Blob blob = storage.get(blobId(path));
+        return blob != null && blob.exists();
     }
 
     @Override
     public Metadata getMetadata(final String path) {
-
-
         return null;
     }
 

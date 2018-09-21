@@ -39,11 +39,10 @@ protobuf {
         all().each { task ->
             task.builtins {
                 java {}
-//                python {}
-//                js {
-//                    option "import_style=commonjs"
-//                    option "binary"
-//                }
+                js {
+                    option "import_style=commonjs"
+                    option "binary"
+                }
             }
         }
     }

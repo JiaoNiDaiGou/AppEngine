@@ -13,6 +13,8 @@ import jiaonidaigou.appengine.api.access.email.GaeEmailSender;
 import jiaonidaigou.appengine.api.access.gcp.GoogleCloudLibFactory;
 import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
+import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
+import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
@@ -34,6 +36,7 @@ public class ServiceModule extends AbstractModule {
     protected void configure() {
         bind(StorageClient.class).to(GcsClient.class);
         bind(EmailClient.class).to(GaeEmailSender.class);
+        bind(PubSubClient.class).to(TaskQueueClient.class);
 
         bind(CnCustomerContactParser.class).toInstance(new CnCustomerContactParser());
         bind(CnAddressParser.class).toInstance(new CnAddressParser());

@@ -17,11 +17,12 @@ import javax.inject.Singleton;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
-public class TaskQueueClient {
+public class TaskQueueClient implements PubSubClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskQueueClient.class);
 
     private static final int DEFAULT_RETRY_LIMIT = 3;
 
+    @Override
     public void submit(final QueueName name, final TaskMessage taskMessage) {
         checkNotNull(taskMessage);
         Queue queue = QueueFactory.getQueue(name.queueName());
@@ -44,14 +45,5 @@ public class TaskQueueClient {
                 .retryOptions(RetryOptions.Builder.withTaskRetryLimit(DEFAULT_RETRY_LIMIT));
 
         queue.add(options);
-    }
-
-    public enum QueueName {
-        HIGH_FREQUENCY,
-        LOW_FREQUENCY;
-
-        public String queueName() {
-            return name().toLowerCase().replace('_', '-');
-        }
     }
 }

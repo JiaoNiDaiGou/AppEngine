@@ -60,7 +60,7 @@ public class TaskMessage {
 
     public static final class Builder {
         private String payload;
-        private int reachCount;
+        private int reachCount = 0;
         private String handler;
 
         private Builder() {
@@ -81,6 +81,11 @@ public class TaskMessage {
 
         public Builder withReachCount(int reachCount) {
             this.reachCount = reachCount;
+            return this;
+        }
+
+        public Builder increaseReachCount() {
+            this.reachCount++;
             return this;
         }
 
