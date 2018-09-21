@@ -57,7 +57,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
     /**
      * How long the task can run
      */
-    private static final int TASK_ALIVE_TIME_SECONDS = 10; //8 * 60;
+    private static final int TASK_ALIVE_TIME_SECONDS = 9 * 60;
     private final EmailClient emailClient;
     private final StorageClient storageClient;
     private final PubSubClient pubSubClient;

@@ -14,7 +14,8 @@ public class RegistryTool {
     public static void main(String[] args) throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
             Registry registry = new Registry(remoteApi.getDatastoreService());
-            listRegistries(registry);
+//            listRegistries(registry);
+            putRegistry(registry);
         }
     }
 
@@ -30,6 +31,6 @@ public class RegistryTool {
         registry.setRegistry(
                 Environments.SERVICE_NAME_JIAONIDAIGOU,
                 REGISTRY_KEY_LAST_DUMP_ID,
-                "134009");
+                "134154");
     }
 }
