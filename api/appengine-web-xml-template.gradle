@@ -3,8 +3,8 @@ war {
 }
 
 def setGaeInfo(xml, appId, version) {
-    xml.text = xml.text.replaceFirst('PROJECT', appId);
-    xml.text = xml.text.replaceFirst('VERSION', version);
+    xml.text = xml.text.replace('$PROJECT', appId);
+    xml.text = xml.text.replace('$VERSION', version);
 }
 
 def generateXmlFromTemplate(path) {

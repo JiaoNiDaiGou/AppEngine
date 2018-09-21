@@ -22,7 +22,7 @@ public class VerifyDumpJiaoniShippingOrderTaskRunner {
                 new PopupPageEmailClient(),
                 new LocalFileStorageClient(),
                 LocalStaticTaskClient.instance(),
-                new TeddyClientImpl(TeddyAdmins.JIAONI, new MockBrowserClient("jiaoni")),
+                new TeddyClientImpl(TeddyAdmins.HACK, new MockBrowserClient("jiaoni")),
                 registry);
         LocalStaticTaskClient.initialize(runner);
 

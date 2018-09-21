@@ -4,7 +4,7 @@
         <url>/cron/syncJiaoniCustomers</url>
         <description>Sync JiaoniDaiGou customers</description>
         <schedule>every day 04:00</schedule>
-        <target>VERSION</target>
+        <target>$VERSION</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
     <cron>
@@ -14,9 +14,10 @@
         <timezone>Asia/Shanghai</timezone>
     </cron>
     <cron>
-        <url>/cron/notification/xiaoxiong/ordersDump?taskLimit=10&amp;forward=true</url>
-        <description>XiaoXiong orders daily dump</description>
+        <url>/cron/dumpJiaoniShippingOrder?limit=10</url>
+        <description>Teddy full shipping orders dump</description>
         <schedule>every day 04:00</schedule>
+        <target>$VERSION</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
 </cronentries>

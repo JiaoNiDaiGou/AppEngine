@@ -43,8 +43,7 @@ import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAO
  * Start from 119520, and run backward.
  */
 public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> {
-    static final String ORDER_ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "xiaoxiong_shipping_orders/";
-    static final String LAST_MAX_DAYS_FILE = ORDER_ARCHIEVE_DIR + "lastMaxDays.json";
+    private static final String ORDER_ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "xiaoxiong_shipping_orders/";
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpJiaoniShippingOrderTaskRunner.class);
     private static final long KNOWN_START_ID = 134009;
     /**
@@ -58,7 +57,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
     /**
      * How long the task can run
      */
-    private static final int TASK_ALIVE_TIME_MIN = 8;
+    private static final int TASK_ALIVE_TIME_SECONDS = 10; //8 * 60;
     private final EmailClient emailClient;
     private final StorageClient storageClient;
     private final PubSubClient pubSubClient;
@@ -69,7 +68,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
     public DumpJiaoniShippingOrderTaskRunner(final EmailClient emailClient,
                                              final StorageClient storageClient,
                                              final PubSubClient pubSubClient,
-                                             @Named(TeddyAdmins.JIAONI) final TeddyClient teddyClient,
+                                             @Named(TeddyAdmins.HACK) final TeddyClient teddyClient,
                                              final Registry registry) {
         this.emailClient = emailClient;
         this.storageClient = storageClient;
@@ -89,7 +88,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
         int count = 0;
         long id = determineStartId(message);
 
-        while (DateTime.now().isBefore(startTime.plusMinutes(TASK_ALIVE_TIME_MIN))) {
+        while (DateTime.now().isBefore(startTime.plusSeconds(TASK_ALIVE_TIME_SECONDS))) {
             id--;
             Order order = loadOrder(id);
             boolean orderNull = order == null || order.getCreationTime() == null;
@@ -124,7 +123,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
         long lastNonNullId = message.id;
         boolean hasNextTask = true;
 
-        while (DateTime.now().isBefore(startTime.plusMinutes(TASK_ALIVE_TIME_MIN))) {
+        while (DateTime.now().isBefore(startTime.plusSeconds(TASK_ALIVE_TIME_SECONDS))) {
             id++;
             Order order = loadOrder(id);
             boolean orderNull = order == null || order.getCreationTime() == null;
@@ -210,7 +209,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
     }
 
     private Order loadOrder(final long id) {
-        Order order = teddyClient.getOrderDetails(id, true);
+        Order order = teddyClient.getOrderDetails(id, false);
         Uninterruptibles.sleepUninterruptibly((long) (1000L + Math.random() * 1000L),
                 TimeUnit.MILLISECONDS);
         return order;
@@ -252,7 +251,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
         storageClient.write(path, MediaType.JSON_UTF_8.toString(), bytes);
     }
 
-    private static class Message {
+    public static class Message {
         @JsonProperty
         private long id;
         @JsonProperty
@@ -260,12 +259,13 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
         @JsonProperty
         private boolean backward;
 
-        Message(long id, int limit, boolean backward) {
+        public Message(long id, int limit, boolean backward) {
             this.id = id;
             this.limit = limit;
             this.backward = backward;
         }
 
+        // For json
         Message() {
         }
     }

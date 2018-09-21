@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.tasks.DumpJiaoniShippingOrderTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import org.jvnet.hk2.annotations.Service;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -39,6 +41,21 @@ public class CronInterface {
                 HIGH_FREQUENCY,
                 TaskMessage.builder()
                         .withHandler(SyncJiaoniCustomersTaskRunner.class)
+                        .build()
+        );
+        return Response.ok().build();
+    }
+
+    @Path("/dumpJiaoniShippingOrder")
+    @GET
+    public Response dumpJiaoniShippingOrder(@QueryParam("id") final long id,
+                                            @QueryParam("limit") final int limit,
+                                            @QueryParam("backward") final boolean backward) {
+        taskQueueClient.submit(
+                HIGH_FREQUENCY,
+                TaskMessage.builder()
+                        .withHandler(DumpJiaoniShippingOrderTaskRunner.class)
+                        .withPayloadJson(new DumpJiaoniShippingOrderTaskRunner.Message(id, limit, backward))
                         .build()
         );
         return Response.ok().build();
