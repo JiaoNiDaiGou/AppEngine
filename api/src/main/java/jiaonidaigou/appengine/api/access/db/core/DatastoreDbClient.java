@@ -30,6 +30,8 @@ import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
  * @param <T> Type of entity
  */
 public class DatastoreDbClient<T> implements DbClient<T> {
+    private static final String KEY_PROP = "__key__";
+
     private final DatastoreEntityFactory<T> entityFactory;
     private final DatastoreService service;
 
@@ -40,18 +42,21 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     }
 
     private static Query.Filter convertQueryFilter(final DbQuery query) {
-        if (query instanceof AndDbQuery) {
+        if (query instanceof DbClient.AndQuery) {
             return new Query.CompositeFilter(Query.CompositeFilterOperator.AND,
-                    ((AndDbQuery) query).getQueries().stream()
+                    ((AndQuery) query).getQueries().stream()
                             .map(DatastoreDbClient::convertQueryFilter)
                             .collect(Collectors.toList()));
-        } else if (query instanceof OrDbQuery) {
+        } else if (query instanceof DbClient.OrQuery) {
             return new Query.CompositeFilter(Query.CompositeFilterOperator.OR,
-                    ((OrDbQuery) query).getQueries().stream()
+                    ((OrQuery) query).getQueries().stream()
                             .map(DatastoreDbClient::convertQueryFilter)
                             .collect(Collectors.toList()));
-        } else if (query instanceof SimpleDbQuery) {
-            SimpleDbQuery simpleDbQuery = (SimpleDbQuery) query;
+        } else if (query instanceof KeyRangeQuery) {
+            KeyRangeQuery keyRangeQuery = (KeyRangeQuery) query;
+            return null;
+        } else if (query instanceof DbClient.SimpleQuery) {
+            SimpleQuery simpleDbQuery = (SimpleQuery) query;
             switch (simpleDbQuery.getOp()) {
                 case EQ:
                     return new Query.FilterPredicate(simpleDbQuery.getProp(),
@@ -109,7 +114,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public List<T> put(List<T> objs) {
         checkNotNull(objs);
-        meterOn(this.getClass());
+        meterOn();
+
         List<Entity> entities = objs.stream()
                 .map(this::toEntity)
                 .collect(Collectors.toList());
@@ -118,6 +124,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         for (int i = 0; i < keys.size(); i++) {
             toReturn.add(entityFactory.mergeId(objs.get(i), extractId(keys.get(i))));
         }
+
         meterOff();
         return toReturn;
     }
@@ -125,7 +132,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public T getById(String id) {
         checkState(StringUtils.isNotBlank(id));
-        meterOn(this.getClass());
+        meterOn();
+
         T toReturn;
         try {
             Entity entity = service.get(buildKey(id));
@@ -136,6 +144,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         } catch (EntityNotFoundException e) {
             toReturn = null;
         }
+
         meterOff();
         return toReturn;
     }
@@ -143,16 +152,20 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public void delete(final String id) {
         checkState(StringUtils.isNotBlank(id));
-        meterOn(this.getClass());
+        meterOn();
+
         service.delete(buildKey(id));
+
         meterOff();
     }
 
     @Override
     public void delete(final T obj) {
         checkNotNull(obj);
-        meterOn(this.getClass());
+        meterOn();
+
         delete(entityFactory.getId(obj));
+
         meterOff();
     }
 
@@ -165,21 +178,25 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public void delete(final List<String> ids) {
         ids.forEach(t -> checkState(StringUtils.isNotBlank(t)));
-        meterOn(this.getClass());
+        meterOn();
+
         List<Key> keys = ids.stream()
                 .map(this::buildKey)
                 .collect(Collectors.toList());
         service.delete(keys);
+
         meterOff();
     }
 
     @Override
     public void deleteItems(final List<T> objs) {
-        meterOn(this.getClass());
+        meterOn();
+
         List<String> ids = objs.stream()
                 .map(entityFactory::getId)
                 .collect(Collectors.toList());
         delete(ids);
+
         meterOff();
     }
 
@@ -190,7 +207,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
 
     @Override
     public Stream<T> queryInStream(final DbQuery query) {
-        meterOn(this.getClass());
+        meterOn();
+
         Query theQuery = new Query(entityFactory.getKind());
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
@@ -198,6 +216,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         Stream<T> toReturn = Streams.stream(service.prepare(theQuery).asIterable())
                 .map(DatastoreEntityExtractor::of)
                 .map(entityFactory::fromEntity);
+
         meterOff();
         return toReturn;
     }
@@ -211,6 +230,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     public PaginatedResults<T> queryInPagination(final DbQuery query,
                                                  final int limit,
                                                  final PageToken pageToken) {
+        meterOn();
+
         Query theQuery = new Query(entityFactory.getKind());
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
@@ -235,6 +256,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         }
 
         String newPageTokenStr = newNextToken == null ? null : PageToken.datastore(newNextToken).toPageToken();
+
+        meterOff();
 
         return PaginatedResults.<T>builder()
                 .withResults(content)

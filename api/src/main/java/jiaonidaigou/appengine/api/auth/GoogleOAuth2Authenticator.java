@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.Set;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -22,6 +23,7 @@ import javax.ws.rs.container.ContainerRequestContext;
  * Authenticator based on Google OAuth2.
  * See https://developers.google.com/identity/protocols/OAuth2
  */
+@Singleton
 public class GoogleOAuth2Authenticator implements Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleOAuth2Authenticator.class);
 

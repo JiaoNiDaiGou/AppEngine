@@ -10,10 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.Set;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
 
+@Singleton
 public class CustomSecretAuthenticator implements Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomSecretAuthenticator.class);
 

@@ -1,10 +1,13 @@
 package jiaonidaigou.appengine.api.access.db.core;
 
+import com.google.common.collect.Range;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public interface DbClient<T> {
     T put(final T obj);
@@ -38,20 +41,55 @@ public interface DbClient<T> {
     }
 
     interface DbQuery {
-        static AndDbQuery and(final List<DbQuery> queries) {
-            return new AndDbQuery(queries);
+        static AndQuery and(final List<DbQuery> queries) {
+            return new AndQuery(queries);
         }
 
-        static OrDbQuery or(final List<DbQuery> queries) {
-            return new OrDbQuery(queries);
+        static OrQuery or(final List<DbQuery> queries) {
+            return new OrQuery(queries);
         }
 
-        static <T> SimpleDbQuery eq(final String prop, final T val) {
-            return new SimpleDbQuery<>(prop, QueryOp.EQ, val);
+        static KeyRangeQuery rangeStringName(final Range<String> range) {
+            return new KeyRangeQuery(range, null);
+        }
+
+        static KeyRangeQuery rangeLongId(final Range<Long> range) {
+            return new KeyRangeQuery(null, range);
+        }
+
+        static <T> SimpleQuery eq(final String prop, final T val) {
+            return new SimpleQuery<>(prop, QueryOp.EQ, val);
         }
 
         static <T> InMemoryQuery<T> inMemory(final Predicate<T> predicate) {
             return new InMemoryQuery<>(predicate);
+        }
+
+        static <T> MemcacheQuery<T> memcache(final Predicate<T> predicate, final List<String> shards) {
+            return new MemcacheQuery<>(shards, false, predicate);
+        }
+
+        static <T> MemcacheQuery<T> memcacheAllShards(final Predicate<T> predicate) {
+            return new MemcacheQuery<>(null, true, predicate);
+        }
+    }
+
+    class MemcacheQuery<T> extends InMemoryQuery<T> {
+        private final List<String> shards;
+        private final boolean allShards;
+
+        MemcacheQuery(final List<String> shards, final boolean allShards, Predicate<T> predicate) {
+            super(predicate);
+            this.shards = shards;
+            this.allShards = allShards;
+        }
+
+        public List<String> getShards() {
+            return shards;
+        }
+
+        public boolean isAllShards() {
+            return allShards;
         }
     }
 
@@ -67,10 +105,10 @@ public interface DbClient<T> {
         }
     }
 
-    class AndDbQuery implements DbQuery {
+    class AndQuery implements DbQuery {
         private final List<DbQuery> queries;
 
-        AndDbQuery(final List<DbQuery> queries) {
+        AndQuery(final List<DbQuery> queries) {
             this.queries = queries;
         }
 
@@ -79,10 +117,10 @@ public interface DbClient<T> {
         }
     }
 
-    class OrDbQuery implements DbQuery {
+    class OrQuery implements DbQuery {
         private final List<DbQuery> queries;
 
-        OrDbQuery(final List<DbQuery> queries) {
+        OrQuery(final List<DbQuery> queries) {
             this.queries = queries;
         }
 
@@ -91,12 +129,12 @@ public interface DbClient<T> {
         }
     }
 
-    class SimpleDbQuery<T> implements DbQuery {
+    class SimpleQuery<T> implements DbQuery {
         private final String prop;
         private final QueryOp op;
         private final T val;
 
-        SimpleDbQuery(final String prop, final QueryOp op, final T val) {
+        SimpleQuery(final String prop, final QueryOp op, final T val) {
             this.prop = prop;
             this.op = op;
             this.val = val;
@@ -112,6 +150,25 @@ public interface DbClient<T> {
 
         T getVal() {
             return val;
+        }
+    }
+
+    class KeyRangeQuery implements DbQuery {
+        private final Range<String> stringNameRange;
+        private final Range<Long> longIdRange;
+
+        KeyRangeQuery(final Range<String> stringNameRange, final Range<Long> longIdRange) {
+            checkArgument(stringNameRange == null || longIdRange == null);
+            this.stringNameRange = stringNameRange;
+            this.longIdRange = longIdRange;
+        }
+
+        public Range<String> getStringNameRange() {
+            return stringNameRange;
+        }
+
+        public Range<Long> getLongIdRange() {
+            return longIdRange;
         }
     }
 
