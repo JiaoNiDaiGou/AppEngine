@@ -230,7 +230,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
         }
         byte[] bytes = storageClient.read(path);
         try {
-            return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<Order>>() {
+            return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<ShippingOrder>>() {
             });
         } catch (IOException e) {
             LOGGER.error("Failed to load orders from {}.", path, e);
