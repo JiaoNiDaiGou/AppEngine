@@ -29,9 +29,9 @@ public interface DbClient<T> {
 
     Stream<T> queryInStream(final DbQuery query);
 
-    PaginatedResults<T> queryInPagination(final int limit, final PageToken nextToken);
+    PaginatedResults<T> queryInPagination(final int limit, final PageToken pageToken);
 
-    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, final PageToken nextToken);
+    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, final PageToken pageToken);
 
     enum QueryOp {
         EQ, GT, LT, GE, LE
