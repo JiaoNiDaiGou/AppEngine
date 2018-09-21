@@ -16,7 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient.QueueName.HIGH_FREQUENCY;
+import static jiaonidaigou.appengine.api.access.taskqueue.PubSubClient.QueueName.HIGH_FREQUENCY;
 
 @Path("/cron")
 @Produces(MediaType.APPLICATION_JSON)

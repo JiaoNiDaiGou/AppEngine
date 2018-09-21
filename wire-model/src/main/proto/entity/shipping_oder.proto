@@ -36,8 +36,9 @@ message ShippingOrder {
     int64 creation_time = 4;
 
     repeated ProductEntry product_entries = 5;
+    string product_summary = 6;
 
-    double total_weight_lb = 6;
+    double total_weight_lb = 7;
 
     Postman postman = 30;
     string tracking_number = 32;
@@ -45,4 +46,6 @@ message ShippingOrder {
     repeated ShippingHistoryEntry shipping_history = 40;
 
     string teddy_order_id = 100;
+    string teddy_formatted_id = 101;
+    string sender_name = 110;
 }
