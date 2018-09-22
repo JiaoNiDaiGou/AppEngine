@@ -3,6 +3,7 @@ package jiaonidaigou.appengine.api.access.db.core;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.InMemoryQuery;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

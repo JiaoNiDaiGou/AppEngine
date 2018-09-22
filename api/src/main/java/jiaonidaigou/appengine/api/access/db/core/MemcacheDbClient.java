@@ -98,22 +98,8 @@ public class MemcacheDbClient<T> implements DbClient<T> {
         memcache.put(shard, bytes);
     }
 
-    private void String
-    shard
-
     @Override
-
     public T put(T obj) {
-        T afterPut = dbClient.put(obj);
-        String id = idGetter.getId(afterPut);
-        String shard = idToShard.apply(id);
-        Map<String, T> blob = loadMemcache(shard);
-        blob.put(id, afterPut);
-
-
-        T after
-        T afterPut = put
-        memcache.get
         return null;
     }
 

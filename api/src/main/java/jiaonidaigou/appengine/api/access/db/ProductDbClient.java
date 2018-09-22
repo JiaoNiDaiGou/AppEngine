@@ -7,6 +7,7 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery;
 import jiaonidaigou.appengine.wiremodel.entity.Product;
 import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 

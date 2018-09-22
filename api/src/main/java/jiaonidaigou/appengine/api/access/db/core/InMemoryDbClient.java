@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.access.db.core;
 
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.InMemoryQuery;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 

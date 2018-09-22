@@ -4,6 +4,7 @@ ext {
     // Dependencies
     appengine_gcs_client = '0.8'
     appengine_sdk_ver = '1.9.63'
+    appengine_testing_ver = '1.9.64'
     commons_codec_ver = '1.11'
     commons_collections_ver = '3.2.2'
     commons_collections4_ver = '4.1'
