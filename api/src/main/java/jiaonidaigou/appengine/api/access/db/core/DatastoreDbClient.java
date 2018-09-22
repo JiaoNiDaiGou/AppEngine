@@ -33,6 +33,7 @@ import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_TH
 import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL;
 import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN;
 import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_OR_EQUAL;
+import static com.google.appengine.api.datastore.Query.FilterOperator.NOT_EQUAL;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
@@ -123,7 +124,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public void delete(final T obj) {
+    public void deleteItem(final T obj) {
         checkNotNull(obj);
         meterOn();
 
@@ -301,6 +302,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
                 return new Query.FilterPredicate(query.getProp(), GREATER_THAN_OR_EQUAL, query.getVal());
             case GT:
                 return new Query.FilterPredicate(query.getProp(), GREATER_THAN, query.getVal());
+            case NEQ:
+                return new Query.FilterPredicate(query.getProp(), NOT_EQUAL, query.getVal());
             default:
                 throw new UnsupportedOperationException("unexpected op " + query);
         }

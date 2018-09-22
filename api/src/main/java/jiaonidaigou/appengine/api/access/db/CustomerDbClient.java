@@ -2,20 +2,19 @@ package jiaonidaigou.appengine.api.access.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.common.base.Charsets;
 import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
+import jiaonidaigou.appengine.common.utils.EncryptUtils;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
 import static jiaonidaigou.appengine.common.utils.Preconditions2.checkNotBlank;
 
 public class CustomerDbClient extends BaseDbClient<Customer> {
@@ -24,7 +23,7 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
     public CustomerDbClient(final DatastoreService service, final String serviceName) {
         super(new DbClientBuilder<Customer>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(serviceName + ".Customer"))
+                .entityFactory(new EntityFactory(serviceName + "." + ENV + ".Customer"))
                 .inMemoryCache()
                 .build());
     }
@@ -80,9 +79,8 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
         checkNotBlank(phone.getPhone());
         checkNotBlank(name);
 
-        byte[] bytes = (phone.getCountryCode() + "|" + phone.getPhone() + "|" + name).getBytes(Charsets.UTF_8);
-        String toReturn = Base64.getEncoder().encodeToString(bytes);
-        LOGGER.info("Compute key: from {}|{}|{} to {}", phone.getCountryCode(), phone.getPhone(), name, toReturn);
-        return toReturn;
+        String key = EncryptUtils.base64Encode(phone.getCountryCode() + "|" + phone.getPhone() + "|" + name);
+        LOGGER.info("Compute key: from {}|{}|{} to {}", phone.getCountryCode(), phone.getPhone(), name, key);
+        return key;
     }
 }

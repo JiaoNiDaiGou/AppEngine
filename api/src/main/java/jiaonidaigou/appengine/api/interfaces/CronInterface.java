@@ -2,7 +2,7 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.tasks.DumpJiaoniShippingOrderTaskRunner;
+import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import org.jvnet.hk2.annotations.Service;
@@ -54,8 +54,8 @@ public class CronInterface {
         taskQueueClient.submit(
                 HIGH_FREQUENCY,
                 TaskMessage.builder()
-                        .withHandler(DumpJiaoniShippingOrderTaskRunner.class)
-                        .withPayloadJson(new DumpJiaoniShippingOrderTaskRunner.Message(id, limit, backward))
+                        .withHandler(DumpTeddyShippingOrdersTaskRunner.class)
+                        .withPayloadJson(new DumpTeddyShippingOrdersTaskRunner.Message(id, limit, backward))
                         .build()
         );
         return Response.ok().build();

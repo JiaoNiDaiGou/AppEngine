@@ -37,13 +37,13 @@ public class DbClientBuilder<T> {
         checkNotNull(entityFactory);
 
         DbClient<T> toReturn = new DatastoreDbClient<>(datastoreService, entityFactory);
-        if (inMemoryCache) {
-            if (inMemoryCacheBuilder != null) {
-                toReturn = new InMemoryCacheDbClient<>(toReturn, t -> entityFactory.getId(t), inMemoryCacheBuilder);
-            } else {
-                toReturn = new InMemoryCacheDbClient<>(toReturn, t -> entityFactory.getId(t));
-            }
-        }
+//        if (inMemoryCache) {
+//            if (inMemoryCacheBuilder != null) {
+//                toReturn = new InMemoryCacheDbClient<>(toReturn, t -> entityFactory.getId(t), inMemoryCacheBuilder);
+//            } else {
+//                toReturn = new InMemoryCacheDbClient<>(toReturn, t -> entityFactory.getId(t));
+//            }
+//        }
         return toReturn;
     }
 }

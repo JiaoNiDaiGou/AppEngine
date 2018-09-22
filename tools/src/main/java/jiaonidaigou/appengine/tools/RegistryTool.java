@@ -8,7 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static jiaonidaigou.appengine.api.tasks.DumpJiaoniShippingOrderTaskRunner.REGISTRY_KEY_LAST_DUMP_ID;
+import static jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner.REGISTRY_KEY_LAST_DUMP_ID;
 
 public class RegistryTool {
     public static void main(String[] args) throws Exception {

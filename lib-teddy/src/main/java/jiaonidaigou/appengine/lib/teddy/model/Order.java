@@ -179,6 +179,7 @@ public class Order {
         PENDING,
         TRACKING_NUMBER_ASSIGNED,
         POSTMAN_ASSIGNED,
+        DELIVERED
     }
 
     public static final class Builder {

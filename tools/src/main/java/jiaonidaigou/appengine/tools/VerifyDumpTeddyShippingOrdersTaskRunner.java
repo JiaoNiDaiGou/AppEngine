@@ -6,7 +6,7 @@ import jiaonidaigou.appengine.api.access.email.PopupPageEmailClient;
 import jiaonidaigou.appengine.api.access.storage.LocalFileStorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.LocalStaticTaskClient;
 import jiaonidaigou.appengine.api.registry.Registry;
-import jiaonidaigou.appengine.api.tasks.DumpJiaoniShippingOrderTaskRunner;
+import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
@@ -15,10 +15,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 
-public class VerifyDumpJiaoniShippingOrderTaskRunner {
+public class VerifyDumpTeddyShippingOrdersTaskRunner {
     public static void main(String[] args) {
         Registry registry = new Registry(new InMemoryDbClient<>(Pair::getLeft, (t, id) -> t));
-        DumpJiaoniShippingOrderTaskRunner runner = new DumpJiaoniShippingOrderTaskRunner(
+        DumpTeddyShippingOrdersTaskRunner runner = new DumpTeddyShippingOrdersTaskRunner(
                 new PopupPageEmailClient(),
                 new LocalFileStorageClient(),
                 LocalStaticTaskClient.instance(),
@@ -33,7 +33,7 @@ public class VerifyDumpJiaoniShippingOrderTaskRunner {
                 .put("backward", false)
                 .build();
         runner.accept(TaskMessage.builder()
-                .withHandler(DumpJiaoniShippingOrderTaskRunner.class)
+                .withHandler(DumpTeddyShippingOrdersTaskRunner.class)
                 .withPayloadJson(obj)
                 .build());
     }

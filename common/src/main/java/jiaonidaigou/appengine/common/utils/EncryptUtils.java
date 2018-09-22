@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.common.utils;
 
 import jiaonidaigou.appengine.common.model.InternalIOException;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.ByteArrayInputStream;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
@@ -19,6 +21,20 @@ import javax.crypto.spec.SecretKeySpec;
 public class EncryptUtils {
     private static final int AES_KEY_SIZE = 256;
     private static final int AES_IV_LENGTH = 16;
+
+    public static String base64Encode(final String str) {
+        if (str == null) {
+            return null;
+        }
+        return Base64.getEncoder().encodeToString(str.getBytes(Charsets.UTF_8));
+    }
+
+    public static String base64Decode(final String str) {
+        if (str == null) {
+            return null;
+        }
+        return new String(Base64.getDecoder().decode(str), Charsets.UTF_8);
+    }
 
     public static String md5(final byte[] bytes) {
         try (InputStream inputStream = new ByteArrayInputStream(bytes)) {

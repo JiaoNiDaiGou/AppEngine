@@ -29,6 +29,7 @@ public class TeddyConversions {
         setIfNotBlank(order.getSenderName(), builder::setSenderName);
         setIfNotNull(convertPostman(order), builder::setPostman);
         setIfNotBlank(order.getTrackingNumber(), builder::setTrackingNumber);
+        setIfNotBlank(order.getRawShippingStatus(), builder::setShippingCarrier);
         return builder.addAllProductEntries(
                 order.getProducts()
                         .stream()

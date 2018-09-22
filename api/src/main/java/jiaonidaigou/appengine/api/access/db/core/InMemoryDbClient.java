@@ -64,7 +64,7 @@ public class InMemoryDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public void delete(T obj) {
+    public void deleteItem(T obj) {
         map.remove(idGetter.getId(obj));
     }
 
@@ -80,7 +80,7 @@ public class InMemoryDbClient<T> implements DbClient<T> {
 
     @Override
     public void deleteItems(List<T> objs) {
-        objs.forEach(this::delete);
+        objs.forEach(this::deleteItem);
     }
 
     @Override

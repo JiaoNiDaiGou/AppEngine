@@ -1,13 +1,9 @@
 package jiaonidaigou.appengine.api.access.db.core;
 
-import com.google.common.collect.Range;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface DbClient<T> {
     T put(final T obj);
@@ -20,11 +16,11 @@ public interface DbClient<T> {
 
     void delete(final String id);
 
-    void delete(final T obj);
-
     void delete(final String... ids);
 
     void delete(final List<String> ids);
+
+    void deleteItem(final T obj);
 
     void deleteItems(final List<T> objs);
 

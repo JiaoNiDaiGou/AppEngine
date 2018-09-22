@@ -2,7 +2,7 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import com.google.common.collect.ImmutableMap;
 import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.tasks.DumpJiaoniShippingOrderTaskRunner;
+import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
@@ -33,7 +33,7 @@ public class TaskQueueInterface {
 
     @Inject
     public TaskQueueInterface(final SyncJiaoniCustomersTaskRunner syncJiaoniCustomersTaskRunner,
-                              final DumpJiaoniShippingOrderTaskRunner dumpJiaoniShippingOrderTaskRunner) {
+                              final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner) {
         this.consumers = buildConsumerMap(
                 syncJiaoniCustomersTaskRunner,
                 dumpJiaoniShippingOrderTaskRunner

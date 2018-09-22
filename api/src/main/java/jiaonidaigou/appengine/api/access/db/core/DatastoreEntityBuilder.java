@@ -30,6 +30,10 @@ public class DatastoreEntityBuilder {
         }
     }
 
+    public DatastoreEntityBuilder indexedEnum(final String prop, final Enum<?> enumm) {
+        return setProp(prop, enumm.name(), true);
+    }
+
     public DatastoreEntityBuilder indexedString(final String prop, final String str) {
         return setProp(prop, StringUtils.trimToNull(str), true);
     }
@@ -67,6 +71,10 @@ public class DatastoreEntityBuilder {
 
     public DatastoreEntityBuilder indexedTimestamp(final String prop, final DateTime dateTime) {
         return setProp(prop, dateTime == null ? null : dateTime.toDateTime(), true);
+    }
+
+    public DatastoreEntityBuilder indexedLong(final String prop, final long value) {
+        return setProp(prop, value, true);
     }
 
     public DatastoreEntityBuilder indexedTimestamp(final String prop, final Timestamp timestamp) {

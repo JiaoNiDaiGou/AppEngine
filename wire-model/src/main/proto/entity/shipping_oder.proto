@@ -42,6 +42,7 @@ message ShippingOrder {
 
     Postman postman = 30;
     string tracking_number = 32;
+    string shipping_carrier = 33;
 
     repeated ShippingHistoryEntry shipping_history = 40;
 

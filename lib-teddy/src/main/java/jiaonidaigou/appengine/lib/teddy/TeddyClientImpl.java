@@ -250,13 +250,13 @@ public class TeddyClientImpl implements TeddyClient {
             return toReturn;
         }
         Elements trList = table.getElementsByTag("tr");
-        for (int i = 1; i < trList.size(); i++) { // First <tr> is header
+        for (int i = 1; i < trList.size() && i < 3; i++) { // First <tr> is header
             Element tr = trList.get(i);
             OrderPreview orderPreview = parseOrderPreviewElement(tr);
             toReturn.put(orderPreview.getId(), orderPreview);
         }
 
-        LOGGER.info("Load {} orders in page {}.", toReturn.size(), pageNum);
+        LOGGER.info("Load {} order previews in page {}.", toReturn.size(), pageNum);
         return toReturn;
     }
 
@@ -410,10 +410,19 @@ public class TeddyClientImpl implements TeddyClient {
                 .withDelivered(postManInfo != null && postManInfo.delivered)
                 .withShippingHistory(shippingHistory);
 
+        //
+        // Determine order status
+        //
+
         Order.Status status = Order.Status.PENDING;
         if (StringUtils.isNotBlank(trackingNumber)) {
             if (postManInfo != null && StringUtils.isNotBlank(postManInfo.postmanPhone)) {
-                status = Order.Status.POSTMAN_ASSIGNED;
+                String latestShippingHistory = shippingHistory.get(0).getStatus();
+                if (latestShippingHistory.contains("已签收")) {
+                    status = Order.Status.DELIVERED;
+                } else {
+                    status = Order.Status.POSTMAN_ASSIGNED;
+                }
             } else {
                 status = Order.Status.TRACKING_NUMBER_ASSIGNED;
             }

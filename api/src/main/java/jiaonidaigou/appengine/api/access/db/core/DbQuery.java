@@ -17,7 +17,7 @@ public interface DbQuery {
     boolean canComposited();
 
     enum QueryOp {
-        EQ, GT, LT, GE, LE
+        EQ, GT, LT, GE, LE, NEQ
     }
 
     static AndQuery and(final List<DbQuery> queries) {
@@ -60,6 +60,10 @@ public interface DbQuery {
 
     static <T> SimpleQuery<T> le(final String prop, final T val) {
         return new SimpleQuery<>(prop, QueryOp.LE, val);
+    }
+
+    static <T> SimpleQuery<T> notEq(final String prop, final T val) {
+        return new SimpleQuery<>(prop, QueryOp.NEQ, val);
     }
 
     static <T> InMemoryQuery<T> inMemory(final Predicate<T> predicate) {

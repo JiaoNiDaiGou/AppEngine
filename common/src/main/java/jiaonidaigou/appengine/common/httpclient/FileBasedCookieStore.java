@@ -22,7 +22,7 @@ public class FileBasedCookieStore implements CookieDao {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperProvider.get();
 
     private static String cookieFile(final String appName) {
-        return Environments.LOCAL_TEMP_DIR_ENDSLASH + "/" + appName + ".cookie.json";
+        return Environments.LOCAL_TEMP_DIR_ENDSLASH + appName + ".cookie.json";
     }
 
     @Override
