@@ -6,6 +6,7 @@ import jiaonidaigou.appengine.api.auth.BypassAuthenticator;
 import jiaonidaigou.appengine.api.auth.CustomSecretAuthenticator;
 import jiaonidaigou.appengine.api.auth.GoogleOAuth2Authenticator;
 import jiaonidaigou.appengine.api.auth.SysTaskQueueAuthenticator;
+import jiaonidaigou.appengine.api.auth.WxAuthenticator;
 import jiaonidaigou.appengine.api.utils.AppEnvironments;
 import jiaonidaigou.appengine.common.model.Env;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class AuthFilter implements ContainerRequestFilter {
         } else {
             authenticators = Lists.newArrayList(
                     new SysTaskQueueAuthenticator(),
+                    new WxAuthenticator(),
                     new CustomSecretAuthenticator(),
                     new GoogleOAuth2Authenticator()
             );

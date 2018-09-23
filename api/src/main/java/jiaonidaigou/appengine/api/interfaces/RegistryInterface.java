@@ -1,12 +1,11 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import jiaonidaigou.appengine.api.registry.Registry;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.registry.Registry;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -22,14 +21,6 @@ import javax.ws.rs.core.Response;
 @Singleton
 @RolesAllowed({ Roles.ADMIN })
 public class RegistryInterface {
-
-    private final Registry registry;
-
-    @Inject
-    public RegistryInterface(final Registry registry) {
-        this.registry = registry;
-    }
-
     @POST
     @Path("/put/{serviceName}/{keyName}")
     public Response put(@QueryParam("serviceName") final String serviceName,
@@ -38,7 +29,7 @@ public class RegistryInterface {
         RequestValidator.validateNotBlank(serviceName);
         RequestValidator.validateNotBlank(keyName);
 
-        registry.setRegistry(serviceName, keyName, value);
+        Registry.instance().setRegistry(serviceName, keyName, value);
 
         return Response.ok(value).build();
     }
@@ -50,7 +41,7 @@ public class RegistryInterface {
         RequestValidator.validateNotBlank(serviceName);
         RequestValidator.validateNotBlank(keyName);
 
-        String value = registry.getRegistry(serviceName, keyName);
+        String value = Registry.instance().getRegistry(serviceName, keyName);
 
         return Response.ok(value != null ? value : "").build();
     }
