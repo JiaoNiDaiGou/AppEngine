@@ -19,11 +19,11 @@ import javax.inject.Singleton;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
-import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAONIDAIGOU;
+import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 @Singleton
 public class ProductDbClient extends BaseDbClient<Product> {
-    private static final String KIND = SERVICE_NAME_JIAONIDAIGOU + "." + ENV + ".Product";
+    private static final String KIND = NAMESPACE_JIAONIDAIGOU + "." + ENV + ".Product";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CATEGORY = "category";
 

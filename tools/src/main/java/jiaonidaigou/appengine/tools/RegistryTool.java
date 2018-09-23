@@ -29,7 +29,7 @@ public class RegistryTool {
 
     private static void putRegistry(Registry registry) {
         registry.setRegistry(
-                Environments.SERVICE_NAME_JIAONIDAIGOU,
+                Environments.NAMESPACE_JIAONIDAIGOU,
                 REGISTRY_KEY_LAST_DUMP_ID,
                 "134154");
     }

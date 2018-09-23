@@ -16,7 +16,11 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
     private static final String KIND = "Registry";
     private static final String FIELD_VAL = "val";
 
-    private Registry(final DatastoreService service) {
+    /**
+     * Use {@link #instance()}.
+     */
+    @VisibleForTesting
+    public Registry(final DatastoreService service) {
         super(new DbClientBuilder<Pair<String, String>>()
                 .datastoreService(service)
                 .entityFactory(new EntityFactory())

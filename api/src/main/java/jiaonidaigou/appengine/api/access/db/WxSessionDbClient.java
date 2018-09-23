@@ -16,7 +16,7 @@ import javax.inject.Singleton;
 
 @Singleton
 public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
-    private static final String KIND = Environments.SERVICE_NAME_WX + "." + AppEnvironments.ENV + ".Session";
+    private static final String KIND = Environments.NAMESPACE_WX + "." + AppEnvironments.ENV + ".Session";
     private static final String FIELD_OPEN_ID = "openId";
     private static final String FIELD_SESSION_KEY = "sessionId";
     private static final String FIELD_UNION_ID = "unionId";
