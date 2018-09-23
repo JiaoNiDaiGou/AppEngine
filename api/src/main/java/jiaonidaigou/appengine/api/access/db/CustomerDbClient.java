@@ -24,6 +24,7 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
         super(new DbClientBuilder<Customer>()
                 .datastoreService(service)
                 .entityFactory(new EntityFactory(serviceName + "." + ENV + ".Customer"))
+                .inMemoryCache()
                 .build());
     }
 
