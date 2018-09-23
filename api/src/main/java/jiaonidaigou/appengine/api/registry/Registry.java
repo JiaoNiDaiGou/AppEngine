@@ -24,7 +24,6 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
         super(new DbClientBuilder<Pair<String, String>>()
                 .datastoreService(service)
                 .entityFactory(new EntityFactory())
-                .inMemoryCache()
                 .build());
     }
 

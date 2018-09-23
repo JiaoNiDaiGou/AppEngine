@@ -10,6 +10,7 @@ public class Environments {
         WINDOWS, MAC, LINUX, OTHERS
     }
 
+    public static final String SERVICE_NAME_SYS = "Sys";
     public static final String SERVICE_NAME_JIAONIDAIGOU = "JiaoNiDaiGou";
     public static final Set<String> ALL_SERVICE_NAMES = ImmutableSet.of(SERVICE_NAME_JIAONIDAIGOU);
     public static final String GAE_PROJECT_ID = "fluid-crane-200921";

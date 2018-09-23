@@ -13,7 +13,7 @@ import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.registry.Registry;
-import jiaonidaigou.appengine.api.utils.TeddyConversions;
+import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
@@ -42,9 +42,9 @@ import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAO
  * <p>
  * Start from 119520, and run backward.
  */
-public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> {
+public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> {
     private static final String ORDER_ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "xiaoxiong_shipping_orders/";
-    private static final Logger LOGGER = LoggerFactory.getLogger(DumpJiaoniShippingOrderTaskRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DumpTeddyShippingOrdersTaskRunner.class);
     private static final long KNOWN_START_ID = 134009;
     /**
      * Register key to store last dumped ShippingOrder ID.
@@ -65,7 +65,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
     private final Registry registry;
 
     @Inject
-    public DumpJiaoniShippingOrderTaskRunner(final EmailClient emailClient,
+    public DumpTeddyShippingOrdersTaskRunner(final EmailClient emailClient,
                                              final StorageClient storageClient,
                                              final PubSubClient pubSubClient,
                                              @Named(TeddyAdmins.HACK) final TeddyClient teddyClient,
@@ -97,7 +97,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
             if (orderNull) {
                 continue;
             }
-            shippingOrders.add(TeddyConversions.convertShippingOrder(order));
+            shippingOrders.add(TeddyUtils.convertShippingOrder(order));
             if (id <= KNOWN_START_ID) {
                 break;
             }
@@ -139,7 +139,7 @@ public class DumpJiaoniShippingOrderTaskRunner implements Consumer<TaskMessage> 
             } else {
                 continuousNull = 0;
                 lastNonNullId = id;
-                shippingOrders.add(TeddyConversions.convertShippingOrder(order));
+                shippingOrders.add(TeddyUtils.convertShippingOrder(order));
             }
         }
 

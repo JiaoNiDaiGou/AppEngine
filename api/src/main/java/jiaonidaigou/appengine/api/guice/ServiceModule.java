@@ -4,6 +4,8 @@ import com.google.appengine.api.appidentity.AppIdentityService;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.cloud.storage.Storage;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -17,6 +19,7 @@ import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
 import jiaonidaigou.appengine.contentparser.CnCellPhoneParser;
 import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
@@ -89,5 +92,12 @@ public class ServiceModule extends AbstractModule {
     @JiaoNiDaiGou
     CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService) {
         return new CustomerDbClient(datastoreService, SERVICE_NAME_JIAONIDAIGOU);
+    }
+
+    @Provides
+    @Singleton
+    @JiaoNiDaiGou
+    MemcacheService provideMemcacheService() {
+        return MemcacheServiceFactory.getMemcacheService(Environments.SERVICE_NAME_JIAONIDAIGOU);
     }
 }

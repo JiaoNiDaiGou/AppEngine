@@ -1,9 +1,11 @@
 package jiaonidaigou.appengine.api.access.db.core;
 
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.InMemoryQuery;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class InMemoryDbClient<T> implements DbClient<T> {
 
     @Override
     public T put(T obj) {
-        return put(Arrays.asList(obj)).get(0);
+        return put(Collections.singletonList(obj)).get(0);
     }
 
     @Override
@@ -63,7 +65,7 @@ public class InMemoryDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public void delete(T obj) {
+    public void deleteItem(T obj) {
         map.remove(idGetter.getId(obj));
     }
 
@@ -79,7 +81,7 @@ public class InMemoryDbClient<T> implements DbClient<T> {
 
     @Override
     public void deleteItems(List<T> objs) {
-        objs.forEach(this::delete);
+        objs.forEach(this::deleteItem);
     }
 
     @Override
@@ -89,6 +91,10 @@ public class InMemoryDbClient<T> implements DbClient<T> {
 
     @Override
     public Stream<T> queryInStream(DbQuery query) {
+        if (query == null) {
+            return scan();
+        }
+
         checkState(query instanceof InMemoryQuery);
         InMemoryQuery inMemoryQuery = (InMemoryQuery) query;
         return map.values().stream().filter(inMemoryQuery.getPredicate()::test);

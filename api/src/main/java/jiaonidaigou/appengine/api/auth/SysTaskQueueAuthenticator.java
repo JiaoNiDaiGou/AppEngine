@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.auth;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 
@@ -11,6 +12,7 @@ import static jiaonidaigou.appengine.api.auth.AuthUtils.APP_ENGINE_QUEUE_NAME_HE
 /**
  * Authenticator for GAE task queue and cron jobs.
  */
+@Singleton
 public class SysTaskQueueAuthenticator implements Authenticator {
     @Override
     public boolean tryAuth(final HttpServletRequest request,

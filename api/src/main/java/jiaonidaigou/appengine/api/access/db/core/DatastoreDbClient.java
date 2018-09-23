@@ -8,8 +8,15 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.QueryResultList;
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 import com.google.common.collect.Streams;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.AndQuery;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.KeyRangeQuery;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.OrQuery;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.SimpleQuery;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,6 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.appengine.api.datastore.Query.CompositeFilterOperator.AND;
+import static com.google.appengine.api.datastore.Query.CompositeFilterOperator.OR;
+import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
+import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN;
+import static com.google.appengine.api.datastore.Query.FilterOperator.GREATER_THAN_OR_EQUAL;
+import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN;
+import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_OR_EQUAL;
+import static com.google.appengine.api.datastore.Query.FilterOperator.NOT_EQUAL;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
@@ -30,72 +45,26 @@ import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
  * @param <T> Type of entity
  */
 public class DatastoreDbClient<T> implements DbClient<T> {
+    private static final String KEY_PROP = "__key__";
+
     private final DatastoreEntityFactory<T> entityFactory;
     private final DatastoreService service;
 
     public DatastoreDbClient(final DatastoreService service,
                              final DatastoreEntityFactory<T> entityFactory) {
-        this.entityFactory = entityFactory;
-        this.service = service;
-    }
-
-    private static Query.Filter convertQueryFilter(final DbQuery query) {
-        if (query instanceof AndDbQuery) {
-            return new Query.CompositeFilter(Query.CompositeFilterOperator.AND,
-                    ((AndDbQuery) query).getQueries().stream()
-                            .map(DatastoreDbClient::convertQueryFilter)
-                            .collect(Collectors.toList()));
-        } else if (query instanceof OrDbQuery) {
-            return new Query.CompositeFilter(Query.CompositeFilterOperator.OR,
-                    ((OrDbQuery) query).getQueries().stream()
-                            .map(DatastoreDbClient::convertQueryFilter)
-                            .collect(Collectors.toList()));
-        } else if (query instanceof SimpleDbQuery) {
-            SimpleDbQuery simpleDbQuery = (SimpleDbQuery) query;
-            switch (simpleDbQuery.getOp()) {
-                case EQ:
-                    return new Query.FilterPredicate(simpleDbQuery.getProp(),
-                            Query.FilterOperator.EQUAL,
-                            simpleDbQuery.getVal());
-                case LE:
-                    return new Query.FilterPredicate(simpleDbQuery.getProp(),
-                            Query.FilterOperator.LESS_THAN_OR_EQUAL,
-                            simpleDbQuery.getVal());
-                case LT:
-                    return new Query.FilterPredicate(simpleDbQuery.getProp(),
-                            Query.FilterOperator.LESS_THAN,
-                            simpleDbQuery.getVal());
-                case GE:
-                    return new Query.FilterPredicate(simpleDbQuery.getProp(),
-                            Query.FilterOperator.GREATER_THAN_OR_EQUAL,
-                            simpleDbQuery.getVal());
-                case GT:
-                    return new Query.FilterPredicate(simpleDbQuery.getProp(),
-                            Query.FilterOperator.GREATER_THAN,
-                            simpleDbQuery.getVal());
-                default:
-                    throw new UnsupportedOperationException("unexpected op " + simpleDbQuery);
-            }
-        } else {
-            throw new IllegalStateException("unexpected query " + query.getClass().getName());
-        }
-    }
-
-    public DatastoreEntityFactory<T> getEntityFactory() {
-        return entityFactory;
-    }
-
-    public String getKind() {
-        return entityFactory.getKind();
+        this.entityFactory = checkNotNull(entityFactory);
+        this.service = checkNotNull(service);
     }
 
     @Override
     public T put(T obj) {
         checkNotNull(obj);
-        meterOn(this.getClass());
+        meterOn();
+
         Entity entity = toEntity(obj);
         Key key = service.put(entity);
         T toReturn = entityFactory.mergeId(obj, extractId(key));
+
         meterOff();
         return toReturn;
     }
@@ -109,7 +78,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public List<T> put(List<T> objs) {
         checkNotNull(objs);
-        meterOn(this.getClass());
+        meterOn();
+
         List<Entity> entities = objs.stream()
                 .map(this::toEntity)
                 .collect(Collectors.toList());
@@ -118,6 +88,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         for (int i = 0; i < keys.size(); i++) {
             toReturn.add(entityFactory.mergeId(objs.get(i), extractId(keys.get(i))));
         }
+
         meterOff();
         return toReturn;
     }
@@ -125,7 +96,8 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public T getById(String id) {
         checkState(StringUtils.isNotBlank(id));
-        meterOn(this.getClass());
+        meterOn();
+
         T toReturn;
         try {
             Entity entity = service.get(buildKey(id));
@@ -136,6 +108,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         } catch (EntityNotFoundException e) {
             toReturn = null;
         }
+
         meterOff();
         return toReturn;
     }
@@ -143,16 +116,20 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public void delete(final String id) {
         checkState(StringUtils.isNotBlank(id));
-        meterOn(this.getClass());
+        meterOn();
+
         service.delete(buildKey(id));
+
         meterOff();
     }
 
     @Override
-    public void delete(final T obj) {
+    public void deleteItem(final T obj) {
         checkNotNull(obj);
-        meterOn(this.getClass());
+        meterOn();
+
         delete(entityFactory.getId(obj));
+
         meterOff();
     }
 
@@ -165,21 +142,25 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public void delete(final List<String> ids) {
         ids.forEach(t -> checkState(StringUtils.isNotBlank(t)));
-        meterOn(this.getClass());
+        meterOn();
+
         List<Key> keys = ids.stream()
                 .map(this::buildKey)
                 .collect(Collectors.toList());
         service.delete(keys);
+
         meterOff();
     }
 
     @Override
     public void deleteItems(final List<T> objs) {
-        meterOn(this.getClass());
+        meterOn();
+
         List<String> ids = objs.stream()
                 .map(entityFactory::getId)
                 .collect(Collectors.toList());
         delete(ids);
+
         meterOff();
     }
 
@@ -190,14 +171,14 @@ public class DatastoreDbClient<T> implements DbClient<T> {
 
     @Override
     public Stream<T> queryInStream(final DbQuery query) {
-        meterOn(this.getClass());
+        meterOn();
+
         Query theQuery = new Query(entityFactory.getKind());
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
         }
-        Stream<T> toReturn = Streams.stream(service.prepare(theQuery).asIterable())
-                .map(DatastoreEntityExtractor::of)
-                .map(entityFactory::fromEntity);
+        Stream<T> toReturn = Streams.stream(service.prepare(theQuery).asIterable()).map(this::toObj);
+
         meterOff();
         return toReturn;
     }
@@ -211,12 +192,15 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     public PaginatedResults<T> queryInPagination(final DbQuery query,
                                                  final int limit,
                                                  final PageToken pageToken) {
+        meterOn();
+
         Query theQuery = new Query(entityFactory.getKind());
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
         }
 
-        FetchOptions fetchOptions = FetchOptions.Builder.withDefaults()
+        FetchOptions fetchOptions = FetchOptions.Builder
+                .withDefaults()
                 .limit(limit);
         if (pageToken != null) {
             checkState(pageToken.getSource() == PageToken.Source.DATASTORE);
@@ -224,10 +208,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         }
         QueryResultList<Entity> results = service.prepare(theQuery).asQueryResultList(fetchOptions);
 
-        List<T> content = Streams.stream(results.iterator())
-                .map(DatastoreEntityExtractor::of)
-                .map(entityFactory::fromEntity)
-                .collect(Collectors.toList());
+        List<T> content = Streams.stream(results.iterator()).map(this::toObj).collect(Collectors.toList());
 
         String newNextToken = results.getCursor() == null ? null : results.getCursor().toWebSafeString();
         if (pageToken != null && pageToken.getToken().equals(newNextToken)) {
@@ -236,10 +217,20 @@ public class DatastoreDbClient<T> implements DbClient<T> {
 
         String newPageTokenStr = newNextToken == null ? null : PageToken.datastore(newNextToken).toPageToken();
 
+        meterOff();
+
         return PaginatedResults.<T>builder()
                 .withResults(content)
                 .withPageToken(newPageTokenStr)
                 .build();
+    }
+
+    private T toObj(final Entity entity) {
+        Key key = entity.getKey();
+        DatastoreEntityExtractor extractor = DatastoreEntityExtractor.of(entity);
+        T obj = entityFactory.fromEntity(extractor);
+        obj = entityFactory.mergeId(obj, extractId(key));
+        return obj;
     }
 
     private Entity toEntity(final T obj) {
@@ -247,7 +238,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
             return null;
         }
         Key key = buildKey(entityFactory.getId(obj));
-        DatastoreEntityBuilder entityBuilder = new DatastoreEntityBuilder(key, getKind());
+        DatastoreEntityBuilder entityBuilder = new DatastoreEntityBuilder(key, entityFactory.getKind());
         return entityFactory.toEntity(entityBuilder, obj);
     }
 
@@ -257,9 +248,9 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         }
         switch (entityFactory.getKeyType()) {
             case LONG_ID:
-                return KeyFactory.createKey(getKind(), Long.parseLong(id));
+                return KeyFactory.createKey(entityFactory.getKind(), Long.parseLong(id));
             case STRING_NAME:
-                return KeyFactory.createKey(getKind(), id);
+                return KeyFactory.createKey(entityFactory.getKind(), id);
             default:
                 throw new IllegalStateException("Unexpected key type " + entityFactory.getKeyType());
         }
@@ -276,6 +267,96 @@ public class DatastoreDbClient<T> implements DbClient<T> {
                 return key.getName();
             default:
                 throw new IllegalStateException("Unexpected key type " + entityFactory.getKeyType());
+        }
+    }
+
+    /**
+     * Converts {@link AndQuery}.
+     */
+    private Filter convertAndQuery(final AndQuery query) {
+        return new Query.CompositeFilter(AND, query.getQueries()
+                .stream()
+                .map(this::convertQueryFilter)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Converts {@link OrQuery}.
+     */
+    private Filter convertOrQuery(final OrQuery query) {
+        return new Query.CompositeFilter(OR, query.getQueries()
+                .stream()
+                .map(this::convertQueryFilter)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Converts {@link SimpleQuery}.
+     */
+    private Filter convertSimpleQuery(final SimpleQuery query) {
+        switch (query.getOp()) {
+            case EQ:
+                return new Query.FilterPredicate(query.getProp(), EQUAL, query.getVal());
+            case LE:
+                return new Query.FilterPredicate(query.getProp(), LESS_THAN_OR_EQUAL, query.getVal());
+            case LT:
+                return new Query.FilterPredicate(query.getProp(), LESS_THAN, query.getVal());
+            case GE:
+                return new Query.FilterPredicate(query.getProp(), GREATER_THAN_OR_EQUAL, query.getVal());
+            case GT:
+                return new Query.FilterPredicate(query.getProp(), GREATER_THAN, query.getVal());
+            case NEQ:
+                return new Query.FilterPredicate(query.getProp(), NOT_EQUAL, query.getVal());
+            default:
+                throw new UnsupportedOperationException("unexpected op " + query);
+        }
+    }
+
+    /**
+     * Converts {@link KeyRangeQuery}.
+     */
+    private Filter convertKeyRangeQuery(final KeyRangeQuery query) {
+        Query.FilterPredicate lowerFilter = null;
+        Query.FilterPredicate upperFilter = null;
+        Range<String> range = query.getRange();
+        if (range.hasLowerBound()) {
+            Query.FilterOperator op = range.lowerBoundType() == BoundType.CLOSED
+                    ? GREATER_THAN_OR_EQUAL
+                    : GREATER_THAN;
+            lowerFilter = new Query.FilterPredicate(KEY_PROP, op, buildKey(range.lowerEndpoint()));
+        }
+        if (range.hasUpperBound()) {
+            Query.FilterOperator op = range.upperBoundType() == BoundType.CLOSED
+                    ? LESS_THAN_OR_EQUAL
+                    : LESS_THAN;
+            upperFilter = new Query.FilterPredicate(KEY_PROP, op, buildKey(range.upperEndpoint()));
+        }
+        if (lowerFilter == null && upperFilter == null) {
+            return null;
+        } else if (lowerFilter == null) {
+            return upperFilter;
+        } else if (upperFilter == null) {
+            return lowerFilter;
+        }
+        Filter toReturn = new Query.CompositeFilter(AND, Arrays.asList(lowerFilter, upperFilter));
+        System.out.println(toReturn);
+        return toReturn;
+    }
+
+    /**
+     * Converts {@link DbQuery}.
+     */
+    private Filter convertQueryFilter(final DbQuery query) {
+        if (query instanceof AndQuery) {
+            return convertAndQuery((AndQuery) query);
+        } else if (query instanceof OrQuery) {
+            return convertOrQuery((OrQuery) query);
+        } else if (query instanceof KeyRangeQuery) {
+            return convertKeyRangeQuery((KeyRangeQuery) query);
+        } else if (query instanceof SimpleQuery) {
+            return convertSimpleQuery((SimpleQuery) query);
+        } else {
+            throw new IllegalStateException("unexpected query " + query.getClass().getName());
         }
     }
 }

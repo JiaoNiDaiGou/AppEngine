@@ -45,11 +45,6 @@ public abstract class BaseDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public void delete(T obj) {
-        client.delete(obj);
-    }
-
-    @Override
     public void delete(String... ids) {
         client.delete(ids);
     }
@@ -57,6 +52,11 @@ public abstract class BaseDbClient<T> implements DbClient<T> {
     @Override
     public void delete(List<String> ids) {
         client.delete(ids);
+    }
+
+    @Override
+    public void deleteItem(T obj) {
+        client.deleteItem(obj);
     }
 
     @Override

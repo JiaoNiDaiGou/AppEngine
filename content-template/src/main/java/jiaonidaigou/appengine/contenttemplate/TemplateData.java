@@ -43,6 +43,14 @@ public class TemplateData {
         return add(prop, time == null ? null : time.toString("yyyy-MM-dd HH:mm:ss"), null);
     }
 
+    public TemplateData addAsDateTime(final String prop, final long millis) {
+        return addAsDateTime(prop, millis, null);
+    }
+
+    public TemplateData addAsDateTime(final String prop, final long millis, String defaultVal) {
+        return addAsDateTime(prop, millis == 0 ? null : new DateTime(millis), defaultVal);
+    }
+
     public Map<String, Object> build() {
         return map;
     }

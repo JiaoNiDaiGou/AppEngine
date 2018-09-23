@@ -3,4 +3,8 @@
         <Class name="~jiaonidaigou.appengine.wiremodel.*"/>
         <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
     </Match>
+    <Match>
+        <Class name="~jiaonidaigou.appengine.wiremodel.*"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
 </FindBugsFilter>

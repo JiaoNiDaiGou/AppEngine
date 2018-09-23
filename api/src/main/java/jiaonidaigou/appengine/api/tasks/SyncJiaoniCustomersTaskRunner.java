@@ -86,7 +86,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
                 break;
             }
 
-            logger.append("Page ").append(i).append(": load ").append(toUpdateCurPage.size()).append(" customers\n");
+            logger.append("Page ").append(i).append(": need to update ").append(toUpdateCurPage.size()).append(" customers\n");
 
             toUpdate.addAll(toUpdateCurPage);
             logger.append("\n\n");
@@ -94,7 +94,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
 
         if (!toUpdate.isEmpty()) {
             LOGGER.info("Update {} customers into DB.", toUpdate.size());
-//            customerDbClient.put(toUpdate);
+            customerDbClient.put(toUpdate);
         }
 
         logger.append("\n\ntotally sync ")
@@ -138,7 +138,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
         addIdCard(builder, receiver.getIdCardNumber());
 
         if (!addPhone(builder, phone)) {
-            logger.append("\tInvalid phone. ").append(receiver).append("\n");
+            logger.append("\t!!  INVALID PHONE  !!\n").append(receiver).append("\n");
             return null;
         }
 
@@ -147,7 +147,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
                 receiver.getAddressCity(),
                 receiver.getAddressZone(),
                 receiver.getAddress())) {
-            logger.append("\tInvalid address. ").append(receiver).append("\n");
+            logger.append("\t!!  INVALID ADDRESS  !!\n").append(receiver).append("\n");
             return null;
         }
 
