@@ -35,7 +35,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAONIDAIGOU;
+import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 /**
  * What other people send.
@@ -62,19 +62,16 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
     private final StorageClient storageClient;
     private final PubSubClient pubSubClient;
     private final TeddyClient teddyClient;
-    private final Registry registry;
 
     @Inject
     public DumpTeddyShippingOrdersTaskRunner(final EmailClient emailClient,
                                              final StorageClient storageClient,
                                              final PubSubClient pubSubClient,
-                                             @Named(TeddyAdmins.HACK) final TeddyClient teddyClient,
-                                             final Registry registry) {
+                                             @Named(TeddyAdmins.HACK) final TeddyClient teddyClient) {
         this.emailClient = emailClient;
         this.storageClient = storageClient;
         this.pubSubClient = pubSubClient;
         this.teddyClient = teddyClient;
-        this.registry = registry;
     }
 
     private static String decideDumpFileName(final DateTime dateTime) {
@@ -104,7 +101,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         }
 
         LOGGER.info("Load {} orders. Save new start order id {}", shippingOrders, id);
-        registry.setRegistry(SERVICE_NAME_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID, String.valueOf(id));
+        Registry.instance().setRegistry(NAMESPACE_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID, String.valueOf(id));
 
         boolean hasNextTask = (id > KNOWN_START_ID) && (message.limit == 0 || message.limit > taskMessage.getReachCount());
         if (!hasNextTask) {
@@ -144,7 +141,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         }
 
         LOGGER.info("Load {} orders. Save new start order id {}", shippingOrders.size(), lastNonNullId);
-        registry.setRegistry(SERVICE_NAME_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID, String.valueOf(lastNonNullId));
+        Registry.instance().setRegistry(NAMESPACE_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID, String.valueOf(lastNonNullId));
 
         hasNextTask &= message.limit == 0 || message.limit > taskMessage.getReachCount();
         if (!hasNextTask) {
@@ -218,7 +215,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
     private long determineStartId(final Message message) {
         long id = message.id;
         if (id == 0) {
-            id = Long.parseLong(registry.getRegistry(SERVICE_NAME_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID));
+            id = Long.parseLong(Registry.instance().getRegistry(NAMESPACE_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID));
         }
         LOGGER.info("determine start ID {}", id);
         return id;

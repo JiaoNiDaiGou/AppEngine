@@ -15,11 +15,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
-import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAONIDAIGOU;
+import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 @Singleton
 public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
-    private static final String KIND = SERVICE_NAME_JIAONIDAIGOU + "." + ENV + ".ShippingOrder";
+    private static final String KIND = NAMESPACE_JIAONIDAIGOU + "." + ENV + ".ShippingOrder";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CREATION_TIME = "creation_time";
     private static final String FIELD_CUSTOMER_PHONE = "customer_phone";

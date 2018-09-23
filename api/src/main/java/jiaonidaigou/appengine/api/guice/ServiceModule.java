@@ -32,7 +32,7 @@ import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static jiaonidaigou.appengine.common.utils.Environments.SERVICE_NAME_JIAONIDAIGOU;
+import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 public class ServiceModule extends AbstractModule {
     @Override
@@ -91,13 +91,13 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     @JiaoNiDaiGou
     CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService) {
-        return new CustomerDbClient(datastoreService, SERVICE_NAME_JIAONIDAIGOU);
+        return new CustomerDbClient(datastoreService, NAMESPACE_JIAONIDAIGOU);
     }
 
     @Provides
     @Singleton
     @JiaoNiDaiGou
     MemcacheService provideMemcacheService() {
-        return MemcacheServiceFactory.getMemcacheService(Environments.SERVICE_NAME_JIAONIDAIGOU);
+        return MemcacheServiceFactory.getMemcacheService(Environments.NAMESPACE_JIAONIDAIGOU);
     }
 }

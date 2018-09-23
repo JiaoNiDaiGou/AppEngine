@@ -10,9 +10,15 @@ public class Environments {
         WINDOWS, MAC, LINUX, OTHERS
     }
 
-    public static final String SERVICE_NAME_SYS = "Sys";
-    public static final String SERVICE_NAME_JIAONIDAIGOU = "JiaoNiDaiGou";
-    public static final Set<String> ALL_SERVICE_NAMES = ImmutableSet.of(SERVICE_NAME_JIAONIDAIGOU);
+    public static final String NAMESPACE_SYS = "Sys";
+    public static final String NAMESPACE_JIAONIDAIGOU = "JiaoNiDaiGou";
+    public static final String NAMESPACE_SONGFAN = "SongFan";
+    public static final String NAMESPACE_WX = "Wx";
+
+    public static final Set<String> ALL_OPEN_NAMESPACES = ImmutableSet.of(
+            NAMESPACE_JIAONIDAIGOU,
+            NAMESPACE_SONGFAN);
+
     public static final String GAE_PROJECT_ID = "fluid-crane-200921";
     public static final String GAE_HOSTNAME = GAE_PROJECT_ID + ".appspot.com";
     public static final String MAIN_VERSION_GAE_HOSTNAME = "jiaonidaigou-dot-" + GAE_HOSTNAME;

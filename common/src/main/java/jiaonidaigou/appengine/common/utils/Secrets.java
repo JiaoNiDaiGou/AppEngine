@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.common.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
@@ -45,6 +46,15 @@ public class Secrets {
     }
 
     public <T> T getAsJson(final Class<T> type) {
+        try {
+            return ObjectMapperProvider.get()
+                    .readValue(value, type);
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
+    }
+
+    public <T> T getAsJson(final TypeReference<T> type) {
         try {
             return ObjectMapperProvider.get()
                     .readValue(value, type);

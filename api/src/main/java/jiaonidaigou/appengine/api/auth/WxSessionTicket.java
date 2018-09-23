@@ -1,45 +1,44 @@
 package jiaonidaigou.appengine.api.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class WxSessionTicket {
-    @JsonProperty("openid")
+    private String ticketId;
     private String openId;
-
-    @JsonProperty("session_key")
     private String sessionKey;
-
-    @JsonProperty("unionid")
     private String unionId;
 
     public static Builder builder() {
         return new Builder();
     }
 
+    public Builder toBuilder() {
+        return new Builder()
+                .withTicketId(ticketId)
+                .withOpenId(openId)
+                .withSessionKey(sessionKey)
+                .withUnionId(unionId);
+    }
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("openId", openId)
-                .add("sessionKey", sessionKey)
-                .add("unionId", unionId)
-                .toString();
+        return ToStringBuilder.reflectionToString(this);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        WxSessionTicket that = (WxSessionTicket) o;
-        return Objects.equal(openId, that.openId) &&
-                Objects.equal(sessionKey, that.sessionKey) &&
-                Objects.equal(unionId, that.unionId);
+        return EqualsBuilder.reflectionEquals(this, o);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(openId, sessionKey, unionId);
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public String getTicketId() {
+        return ticketId;
     }
 
     public String getOpenId() {
@@ -55,11 +54,17 @@ public class WxSessionTicket {
     }
 
     public static final class Builder {
+        private String ticketId;
         private String openId;
         private String sessionKey;
         private String unionId;
 
         private Builder() {
+        }
+
+        public Builder withTicketId(String ticketId) {
+            this.ticketId = ticketId;
+            return this;
         }
 
         public Builder withOpenId(String openId) {
@@ -79,9 +84,10 @@ public class WxSessionTicket {
 
         public WxSessionTicket build() {
             WxSessionTicket wxSessionTicket = new WxSessionTicket();
+            wxSessionTicket.unionId = this.unionId;
+            wxSessionTicket.ticketId = this.ticketId;
             wxSessionTicket.sessionKey = this.sessionKey;
             wxSessionTicket.openId = this.openId;
-            wxSessionTicket.unionId = this.unionId;
             return wxSessionTicket;
         }
     }

@@ -10,16 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.Set;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
 
-@Singleton
+import static jiaonidaigou.appengine.api.auth.AuthUtils.CUSTOM_SECRET_HEADER_KEY;
+
 public class CustomSecretAuthenticator implements Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomSecretAuthenticator.class);
-
-    private static final String CUSTOM_SECRET_HEADER = "X-JNDG-SEC";
 
     private static final Set<String> ADMIN_WE_USER_IDS = Sets.newHashSet(Secrets.of("gae.admin.weUserId").getAsStringLines());
 
@@ -35,7 +33,7 @@ public class CustomSecretAuthenticator implements Authenticator {
     @Override
     public boolean tryAuth(final HttpServletRequest request,
                            final ContainerRequestContext requestContext) {
-        String customSecretHeader = requestContext.getHeaderString(CUSTOM_SECRET_HEADER);
+        String customSecretHeader = requestContext.getHeaderString(CUSTOM_SECRET_HEADER_KEY);
         if (StringUtils.isBlank(customSecretHeader)) {
             return false;
         }

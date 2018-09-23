@@ -46,7 +46,7 @@ public class CustomerInterface {
     public Response getAllCustomer(@PathParam("app") final String appName,
                                    @QueryParam("nextToken") final String nextToken,
                                    @QueryParam("limit") final int limit) {
-        RequestValidator.validateValueInSet(appName, Environments.ALL_SERVICE_NAMES, appName);
+        RequestValidator.validateAppName(appName);
 
         PaginatedResults<Customer> results = customerDbClient.queryInPagination(
                 limit <= 0 ? DEFAULT_PAGE_LIMIT : limit,
@@ -60,7 +60,7 @@ public class CustomerInterface {
                                    @PathParam("id") final String id) {
         RequestValidator.validateNotBlank(appName);
         RequestValidator.validateNotBlank(id);
-        RequestValidator.validateValueInSet(appName, Environments.ALL_SERVICE_NAMES, appName);
+        RequestValidator.validateAppName(appName);
 
         Customer customer = customerDbClient.getById(id);
         if (customer == null) {
@@ -74,7 +74,7 @@ public class CustomerInterface {
     @Path("/{app}/put")
     public Response putCustomer(@PathParam("app") final String appName,
                                 final Customer customer) {
-        RequestValidator.validateValueInSet(appName, Environments.ALL_SERVICE_NAMES, appName);
+        RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
         RequestValidator.validateNotBlank(appName);
         RequestValidator.validateNotNull(customer);
 
@@ -91,7 +91,7 @@ public class CustomerInterface {
     public Response deleteCustomer(@PathParam("app") final String appName,
                                    @PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id);
-        RequestValidator.validateValueInSet(appName, Environments.ALL_SERVICE_NAMES, appName);
+        RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
 
         customerDbClient.delete(id);
         return Response.ok().build();

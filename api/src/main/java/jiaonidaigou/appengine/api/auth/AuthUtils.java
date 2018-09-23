@@ -8,11 +8,20 @@ import javax.ws.rs.core.SecurityContext;
 
 class AuthUtils {
 
+    //
+    // Auth headers
+    //
+
     // These headers are set internally by App Engine. If any of these headers are present in an external
     // user request to your app, they are stripped. If your request handler finds any of these headers,
     // it can be sure that it has received a valid task queue request.
     static final String APP_ENGINE_QUEUE_NAME_HEADER_KEY = "X-AppEngine-QueueName";
     static final String APP_ENGINE_CRON_HEADER_KEY = "X-AppEngine-Cron";
+
+    static final String CUSTOM_SECRET_HEADER_KEY = "X-JNDG-SEC";
+
+    static final String WX_SESSION_TICKET_HEADER_KEY = "X-Wx-SessionTicket";
+
     static final String IP_ADDRESS_HEADER_KEY = "ip_address";
     private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
     private static final String BEARER_TOKEN_PREFIX = "Bearer ";

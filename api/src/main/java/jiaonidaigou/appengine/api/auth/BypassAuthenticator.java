@@ -3,7 +3,6 @@ package jiaonidaigou.appengine.api.auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 
@@ -11,7 +10,6 @@ import javax.ws.rs.container.ContainerRequestContext;
  * A bypass authenticator, which directly assign given role.
  * It is used for local test ONLY.
  */
-@Singleton
 public class BypassAuthenticator implements Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(BypassAuthenticator.class);
 

@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.api.registry;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.common.annotations.VisibleForTesting;
 import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
@@ -11,15 +12,14 @@ import jiaonidaigou.appengine.api.access.db.core.DbClient;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-@Singleton
 public class Registry extends BaseDbClient<Pair<String, String>> {
     private static final String KIND = "Registry";
     private static final String FIELD_VAL = "val";
 
-    @Inject
+    /**
+     * Use {@link #instance()}.
+     */
+    @VisibleForTesting
     public Registry(final DatastoreService service) {
         super(new DbClientBuilder<Pair<String, String>>()
                 .datastoreService(service)
@@ -30,6 +30,27 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
     @VisibleForTesting
     public Registry(final DbClient<Pair<String, String>> dbClient) {
         super(dbClient);
+    }
+
+    public static Registry instance() {
+        return LazyHolder.instance;
+    }
+
+    private static String key(final String serviceName, final String key) {
+        return serviceName + "." + key;
+    }
+
+    public void setRegistry(final String serviceName, final String key, final String val) {
+        put(Pair.of(key(serviceName, key), val));
+    }
+
+    public String getRegistry(final String serviceName, final String key) {
+        Pair<String, String> pair = getById(key(serviceName, key));
+        return pair == null ? null : pair.getRight();
+    }
+
+    private static class LazyHolder {
+        private static Registry instance = new Registry(DatastoreServiceFactory.getDatastoreService());
     }
 
     private static class EntityFactory implements DatastoreEntityFactory<Pair<String, String>> {
@@ -63,18 +84,5 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
         public String getId(Pair<String, String> obj) {
             return obj.getLeft();
         }
-    }
-
-    public void setRegistry(final String serviceName, final String key, final String val) {
-        put(Pair.of(key(serviceName, key), val));
-    }
-
-    public String getRegistry(final String serviceName, final String key) {
-        Pair<String, String> pair = getById(key(serviceName, key));
-        return pair == null ? null : pair.getRight();
-    }
-
-    private static String key(final String serviceName, final String key) {
-        return serviceName + "." + key;
     }
 }
