@@ -20,10 +20,7 @@ public class VerifySyncJiaoniShippingOrdersTaskRunner {
                     new PopupPageEmailClient(),
                     new ConsoleSmsClient()
             );
-
-
             taskRunner.accept(TaskMessage.builder().build());
-
         }
     }
 }

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class DatastoreDbClientLongIdTest {
@@ -32,6 +33,18 @@ public class DatastoreDbClientLongIdTest {
     @Before
     public void setUp() {
         underTest = new ItemDbClient(localService.getDatastoreService());
+    }
+
+    @Test
+    public void test_put_get_same() {
+        Item item = new Item("name");
+        Item afterSave = underTest.put(item);
+        assertNotNull(afterSave.id);
+        Item fetched = underTest.getById(afterSave.id);
+        assertEquals(afterSave, fetched);
+        Item afterSaveAgain = underTest.put(fetched);
+        assertEquals(afterSave, afterSaveAgain);
+        assertEquals(1L, underTest.scan().count());
     }
 
     @Test

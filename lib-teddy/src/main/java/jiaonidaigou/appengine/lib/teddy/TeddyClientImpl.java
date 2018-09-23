@@ -250,7 +250,7 @@ public class TeddyClientImpl implements TeddyClient {
             return toReturn;
         }
         Elements trList = table.getElementsByTag("tr");
-        for (int i = 1; i < trList.size() && i < 3; i++) { // First <tr> is header
+        for (int i = 1; i < trList.size(); i++) { // First <tr> is header
             Element tr = trList.get(i);
             OrderPreview orderPreview = parseOrderPreviewElement(tr);
             toReturn.put(orderPreview.getId(), orderPreview);
@@ -416,13 +416,12 @@ public class TeddyClientImpl implements TeddyClient {
 
         Order.Status status = Order.Status.PENDING;
         if (StringUtils.isNotBlank(trackingNumber)) {
-            if (postManInfo != null && StringUtils.isNotBlank(postManInfo.postmanPhone)) {
-                String latestShippingHistory = shippingHistory.get(0).getStatus();
-                if (latestShippingHistory.contains("已签收")) {
-                    status = Order.Status.DELIVERED;
-                } else {
-                    status = Order.Status.POSTMAN_ASSIGNED;
-                }
+            Order.DeliveryEnding deliveryEnding = determineDeliveryEnding(shippingHistory);
+            if (deliveryEnding != null) {
+                status = Order.Status.DELIVERED;
+                builder.withDeliveryEnding(deliveryEnding);
+            } else if (postManInfo != null && StringUtils.isNotBlank(postManInfo.postmanPhone)) {
+                status = Order.Status.POSTMAN_ASSIGNED;
             } else {
                 status = Order.Status.TRACKING_NUMBER_ASSIGNED;
             }
@@ -430,6 +429,42 @@ public class TeddyClientImpl implements TeddyClient {
             status = Order.Status.CREATED;
         }
         return status;
+    }
+
+    private static Order.DeliveryEnding determineDeliveryEnding(final List<ShippingHistoryEntry> entries) {
+        // Check last 3 items.
+        List<String> latestStatus = new ArrayList<>();
+        for (int i = 0; i < 3 && i < entries.size(); i++) {
+            latestStatus.add(entries.get(i).getStatus());
+        }
+
+        for (String status : latestStatus) {
+            if (status.contains("自提点")) {
+                return Order.DeliveryEnding.PICK_UP_BOX;
+            } else if (status.contains("投递到") && status.contains("包裹柜")) {
+                return Order.DeliveryEnding.PICK_UP_BOX;
+            } else if (status.contains("已签收")) {
+                if (status.contains("他人代收")
+                        || status.contains("协议信箱")
+                        || status.contains("物业")
+                        || status.contains("收发室")
+                        || status.contains("其他")) {
+                    return Order.DeliveryEnding.OTHERS_SIGNED;
+                } else if (status.contains("本人签收")) {
+                    return Order.DeliveryEnding.SELF_SIGNED;
+                } else {
+                    LOGGER.warn("Cannot determine deliveryEnding for signed for {}", latestStatus);
+                    return Order.DeliveryEnding.UNKNOWN_SIGNED;
+                }
+            }
+        }
+        for (String status : latestStatus) {
+            if (status.contains("已妥投")) {
+                LOGGER.warn("Cannot determine deliveryEnding for {}", latestStatus);
+                return Order.DeliveryEnding.UNKNOWN;
+            }
+        }
+        return null;
     }
 
     /**

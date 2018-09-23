@@ -177,9 +177,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
         }
-        Stream<T> toReturn = Streams.stream(service.prepare(theQuery).asIterable())
-                .map(DatastoreEntityExtractor::of)
-                .map(entityFactory::fromEntity);
+        Stream<T> toReturn = Streams.stream(service.prepare(theQuery).asIterable()).map(this::toObj);
 
         meterOff();
         return toReturn;
@@ -210,10 +208,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         }
         QueryResultList<Entity> results = service.prepare(theQuery).asQueryResultList(fetchOptions);
 
-        List<T> content = Streams.stream(results.iterator())
-                .map(DatastoreEntityExtractor::of)
-                .map(entityFactory::fromEntity)
-                .collect(Collectors.toList());
+        List<T> content = Streams.stream(results.iterator()).map(this::toObj).collect(Collectors.toList());
 
         String newNextToken = results.getCursor() == null ? null : results.getCursor().toWebSafeString();
         if (pageToken != null && pageToken.getToken().equals(newNextToken)) {
@@ -228,6 +223,14 @@ public class DatastoreDbClient<T> implements DbClient<T> {
                 .withResults(content)
                 .withPageToken(newPageTokenStr)
                 .build();
+    }
+
+    private T toObj(final Entity entity) {
+        Key key = entity.getKey();
+        DatastoreEntityExtractor extractor = DatastoreEntityExtractor.of(entity);
+        T obj = entityFactory.fromEntity(extractor);
+        obj = entityFactory.mergeId(obj, extractId(key));
+        return obj;
     }
 
     private Entity toEntity(final T obj) {

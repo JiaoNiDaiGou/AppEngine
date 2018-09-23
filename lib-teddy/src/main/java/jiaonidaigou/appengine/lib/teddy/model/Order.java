@@ -91,6 +91,9 @@ public class Order {
     @JsonProperty
     private boolean delivered;
 
+    @JsonProperty
+    private DeliveryEnding deliveryEnding;
+
     public static Builder builder() {
         return new Builder();
     }
@@ -174,12 +177,24 @@ public class Order {
         return delivered;
     }
 
+    public DeliveryEnding getDeliveryEnding() {
+        return deliveryEnding;
+    }
+
     public enum Status {
         CREATED,
         PENDING,
         TRACKING_NUMBER_ASSIGNED,
         POSTMAN_ASSIGNED,
         DELIVERED
+    }
+
+    public enum DeliveryEnding {
+        PICK_UP_BOX, // 快递柜
+        SELF_SIGNED, // 本人签收
+        OTHERS_SIGNED, // 他人代签
+        UNKNOWN_SIGNED, // Singed by unknown person.
+        UNKNOWN;
     }
 
     public static final class Builder {
@@ -199,6 +214,7 @@ public class Order {
         private String senderName;
         private List<ShippingHistoryEntry> shippingHistory = new ArrayList<>();
         private boolean delivered;
+        private DeliveryEnding deliveryEnding;
 
         private Builder() {
         }
@@ -283,6 +299,11 @@ public class Order {
             return this;
         }
 
+        public Builder withDeliveryEnding(final DeliveryEnding deliveryEnding) {
+            this.deliveryEnding = deliveryEnding;
+            return this;
+        }
+
         public Order build() {
             Order order = new Order();
             order.products = this.products;
@@ -301,6 +322,7 @@ public class Order {
             order.trackingNumber = this.trackingNumber;
             order.postmanPhone = this.postmanPhone;
             order.delivered = this.delivered;
+            order.deliveryEnding = this.deliveryEnding;
             return order;
         }
     }

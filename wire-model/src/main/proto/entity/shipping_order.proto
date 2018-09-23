@@ -43,10 +43,12 @@ message ShippingOrder {
     Postman postman = 30;
     string tracking_number = 32;
     string shipping_carrier = 33;
-
+    string shipping_ending = 34;
     repeated ShippingHistoryEntry shipping_history = 40;
 
     string teddy_order_id = 100;
     string teddy_formatted_id = 101;
     string sender_name = 110;
+
+    Price total_price = 130;
 }

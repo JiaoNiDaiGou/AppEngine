@@ -20,6 +20,7 @@ ext.gaeAppId = getAppId()
 dependencies {
     compile project(':common')
     compile project(':content-parser')
+    compile project(':content-template')
     compile project(':lib-ocrspace')
     compile project(':lib-teddy')
     compile project(':wire-model')
