@@ -82,7 +82,8 @@ public class TeddyClientTest {
         assertTrue(order.getShippingHistory().size() > 0);
         assertEquals("9975123810600", order.getTrackingNumber());
         assertEquals("邮政平邮", order.getRawShippingStatus());
-        assertEquals(Order.Status.POSTMAN_ASSIGNED, order.getStatus());
+        assertEquals(Order.Status.DELIVERED, order.getStatus());
+        assertEquals(Order.DeliveryEnding.PICK_UP_BOX, order.getDeliveryEnding());
     }
 
     @Test

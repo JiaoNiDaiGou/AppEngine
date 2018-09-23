@@ -6,18 +6,14 @@ import jiaonidaigou.appengine.api.access.sms.ConsoleSmsClient;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 
-import java.io.File;
-
 public class VerifySyncJiaoniShippingOrdersTaskRunner {
     public static void main(String[] args) throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
-            File file = new File(Environments.LOCAL_TEMP_DIR_ENDSLASH + "xx.json");
             TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new MockBrowserClient("jiaoni"));
             ShippingOrderDbClient dbClient = new ShippingOrderDbClient(remoteApi.getDatastoreService());
             SyncJiaoniShippingOrdersTaskRunner taskRunner = new SyncJiaoniShippingOrdersTaskRunner(

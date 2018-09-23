@@ -70,7 +70,6 @@ public class ProductDbClient extends BaseDbClient<Product> {
         super(new DbClientBuilder<Product>()
                 .datastoreService(service)
                 .entityFactory(new EntityFactory())
-                .inMemoryCache()
                 .build());
     }
 
