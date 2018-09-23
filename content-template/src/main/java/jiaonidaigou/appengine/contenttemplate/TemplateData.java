@@ -44,7 +44,7 @@ public class TemplateData {
     }
 
     public TemplateData addAsDateTime(final String prop, final long millis) {
-        return addAsDateTime(prop, millis == 0 ? null : new DateTime(millis), null);
+        return addAsDateTime(prop, millis, null);
     }
 
     public TemplateData addAsDateTime(final String prop, final long millis, String defaultVal) {

@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.common.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -20,5 +21,16 @@ public class ObjectMapperProvider {
                 .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    public static String prettyToJson(Object object) {
+        if (object == null) {
+            return "null";
+        }
+        try {
+            return get().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            return "<error>: " + e.getMessage();
+        }
     }
 }

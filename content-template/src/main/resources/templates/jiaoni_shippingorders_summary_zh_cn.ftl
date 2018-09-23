@@ -64,7 +64,7 @@
       <#list newlyCreated as order>
       <tr>
         <td align="left">
-          <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.id}">${order.formattedId}</a>
+          <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.teddyId}">${order.teddyFormattedId}</a>
         </td>
         <td align="left">${order.creationTime}</td>
         <td align="left">${order.lastUpdateTime}</td>
@@ -93,7 +93,7 @@
           <#list newlyPending as order>
           <tr class="tr_head">
             <td align="left">
-              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.id}">${order.formattedId}</a>
+              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.teddyOrderId}">${order.teddyFormattedId}</a>
             </td>
             <td align="left">${order.creationTime}</td>
             <td align="left">${order.lastUpdateTime}</td>
@@ -128,7 +128,7 @@
           <#list newlyTrackingNumberAssigned as order>
           <tr class="tr_head">
             <td align="left">
-              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.id}">${order.formattedId}</a>
+              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.teddyOrderId}">${order.teddyFormattedId}</a>
             </td>
             <td align="left">${order.creationTime}</td>
             <td align="left">${order.lastUpdateTime}</td>
@@ -166,7 +166,7 @@
           <#list newlyPostmanAssigned as order>
           <tr class="tr_head">
             <td align="left">
-              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.id}">${order.formattedId}</a>
+              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.teddyOrderId}">${order.teddyFormattedId}</a>
             </td>
             <td align="left">${order.creationTime}</td>
             <td align="left">${order.lastUpdateTime}</td>
@@ -196,7 +196,7 @@
     </#if>
     <hr>
     <#if noUpdatesOverDays?size != 0>
-    <p>以下${noUpdatesOverDays?size}发货单 15天以上没有国内快递单号：</p>
+    <p>以下${noUpdatesOverDays?size}发货单 ${noUpdatesWarnDays}天以上没有国内快递单号：</p>
         <table border=1>
           <tr>
             <th align="left">小熊单号</th>
@@ -207,7 +207,7 @@
           <#list noUpdatesOverDays as order>
           <tr class="tr_head">
             <td align="left">
-              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.id}">${order.formattedId}</a>
+              <a href="http://rnbex.us/Member/OrderView.aspx?ID=${order.teddyOrderId}">${order.teddyFormattedId}</a>
             </td>
             <td align="left">${order.creationTime}</td>
             <td align="left">${order.lastUpdateTime}</td>
@@ -225,7 +225,7 @@
           </#list>
         </table>
     <#else>
-    <p>尚未发现有任何发货单超过15天仍没有快递追踪单号</p>
+    <p>尚未发现有任何发货单超过${noUpdatesWarnDays}天仍没有快递追踪单号</p>
     </#if>
 
     <#if last30DaysSenderReports?size != 0>

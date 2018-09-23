@@ -13,7 +13,7 @@ import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.registry.Registry;
-import jiaonidaigou.appengine.api.utils.TeddyConversions;
+import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
@@ -97,7 +97,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             if (orderNull) {
                 continue;
             }
-            shippingOrders.add(TeddyConversions.convertShippingOrder(order));
+            shippingOrders.add(TeddyUtils.convertShippingOrder(order));
             if (id <= KNOWN_START_ID) {
                 break;
             }
@@ -139,7 +139,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             } else {
                 continuousNull = 0;
                 lastNonNullId = id;
-                shippingOrders.add(TeddyConversions.convertShippingOrder(order));
+                shippingOrders.add(TeddyUtils.convertShippingOrder(order));
             }
         }
 
