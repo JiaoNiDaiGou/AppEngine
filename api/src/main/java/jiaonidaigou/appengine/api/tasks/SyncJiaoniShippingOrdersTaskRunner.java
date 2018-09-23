@@ -71,9 +71,14 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
         this.smsClient = smsClient;
     }
 
-    private static boolean notifyCustomer(final ShippingOrder.Status oldStatus, final ShippingOrder.Status newStatus) {
-        return (newStatus == CN_TRACKING_NUMBER_ASSIGNED || newStatus == CN_POSTMAN_ASSIGNED)
-                && (oldStatus != CN_TRACKING_NUMBER_ASSIGNED && oldStatus != CN_POSTMAN_ASSIGNED && oldStatus != DELIVERED);
+
+    private static boolean determineNotifyCustomer(final ShippingOrder shippingOrder) {
+        if (shippingOrder.getCustomerNotified()) {
+            return false;
+        }
+        ShippingOrder.Status status = shippingOrder.getStatus();
+        return (status == CN_TRACKING_NUMBER_ASSIGNED || status == CN_POSTMAN_ASSIGNED)
+                || (status == DELIVERED && shippingOrder.getShippingEnding() == ShippingOrder.ShippingEnding.PICK_UP_BOX);
     }
 
     private static List<Map<String, Object>> shippingOrdersInTemplate(final Collection<ShippingOrder> shippingOrders,
@@ -192,7 +197,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 
         List<ShippingOrder> curShippingOrders = shippingOrderDbClient.queryNonDeliveredOrders();
         LOGGER.info("Need to sync {} non-delivered orders.", curShippingOrders.size());
-        
+
         List<ShippingOrder> newShippingOrders = new ArrayList<>();
         List<ShippingOrder> toSave = new ArrayList<>();
         List<ShippingOrder> toNotifyCustomer = new ArrayList<>();
@@ -201,12 +206,20 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
             ShippingOrder newShippingOrder = TeddyConversions.convertShippingOrder(
                     hackTeddyClient.getOrderDetails(Long.parseLong(curShippingOrder.getTeddyOrderId()), true)
             );
-            newShippingOrders.add(newShippingOrder);
 
-            if (notifyCustomer(curShippingOrder.getStatus(), newShippingOrder.getStatus())) {
+            // Carry over other information:
+            newShippingOrder = newShippingOrder.toBuilder()
+                    .setCustomerNotified(curShippingOrder.getCustomerNotified())
+                    .build();
+            if (determineNotifyCustomer(newShippingOrder)) {
                 toNotifyCustomer.add(newShippingOrder);
+            } else {
+                newShippingOrder = newShippingOrder.toBuilder()
+                        .setCustomerNotified(true)
+                        .build();
             }
 
+            newShippingOrders.add(newShippingOrder);
             if (!curShippingOrder.equals(newShippingOrder)) {
                 toSave.add(newShippingOrder);
             }
@@ -215,8 +228,8 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 
         for (ShippingOrder shippingOrder : toNotifyCustomer) {
             notifyCustomer(shippingOrder);
+            shippingOrderDbClient.put(shippingOrder.toBuilder().setCustomerNotified(true).build());
         }
-
         notifyAdmin(curShippingOrders, newShippingOrders, toNotifyCustomer);
     }
 
@@ -275,9 +288,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
                 .getTemplate("jiaoni_shippingorders_summary_zh_cn.ftl")
                 .toContent(data);
 
-        if (StringUtils.isNotBlank(subject) && StringUtils.isNotBlank(html))
-
-        {
+        if (StringUtils.isNotBlank(subject) && StringUtils.isNotBlank(html)) {
             emailClient.sendHtml(String.join(",", Environments.ADMIN_EMAILS), subject, html);
         }
 

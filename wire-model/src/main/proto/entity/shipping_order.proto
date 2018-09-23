@@ -17,6 +17,14 @@ message ShippingOrder {
         DELIVERED = 4;
     }
 
+    enum ShippingEnding {
+        UNKNOWN = 0;
+        PICK_UP_BOX = 1;
+        SELF_SIGNED = 2;
+        OTHERS_SIGNED = 3;
+        UNKNOWN_SIGNED = 4;
+    }
+
     message ProductEntry {
         Product product = 1;
         int32 quantity = 2;
@@ -43,7 +51,7 @@ message ShippingOrder {
     Postman postman = 30;
     string tracking_number = 32;
     string shipping_carrier = 33;
-    string shipping_ending = 34;
+    ShippingEnding shipping_ending = 34;
     repeated ShippingHistoryEntry shipping_history = 40;
 
     string teddy_order_id = 100;
@@ -51,4 +59,6 @@ message ShippingOrder {
     string sender_name = 110;
 
     Price total_price = 130;
+
+    bool customer_notified = 140;
 }

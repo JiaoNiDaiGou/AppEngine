@@ -30,6 +30,7 @@ public class TeddyConversions {
         setIfNotNull(convertPostman(order), builder::setPostman);
         setIfNotBlank(order.getTrackingNumber(), builder::setTrackingNumber);
         setIfNotBlank(order.getRawShippingStatus(), builder::setShippingCarrier);
+        setIfNotNull(convertShippingEnding(order.getDeliveryEnding()), builder::setShippingEnding);
         return builder.addAllProductEntries(
                 order.getProducts()
                         .stream()
@@ -150,6 +151,26 @@ public class TeddyConversions {
                 return ProductCategory.DAILY_NECESSITIES;
             default:
                 return ProductCategory.UNKNOWN;
+        }
+    }
+
+    private static ShippingOrder.ShippingEnding convertShippingEnding(final Order.DeliveryEnding ending) {
+        if (ending == null) {
+            return null;
+        }
+        switch (ending) {
+            case UNKNOWN:
+                return ShippingOrder.ShippingEnding.UNKNOWN;
+            case OTHERS_SIGNED:
+                return ShippingOrder.ShippingEnding.OTHERS_SIGNED;
+            case PICK_UP_BOX:
+                return ShippingOrder.ShippingEnding.PICK_UP_BOX;
+            case SELF_SIGNED:
+                return ShippingOrder.ShippingEnding.SELF_SIGNED;
+            case UNKNOWN_SIGNED:
+                return ShippingOrder.ShippingEnding.UNKNOWN_SIGNED;
+            default:
+                return null;
         }
     }
 
