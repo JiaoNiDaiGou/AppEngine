@@ -31,20 +31,17 @@ public class AuthFilter implements ContainerRequestFilter {
     private HttpServletRequest servletRequest;
 
     @Inject
-    public AuthFilter(final BypassAuthenticator bypassAuthenticator,
-                      final GoogleOAuth2Authenticator googleOAuth2Authenticator,
-                      final CustomSecretAuthenticator customSecretAuthenticator,
-                      final SysTaskQueueAuthenticator sysTaskQueueAuthenticator) {
+    public AuthFilter() {
         // Order matters, is the order to try authentication.
         if (AppEnvironments.ENV == Env.LOCAL) {
             authenticators = Lists.newArrayList(
-                    bypassAuthenticator
+                    new BypassAuthenticator()
             );
         } else {
             authenticators = Lists.newArrayList(
-                    sysTaskQueueAuthenticator,
-                    customSecretAuthenticator,
-                    googleOAuth2Authenticator
+                    new SysTaskQueueAuthenticator(),
+                    new CustomSecretAuthenticator(),
+                    new GoogleOAuth2Authenticator()
             );
         }
     }
