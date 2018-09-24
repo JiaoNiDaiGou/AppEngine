@@ -46,6 +46,10 @@ public class PageToken {
         return source;
     }
 
+    public boolean isSourceInMemory() {
+        return source == Source.IN_MEMORY;
+    }
+
     public String getToken() {
         return token;
     }

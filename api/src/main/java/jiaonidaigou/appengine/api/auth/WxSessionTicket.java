@@ -1,14 +1,29 @@
 package jiaonidaigou.appengine.api.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 public class WxSessionTicket {
+    public static final long DEFAULT_EXPIRATION_MILLIS = Duration.standardHours(1).getMillis();
+
+    @JsonProperty
     private String ticketId;
+
+    @JsonProperty
     private String openId;
+
+    @JsonProperty
     private String sessionKey;
+
+    @JsonProperty
     private String unionId;
+
+    @JsonProperty
+    private DateTime expirationTime;
 
     public static Builder builder() {
         return new Builder();
@@ -19,7 +34,8 @@ public class WxSessionTicket {
                 .withTicketId(ticketId)
                 .withOpenId(openId)
                 .withSessionKey(sessionKey)
-                .withUnionId(unionId);
+                .withUnionId(unionId)
+                .withExpirationTime(expirationTime);
     }
 
     @Override
@@ -53,11 +69,16 @@ public class WxSessionTicket {
         return unionId;
     }
 
+    public DateTime getExpirationTime() {
+        return expirationTime;
+    }
+
     public static final class Builder {
         private String ticketId;
         private String openId;
         private String sessionKey;
         private String unionId;
+        private DateTime expirationTime;
 
         private Builder() {
         }
@@ -82,12 +103,18 @@ public class WxSessionTicket {
             return this;
         }
 
+        public Builder withExpirationTime(DateTime expirationTime) {
+            this.expirationTime = expirationTime;
+            return this;
+        }
+
         public WxSessionTicket build() {
             WxSessionTicket wxSessionTicket = new WxSessionTicket();
             wxSessionTicket.unionId = this.unionId;
             wxSessionTicket.ticketId = this.ticketId;
             wxSessionTicket.sessionKey = this.sessionKey;
             wxSessionTicket.openId = this.openId;
+            wxSessionTicket.expirationTime = this.expirationTime;
             return wxSessionTicket;
         }
     }

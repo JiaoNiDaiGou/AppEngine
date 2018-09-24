@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 import static com.google.appengine.api.datastore.Query.CompositeFilterOperator.AND;
 import static com.google.appengine.api.datastore.Query.CompositeFilterOperator.OR;
@@ -242,7 +243,10 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         return entityFactory.toEntity(entityBuilder, obj);
     }
 
-    private Key buildKey(final String id) {
+    /**
+     * Build up Datastore key, from given string format of ID.
+     */
+    private Key buildKey(@Nullable final String id) {
         if (StringUtils.isBlank(id)) {
             return null;
         }

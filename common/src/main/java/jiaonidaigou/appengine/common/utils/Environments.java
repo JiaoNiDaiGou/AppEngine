@@ -10,7 +10,6 @@ public class Environments {
         WINDOWS, MAC, LINUX, OTHERS
     }
 
-    public static final String NAMESPACE_SYS = "Sys";
     public static final String NAMESPACE_JIAONIDAIGOU = "JiaoNiDaiGou";
     public static final String NAMESPACE_SONGFAN = "SongFan";
     public static final String NAMESPACE_WX = "Wx";

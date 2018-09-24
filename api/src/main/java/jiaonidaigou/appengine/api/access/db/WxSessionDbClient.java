@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.access.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.memcache.MemcacheService;
 import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
@@ -22,10 +23,13 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
     private static final String FIELD_UNION_ID = "unionId";
 
     @Inject
-    public WxSessionDbClient(final DatastoreService service) {
+    public WxSessionDbClient(final DatastoreService datastoreService,
+                             final MemcacheService memcacheService) {
         super(new DbClientBuilder<WxSessionTicket>()
-                .datastoreService(service)
+                .datastoreService(datastoreService)
+                .memcacheService(memcacheService)
                 .entityFactory(new EntityFactory())
+                .useMemcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
                 .build());
     }
 
