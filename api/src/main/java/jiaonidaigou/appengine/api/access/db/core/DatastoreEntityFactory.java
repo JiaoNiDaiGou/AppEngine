@@ -12,6 +12,9 @@ public interface DatastoreEntityFactory<T> extends DbClient.IdGetter<T> {
     KeyType getKeyType();
 
     /**
+     * Usually Kind is consist of {ServiceName}.{ENV}.{TableName}.
+     * E.g. JiaoNiDaiGou.PROD.Customer
+     *
      * @return The kind of the Datastore.
      */
     String getKind();

@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.db.ShippingOrderDbClient;
+import jiaonidaigou.appengine.api.access.db.core.PageToken;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
@@ -10,8 +11,10 @@ import jiaonidaigou.appengine.lib.teddy.model.Product;
 import jiaonidaigou.appengine.lib.teddy.model.Receiver;
 import jiaonidaigou.appengine.wiremodel.api.CreateShippingOrderRequest;
 import jiaonidaigou.appengine.wiremodel.api.CreateShippingOrderResponse;
+import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +25,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -31,7 +36,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/api/shipping_order")
+@Path("/api/shippingOrders")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
@@ -90,6 +95,64 @@ public class ShippingOrderInterface {
         return Response.ok(shippingOrder).build();
     }
 
+    @DELETE
+    @Path("/delete")
+    public Response deleteShippingOrderById(@QueryParam("id") final String id) {
+        RequestValidator.validateNotBlank(id, "shippingOrderId");
+        shippingOrderDbClient.delete(id);
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/query")
+    public Response queryShippingOrders(@QueryParam("customerId") final String customerId,
+                                        @QueryParam("customerName") final String customerName,
+                                        @QueryParam("customerPhone") final String customerPhone,
+                                        @QueryParam("includeDelivered") final boolean includeDelivered,
+                                        @QueryParam("pageToken") final String pageTokenStr,
+                                        @QueryParam("limit") final int limit) {
+        if (includeDelivered) {
+            throw new NotSupportedException("includeDelivered not supported yet");
+        }
+
+        PageToken pageToken = PageToken.fromPageToken(pageTokenStr);
+        RequestValidator.validateRequest(pageToken == null || pageToken.isSourceInMemory());
+
+        List<ShippingOrder> shippingOrders = shippingOrderDbClient.queryNonDeliveredOrders()
+                .stream()
+                .filter(t -> {
+                    if (StringUtils.isNotBlank(customerId) && !t.getReceiver().getId().equals(customerId)) {
+                        return false;
+                    }
+
+                    if (StringUtils.isNotBlank(customerName) && !t.getReceiver().getName().equals(customerName)) {
+                        return false;
+                    }
+
+                    if (StringUtils.isNotBlank(customerPhone) && !t.getReceiver().getPhone().getPhone().equals(customerPhone)) {
+                        return false;
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        int from = pageToken == null ? 0 : pageToken.getIndex();
+        int to = limit > 0 ? Math.min(shippingOrders.size(), from + limit) : shippingOrders.size();
+        String newPageToken = to == shippingOrders.size() ? null : PageToken.inMemory(to).toPageToken();
+        if (from != 0 || to != shippingOrders.size()) {
+            shippingOrders = shippingOrders.subList(from, to);
+        }
+
+        PaginatedResults<ShippingOrder> toReturn = PaginatedResults
+                .<ShippingOrder>builder()
+                .withTotoalCount(shippingOrders.size())
+                .withResults(shippingOrders)
+                .withPageToken(newPageToken)
+                .build();
+        return Response.ok(toReturn).build();
+    }
+
     private static Receiver toTeddyReceiver(final CreateShippingOrderRequest request) {
 //        return Receiver.builder()
 //                .withName(request.getReceiver().getName())
@@ -102,6 +165,9 @@ public class ShippingOrderInterface {
 //                .build();
         return null;
     }
+
+    // TODO:
+    // Move to TeddyUtils
 
     private static List<Product> toTeddyProducts(final CreateShippingOrderRequest request) {
         return request.getProductEntriesList()

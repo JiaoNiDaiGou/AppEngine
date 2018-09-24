@@ -8,10 +8,13 @@ import jiaonidaigou.appengine.api.auth.WxSessionTicket;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.utils.Secrets;
+import jiaonidaigou.appengine.wiremodel.api.WxLoginRequest;
+import jiaonidaigou.appengine.wiremodel.api.WxLoginResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.joda.time.DateTime;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static jiaonidaigou.appengine.api.auth.WxSessionTicket.DEFAULT_EXPIRATION_MILLIS;
 
 @Path("/api/wx")
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,16 +53,6 @@ public class WxLoginInterface {
         String appSecret;
     }
 
-    private static class LoginRequest {
-        @JsonProperty
-        String code;
-    }
-
-    private static class LoginResponse {
-        @JsonProperty
-        String ticketId;
-    }
-
     @Inject
     public WxLoginInterface(final WxSessionDbClient dbClient) {
         this.dbClient = dbClient;
@@ -70,22 +65,20 @@ public class WxLoginInterface {
     @POST
     @Path("/{app}/login")
     public Response login(@PathParam("app") final String appName,
-                          final LoginRequest loginRequest) {
+                          final WxLoginRequest loginRequest) {
         RequestValidator.validateAppName(appName);
         RequestValidator.validateNotNull(loginRequest);
-        RequestValidator.validateNotBlank(loginRequest.code, "code");
+        RequestValidator.validateNotBlank(loginRequest.getCode(), "code");
 
         WxAppInfo appInfo = wxAppInfos.get(appName);
         if (appInfo == null) {
             throw new NotFoundException();
         }
-        WxSessionTicket ticket = getWxSessionTicket(appInfo, loginRequest.code);
+        WxSessionTicket ticket = getWxSessionTicket(appInfo, loginRequest.getCode());
 
         dbClient.put(ticket);
 
-        LoginResponse response = new LoginResponse();
-        response.ticketId = ticket.getTicketId();
-
+        WxLoginResponse response = WxLoginResponse.newBuilder().setTicketId(ticket.getTicketId()).build();
         return Response.ok(response).build();
     }
 
@@ -114,6 +107,7 @@ public class WxLoginInterface {
 
         WxSessionTicket ticket = WxSessionTicket.builder()
                 .withTicketId(UUID.randomUUID().toString())
+                .withExpirationTime(DateTime.now().plus(DEFAULT_EXPIRATION_MILLIS))
                 .withOpenId(node.get("openid").asText())
                 .withSessionKey(node.get("session_key").asText())
                 .withUnionId(node.has("unionid") ? node.get("unionid").asText() : null)

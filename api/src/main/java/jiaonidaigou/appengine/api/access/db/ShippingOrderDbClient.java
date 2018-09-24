@@ -22,6 +22,7 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
     private static final String KIND = NAMESPACE_JIAONIDAIGOU + "." + ENV + ".ShippingOrder";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CREATION_TIME = "creation_time";
+    private static final String FIELD_CUSTOMER_ID = "customer_id";
     private static final String FIELD_CUSTOMER_PHONE = "customer_phone";
     private static final String FIELD_CUSTOMER_NAME = "customer_name";
     private static final String FIELD_TEDDY_ORDER_ID = "teddy_order_id";
@@ -53,6 +54,7 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, ShippingOrder obj) {
             return partialBuilder
                     .indexedLong(FIELD_CREATION_TIME, obj.getCreationTime())
+                    .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())
                     .indexedString(FIELD_CUSTOMER_PHONE, obj.getReceiver().getPhone().getPhone())
                     .indexedString(FIELD_CUSTOMER_NAME, obj.getReceiver().getName())
                     .indexedString(FIELD_TEDDY_ORDER_ID, obj.getTeddyOrderId())
@@ -79,11 +81,15 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                 DbQuery.ge(FIELD_TEDDY_ORDER_ID, String.valueOf(minTeddyIdInclusive)),
                 DbQuery.le(FIELD_TEDDY_ORDER_ID, String.valueOf(maxTeddyIdInclusive))
         );
-        return this.queryInStream(query).collect(Collectors.toList());
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
     }
 
     public List<ShippingOrder> queryNonDeliveredOrders() {
         DbQuery query = DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name());
-        return this.queryInStream(query).collect(Collectors.toList());
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
     }
 }

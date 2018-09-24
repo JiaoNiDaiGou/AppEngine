@@ -61,7 +61,7 @@ public class EncryptUtils {
     }
 
     public static byte[] generateSecretKey() {
-        getAesCipher();
+        getAesCipherWithIv();
         try {
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(AES_KEY_SIZE);
@@ -72,7 +72,7 @@ public class EncryptUtils {
     }
 
     public static byte[] generateIv() {
-        getAesCipher();
+        getAesCipherWithIv();
         try {
             byte[] result = new byte[AES_IV_LENGTH];
             SecureRandom.getInstance("SHA1PRNG").nextBytes(result);
@@ -82,8 +82,30 @@ public class EncryptUtils {
         }
     }
 
+    public static byte[] aesEncrypt(final byte[] key, final byte[] data) {
+        Cipher cipher = getAesCipherWithoutIv();
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] aesDecrypt(final byte[] key, final byte[] data) {
+        Cipher cipher = getAesCipherWithoutIv();
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, keySpec);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static byte[] aesEncrypt(final byte[] key, final byte[] iv, final byte[] data) {
-        Cipher cipher = getAesCipher();
+        Cipher cipher = getAesCipherWithIv();
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         try {
@@ -95,7 +117,7 @@ public class EncryptUtils {
     }
 
     public static byte[] aesDecrypt(final byte[] key, final byte[] iv, final byte[] data) {
-        Cipher cipher = getAesCipher();
+        Cipher cipher = getAesCipherWithIv();
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         try {
@@ -106,12 +128,23 @@ public class EncryptUtils {
         }
     }
 
-    private static Cipher getAesCipher() {
+    private static Cipher getAesCipherWithIv() {
         try {
             if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
                 throw new IllegalStateException("This environment doesn't support 256 bit key length. Please update JCE policy.");
             }
             return Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new IllegalStateException("this environment doesn't have AES supported", e);
+        }
+    }
+
+    private static Cipher getAesCipherWithoutIv() {
+        try {
+            if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
+                throw new IllegalStateException("This environment doesn't support 256 bit key length. Please update JCE policy.");
+            }
+            return Cipher.getInstance("AES/ECB/PKCS5PADDING");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new IllegalStateException("this environment doesn't have AES supported", e);
         }
