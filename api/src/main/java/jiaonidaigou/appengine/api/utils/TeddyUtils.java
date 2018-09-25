@@ -264,6 +264,18 @@ public class TeddyUtils {
         }
     }
 
+    public static Receiver convertToTeddyReceiver(final Customer customer) {
+        return Receiver.builder()
+                .withUserId(customer.getSocialContacts().getTeddyUserId())
+                .withAddressRegion(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getRegion() : null)
+                .withAddressCity(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getCity() : null)
+                .withAddressZone(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getZone() : null)
+                .withAddressCity(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getAddress() : null)
+                .withName(customer.getName())
+                .withPhone(customer.getPhone().getPhone())
+                .build();
+    }
+
     private static boolean setIfNotBlank(final String str, Consumer<String> consumer) {
         if (StringUtils.isNotBlank(str)) {
             consumer.accept(str);

@@ -6,8 +6,10 @@ import jiaonidaigou.appengine.api.access.db.core.PageToken;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
+import jiaonidaigou.appengine.lib.teddy.model.Order;
 import jiaonidaigou.appengine.wiremodel.api.InitShippingOrderRequest;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
@@ -104,6 +106,33 @@ public class ShippingOrderInterface {
                 .build();
         shippingOrder = shippingOrderDbClient.put(shippingOrder);
 
+        return Response.ok(shippingOrder).build();
+    }
+
+    @POST
+    @Path("/externalCreate")
+    public Response externalCreateShippingOrder(@QueryParam("id") final String id) {
+        RequestValidator.validateNotBlank(id, "shippingOrderId");
+
+        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
+        if (shippingOrder == null) {
+            throw new NotFoundException();
+        }
+
+        Order order = teddyClient.makeOrder(
+                TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
+                TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
+                shippingOrder.getTotalWeightLb()
+        );
+
+        shippingOrder = shippingOrder.toBuilder()
+                .setTeddyOrderId(String.valueOf(order.getId()))
+                .setTeddyFormattedId(order.getFormattedId())
+                .setCustomerNotified(false)
+                .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
+                .build();
+
+        shippingOrder = shippingOrderDbClient.put(shippingOrder);
         return Response.ok(shippingOrder).build();
     }
 
