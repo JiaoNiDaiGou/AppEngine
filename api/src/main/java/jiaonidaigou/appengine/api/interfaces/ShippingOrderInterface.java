@@ -68,6 +68,9 @@ public class ShippingOrderInterface {
             throw new NotFoundException("invalid customer ID: " + request.getReceiverCustomerId());
         }
 
+        //
+        // TODO: save products.
+
         receiver = receiver.toBuilder()
                 .clearAddresses()
                 .addAddresses(request.getAddress())
