@@ -94,7 +94,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             if (orderNull) {
                 continue;
             }
-            shippingOrders.add(TeddyUtils.convertShippingOrder(order));
+            shippingOrders.add(TeddyUtils.convertToShippingOrder(order));
             if (id <= KNOWN_START_ID) {
                 break;
             }
@@ -136,7 +136,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             } else {
                 continuousNull = 0;
                 lastNonNullId = id;
-                shippingOrders.add(TeddyUtils.convertShippingOrder(order));
+                shippingOrders.add(TeddyUtils.convertToShippingOrder(order));
             }
         }
 

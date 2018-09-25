@@ -15,6 +15,7 @@ import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -29,9 +30,9 @@ public class TeddyUtils {
         return KNOWN_SHIPPING_CARRIERS;
     }
 
-    public static ShippingOrder convertFromOrderPreview(final OrderPreview preview) {
+    public static ShippingOrder convertToShippingOrderFromOrderPreview(final OrderPreview preview) {
         ShippingOrder.Builder builder = ShippingOrder.newBuilder()
-                .setStatus(ShippingOrder.Status.PENDING);
+                .setStatus(ShippingOrder.Status.EXTERNAL_SHPPING_PENDING);
         setIfNotBlank(String.valueOf(preview.getId()), builder::setTeddyOrderId);
         setIfNotBlank(preview.getFormattedId(), builder::setTeddyFormattedId);
         setIfNotBlank(preview.getReceiverName(), t -> builder.getReceiverBuilder().setName(t));
@@ -41,7 +42,7 @@ public class TeddyUtils {
         }
         String rawStatus = preview.getRawShippingStatus();
         if ("运单创建成功".equals(rawStatus)) {
-            builder.setStatus(ShippingOrder.Status.CREATED);
+            builder.setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED);
         } else if (rawStatus.contains("(") && rawStatus.contains(")")) {
             String shippingCarrier = StringUtils.substringBefore(rawStatus, "(").trim();
             builder.setShippingCarrier(shippingCarrier);
@@ -52,27 +53,27 @@ public class TeddyUtils {
         return builder.build();
     }
 
-    public static ShippingOrder convertShippingOrder(final Order order) {
+    public static ShippingOrder convertToShippingOrder(final Order order) {
         ShippingOrder.Builder builder = ShippingOrder.newBuilder()
-                .setStatus(convertShippingOrderStatus(order.getStatus()))
-                .setReceiver(convertCustomer(order.getReceiver()))
+                .setStatus(convertToShippingOrderStatus(order.getStatus()))
+                .setReceiver(convertToCustomer(order.getReceiver()))
                 .setCreationTime(order.getCreationTime().getMillis());
         setIfNotBlank(order.getSenderName(), builder::setSenderName);
-        setIfNotNull(convertPostman(order), builder::setPostman);
+        setIfNotNull(convertToPostman(order), builder::setPostman);
         setIfNotBlank(order.getTrackingNumber(), builder::setTrackingNumber);
         setIfNotBlank(order.getRawShippingStatus(), builder::setShippingCarrier);
-        setIfNotNull(convertShippingEnding(order.getDeliveryEnding()), builder::setShippingEnding);
+        setIfNotNull(convertToShippingEnding(order.getDeliveryEnding()), builder::setShippingEnding);
         return builder.addAllProductEntries(
                 order.getProducts()
                         .stream()
-                        .map(TeddyUtils::convertShippingOrderProductEntry)
+                        .map(TeddyUtils::convertToShippingOrderProductEntry)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()))
                 .setProductSummary(order.getProductSummary())
                 .addAllShippingHistory(
                         order.getShippingHistory()
                                 .stream()
-                                .map(TeddyUtils::convertShippingOrderShippingHistory)
+                                .map(TeddyUtils::convertToShippingOrderShippingHistory)
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList()))
                 .setTeddyOrderId(String.valueOf(order.getId()))
@@ -80,14 +81,16 @@ public class TeddyUtils {
                 .build();
     }
 
-    private static ShippingOrder.ShippingHistoryEntry convertShippingOrderShippingHistory(final ShippingHistoryEntry entry) {
+    private static ShippingOrder.ShippingHistoryEntry convertToShippingOrderShippingHistory(
+            final ShippingHistoryEntry entry) {
         return ShippingOrder.ShippingHistoryEntry.newBuilder()
                 .setStatus(entry.getStatus())
                 .setTimestamp(entry.getTimestamp().getMillis())
                 .build();
     }
 
-    private static ShippingOrder.ProductEntry convertShippingOrderProductEntry(final jiaonidaigou.appengine.lib.teddy.model.Product product) {
+    private static ShippingOrder.ProductEntry convertToShippingOrderProductEntry(
+            final jiaonidaigou.appengine.lib.teddy.model.Product product) {
         Product.Builder productBuilder = Product.newBuilder();
         boolean hasProduct = setIfNotBlank(product.getBrand(), productBuilder::setBrand)
                 || setIfNotNull(convertProductCategory(product.getCategory()), productBuilder::setCategory)
@@ -102,7 +105,7 @@ public class TeddyUtils {
                 .build();
     }
 
-    private static Customer convertCustomer(final Receiver receiver) {
+    private static Customer convertToCustomer(final Receiver receiver) {
         if (receiver == null) {
             return null;
         }
@@ -121,7 +124,7 @@ public class TeddyUtils {
         return builder.build();
     }
 
-    private static Postman convertPostman(final Order order) {
+    private static Postman convertToPostman(final Order order) {
         if (isNotBlank(order.getPostmanName()) && isNotBlank(order.getPostmanPhone())) {
             return Postman.newBuilder()
                     .setName(order.getPostmanName())
@@ -131,15 +134,15 @@ public class TeddyUtils {
         return null;
     }
 
-    private static ShippingOrder.Status convertShippingOrderStatus(final Order.Status status) {
+    private static ShippingOrder.Status convertToShippingOrderStatus(final Order.Status status) {
         if (status == null) {
             return ShippingOrder.Status.DELIVERED;
         }
         switch (status) {
             case CREATED:
-                return ShippingOrder.Status.CREATED;
+                return ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED;
             case PENDING:
-                return ShippingOrder.Status.PENDING;
+                return ShippingOrder.Status.EXTERNAL_SHPPING_PENDING;
             case POSTMAN_ASSIGNED:
                 return ShippingOrder.Status.CN_TRACKING_NUMBER_ASSIGNED;
             case TRACKING_NUMBER_ASSIGNED:
@@ -185,7 +188,7 @@ public class TeddyUtils {
         }
     }
 
-    private static ShippingOrder.ShippingEnding convertShippingEnding(final Order.DeliveryEnding ending) {
+    private static ShippingOrder.ShippingEnding convertToShippingEnding(final Order.DeliveryEnding ending) {
         if (ending == null) {
             return null;
         }
@@ -202,6 +205,62 @@ public class TeddyUtils {
                 return ShippingOrder.ShippingEnding.UNKNOWN_SIGNED;
             default:
                 return null;
+        }
+    }
+
+    public static List<jiaonidaigou.appengine.lib.teddy.model.Product> convertToTeddyProducts(
+            final List<ShippingOrder.ProductEntry> productEntries) {
+        return productEntries
+                .stream()
+                .map(TeddyUtils::convertToTeddyProduct)
+                .collect(Collectors.toList());
+    }
+
+    public static jiaonidaigou.appengine.lib.teddy.model.Product convertToTeddyProduct(
+            final ShippingOrder.ProductEntry productEntry) {
+        return jiaonidaigou.appengine.lib.teddy.model.Product.builder()
+                .withBrand(productEntry.getProduct().getBrand())
+                .withCategory(convertToTeddyProductCategory(productEntry.getProduct().getCategory()))
+                .withName(productEntry.getProduct().getName())
+                .withQuantity(productEntry.getQuantity())
+                .withUnitPriceInDollers((int) productEntry.getSellPrice().getValue())
+                .build();
+    }
+
+    public static jiaonidaigou.appengine.lib.teddy.model.Product.Category convertToTeddyProductCategory(
+            final ProductCategory category) {
+        switch (category) {
+            case BAGS:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.BAGS;
+            case FOOD:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.FOOD;
+            case TOYS:
+            case DAILY_NECESSITIES:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.TOYS_AND_DAILY_NECESSITIES;
+            case SHOES:
+            case CLOTHES:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.CLOTHES_AND_SHOES;
+            case MAKE_UP:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.MAKE_UP;
+            case WATCHES:
+            case ACCESSORIES:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.WATCH_AND_ACCESSORIES;
+            case LARGE_ITEMS:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.LARGE_ITEMS;
+            case MILK_POWDER:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.MILK_POWDER;
+            case BABY_PRODUCTS:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.BABY_PRODUCTS;
+            case SMALL_APPLIANCES:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.SMALL_APPLIANCES;
+            case HEALTH_SUPPLEMENTS:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.HEALTH_SUPPLEMENTS;
+            case LARGE_COMMERCIAL_GOODS:
+                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.LARGE_COMMERCIAL_GOODS;
+            case UNKNOWN:
+            case UNRECOGNIZED:
+            default:
+                throw new IllegalStateException("unexpected product category " + category);
         }
     }
 

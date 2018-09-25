@@ -10,11 +10,29 @@ import "entity/product.proto";
 
 message ShippingOrder {
     enum Status {
-        CREATED = 0;
-        PENDING = 1;
-        CN_TRACKING_NUMBER_ASSIGNED = 2;
-        CN_POSTMAN_ASSIGNED = 3;
-        DELIVERED = 4;
+        // Initalized.
+        // Receiver name, phone, address assigned. And products information assigned.
+        INIT = 0;
+
+        // This shipping order has been packed.
+        // totoal weight assigned.
+        PACKED = 1;
+
+        // We have create a shipping order on some external service. E.g. Teddy.
+        EXTERNAL_SHIPPING_CREATED = 2;
+
+        // External shipping service is processing the shipping order.
+        EXTERNAL_SHPPING_PENDING = 3;
+
+        // We have a China package tracking number.
+        CN_TRACKING_NUMBER_ASSIGNED = 4;
+
+        // We know the postman information for the shipping number in China.
+        CN_POSTMAN_ASSIGNED = 5;
+
+        // The package got delivered.
+        // See ShippingEnding.
+        DELIVERED = 6;
     }
 
     enum ShippingEnding {

@@ -22,6 +22,8 @@ message Customer {
     MediaObject id_card_back_media = 7;
     repeated string emails = 8;
     SocialContacts social_contacts = 30;
+
+    int64 lastUpdatedTime = 40;
 }
 
 

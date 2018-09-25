@@ -2,11 +2,13 @@ package jiaonidaigou.appengine.api.access.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.common.annotations.VisibleForTesting;
+import jiaonidaigou.appengine.api.access.db.core.BaseEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery;
+import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 
 import java.util.List;
@@ -19,7 +21,7 @@ import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONID
 
 @Singleton
 public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
-    private static final String KIND = NAMESPACE_JIAONIDAIGOU + "." + ENV + ".ShippingOrder";
+    private static final String TABLE_NAME = "ShippingOrder";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CREATION_TIME = "creation_time";
     private static final String FIELD_CUSTOMER_ID = "customer_id";
@@ -30,19 +32,41 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
 
     @Inject
     public ShippingOrderDbClient(final DatastoreService datastoreService) {
-        super(datastoreService, new EntityFactory());
+        this(datastoreService, ENV);
     }
 
-    private static class EntityFactory implements DatastoreEntityFactory<ShippingOrder> {
+    @VisibleForTesting
+    public ShippingOrderDbClient(final DatastoreService datastoreService, final Env env) {
+        super(datastoreService, new EntityFactory(NAMESPACE_JIAONIDAIGOU, env, TABLE_NAME));
+    }
+
+    public List<ShippingOrder> queryByTeddyOrderIdRange(final long minTeddyIdInclusive,
+                                                        final long maxTeddyIdInclusive) {
+        DbQuery query = DbQuery.and(
+                DbQuery.ge(FIELD_TEDDY_ORDER_ID, String.valueOf(minTeddyIdInclusive)),
+                DbQuery.le(FIELD_TEDDY_ORDER_ID, String.valueOf(maxTeddyIdInclusive))
+        );
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
+    }
+
+    public List<ShippingOrder> queryNonDeliveredOrders() {
+        DbQuery query = DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name());
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
+    }
+
+    private static class EntityFactory extends BaseEntityFactory<ShippingOrder> {
+
+        protected EntityFactory(String serviceName, Env env, String tableName) {
+            super(serviceName, env, tableName);
+        }
 
         @Override
         public KeyType getKeyType() {
             return KeyType.LONG_ID;
-        }
-
-        @Override
-        public String getKind() {
-            return KIND;
         }
 
         @Override
@@ -52,6 +76,7 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
 
         @Override
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, ShippingOrder obj) {
+            System.out.println("customerId:" + obj.getReceiver().getId());
             return partialBuilder
                     .indexedLong(FIELD_CREATION_TIME, obj.getCreationTime())
                     .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())
@@ -73,23 +98,5 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
         public ShippingOrder mergeId(ShippingOrder obj, String id) {
             return obj.toBuilder().setId(id).build();
         }
-    }
-
-    public List<ShippingOrder> queryByTeddyOrderIdRange(final long minTeddyIdInclusive,
-                                                        final long maxTeddyIdInclusive) {
-        DbQuery query = DbQuery.and(
-                DbQuery.ge(FIELD_TEDDY_ORDER_ID, String.valueOf(minTeddyIdInclusive)),
-                DbQuery.le(FIELD_TEDDY_ORDER_ID, String.valueOf(maxTeddyIdInclusive))
-        );
-        return this.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ShippingOrder> queryNonDeliveredOrders() {
-        DbQuery query = DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name());
-        return this.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
     }
 }

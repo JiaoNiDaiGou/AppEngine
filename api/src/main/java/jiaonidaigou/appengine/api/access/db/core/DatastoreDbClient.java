@@ -212,6 +212,9 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         List<T> content = Streams.stream(results.iterator()).map(this::toObj).collect(Collectors.toList());
 
         String newNextToken = results.getCursor() == null ? null : results.getCursor().toWebSafeString();
+        if (StringUtils.isBlank(newNextToken)) {
+            newNextToken = null;
+        }
         if (pageToken != null && pageToken.getToken().equals(newNextToken)) {
             newNextToken = null;
         }
