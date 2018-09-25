@@ -12,6 +12,12 @@ export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 
 VERSION="prod"
 
+echo "
+
+    !! Deploy version ''$VERSION' !!
+
+"
+
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 

@@ -19,6 +19,12 @@ if [[ ${VERSION} =~ ^(prod.*)$ ]]; then
     exit 1
 fi
 
+echo "
+
+    !! Deploy version ''$VERSION' !!
+
+"
+
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
