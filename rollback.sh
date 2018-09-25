@@ -11,7 +11,6 @@ set -euo pipefail
 export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 . $ROOT/scripts/exports.sh
 
-VERSION="${VERSION:-jiaonidaigou}"
-
+VERSION="${VERSION:-dev}"
 
 ./gradlew :api:appengineRollback -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION

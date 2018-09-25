@@ -10,10 +10,11 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClient;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
+import jiaonidaigou.appengine.api.utils.AppEnvironments;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class Registry extends BaseDbClient<Pair<String, String>> {
-    private static final String KIND = "Registry";
+    private static final String KIND = AppEnvironments.ENV + ".Registry";
     private static final String FIELD_VAL = "val";
 
     /**

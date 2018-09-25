@@ -20,7 +20,11 @@ public class Environments {
 
     public static final String GAE_PROJECT_ID = "fluid-crane-200921";
     public static final String GAE_HOSTNAME = GAE_PROJECT_ID + ".appspot.com";
-    public static final String MAIN_VERSION_GAE_HOSTNAME = "jiaonidaigou-dot-" + GAE_HOSTNAME;
+
+    public static final String PROD_VERSION_GAE_HOSTNAME = "prod-dot-" + GAE_HOSTNAME;
+    public static final String DEV_VERSION_GAE_HOSTNAME = "dev-dot-" + GAE_HOSTNAME;
+
+
     public static final String GCS_ROOT_ENDSLASH = "gs://" + GAE_HOSTNAME + "/";
     public static final String GCS_MEDIA_ROOT_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "media/";
     public static final OSType OS_TYPE;
