@@ -23,7 +23,7 @@ public class AppEnvironments extends Environments {
         String appId = appProxyEnvironment.getAppId();
         LOGGER.info("current App environment. versionId={}, appId={}.", versionId, appId);
         if (appId.contains(GAE_PROJECT_ID)) {
-            if (versionId.startsWith("prod.")) {
+            if (versionId.startsWith("prod")) {
                 return Env.PROD;
             }
             return Env.DEV;
