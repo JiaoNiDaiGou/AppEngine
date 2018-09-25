@@ -1,10 +1,8 @@
 #!/bin/bash
 
 #
-# Script to deploy dev version
-#
-# Usage:
-#   VERSION=some_version ./deploy-dev.sh
+# Script to deploy prod version
+#   ./deploy-prod.sh
 #
 
 set -euo pipefail
@@ -12,12 +10,7 @@ set -euo pipefail
 export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 . $ROOT/scripts/exports.sh
 
-VERSION="${VERSION:-dev}"
-
-if [[ ${VERSION} =~ ^(prod.*)$ ]]; then
-    echo "ERROR: Cannot deploy a version starts with ${VERSION}. That is reserved!"
-    exit 1
-fi
+VERSION="prod"
 
 echo "
 

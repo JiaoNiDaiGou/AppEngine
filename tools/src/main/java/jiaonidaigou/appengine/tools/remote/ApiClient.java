@@ -46,7 +46,8 @@ public class ApiClient implements Closeable {
     private static final Map<Env, String> HOSTNAMES_BY_ENV = ImmutableMap
             .<Env, String>builder()
             .put(Env.LOCAL, Environments.LOCAL_ENDPOINT)
-            .put(Env.PROD, "https://" + Environments.MAIN_VERSION_GAE_HOSTNAME)
+            .put(Env.DEV, "https://" + Environments.DEV_VERSION_GAE_HOSTNAME)
+            .put(Env.PROD, "https://" + Environments.PROD_VERSION_GAE_HOSTNAME)
             .build();
 
     private static final JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
