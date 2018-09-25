@@ -1,18 +1,18 @@
 package jiaonidaigou.appengine.api.interfaces;
 
+import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
 import jiaonidaigou.appengine.api.access.db.ShippingOrderDbClient;
 import jiaonidaigou.appengine.api.access.db.core.PageToken;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
-import jiaonidaigou.appengine.lib.teddy.model.Product;
-import jiaonidaigou.appengine.lib.teddy.model.Receiver;
-import jiaonidaigou.appengine.wiremodel.api.CreateShippingOrderRequest;
-import jiaonidaigou.appengine.wiremodel.api.CreateShippingOrderResponse;
+import jiaonidaigou.appengine.wiremodel.api.InitShippingOrderRequest;
+import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
-import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
@@ -46,40 +46,97 @@ public class ShippingOrderInterface {
 
     private final TeddyClient teddyClient;
     private final ShippingOrderDbClient shippingOrderDbClient;
+    private final CustomerDbClient customerDbClient;
 
     @Inject
     public ShippingOrderInterface(@Named(TeddyAdmins.HACK) final TeddyClient teddyClient,
-                                  final ShippingOrderDbClient shippingOrderDbClient) {
+                                  final ShippingOrderDbClient shippingOrderDbClient,
+                                  @JiaoNiDaiGou final CustomerDbClient customerDbClient) {
         this.teddyClient = teddyClient;
         this.shippingOrderDbClient = shippingOrderDbClient;
+        this.customerDbClient = customerDbClient;
     }
 
     @POST
-    @Path("/create")
-    public Response createShippingOrder(final CreateShippingOrderRequest request) {
+    @Path("/init")
+    public Response initShippingOrder(final InitShippingOrderRequest request) {
         RequestValidator.validateNotNull(request);
+        RequestValidator.validateNotBlank(request.getReceiverCustomerId(), "customerId");
 
-        Order order = teddyClient.makeOrder(
-                toTeddyReceiver(request),
-                toTeddyProducts(request),
-                request.getTotalWeightLb());
+        Customer receiver = customerDbClient.getById(request.getReceiverCustomerId());
+        if (receiver == null) {
+            throw new NotFoundException("invalid customer ID: " + request.getReceiverCustomerId());
+        }
+
+        //
+        // TODO: save products.
+
+        receiver = receiver.toBuilder()
+                .clearAddresses()
+                .addAddresses(request.getAddress())
+                .build();
+
+        ShippingOrder.Status status = request.getTotalWeightLb() == 0
+                ? ShippingOrder.Status.INIT : ShippingOrder.Status.PACKED;
 
         ShippingOrder shippingOrder = ShippingOrder.newBuilder()
-                .setStatus(ShippingOrder.Status.CREATED)
-                .setTeddyOrderId(order.getId() + "|" + order.getFormattedId())
+                .setStatus(status)
                 .setCreationTime(System.currentTimeMillis())
-                .setReceiver(request.getReceiver())
+                .setReceiver(receiver)
                 .addAllProductEntries(request.getProductEntriesList())
                 .setTotalWeightLb(request.getTotalWeightLb())
                 .build();
 
         shippingOrder = shippingOrderDbClient.put(shippingOrder);
 
-        CreateShippingOrderResponse response = CreateShippingOrderResponse.newBuilder()
-                .setShippingOrder(shippingOrder)
+        return Response.ok(shippingOrder).build();
+    }
+
+    @POST
+    @Path("/pack")
+    public Response packShippingOrder(@QueryParam("id") final String id,
+                                      @QueryParam("totalWeightLb") final double totalWeightLb) {
+        RequestValidator.validateNotBlank(id, "shippingOrderId");
+        RequestValidator.validateRequest(totalWeightLb > 0, "weight (lb) must be greater than 0.");
+
+        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
+        if (shippingOrder == null) {
+            throw new NotFoundException("invalid shipping order ID: " + id);
+        }
+
+        shippingOrder = shippingOrder.toBuilder()
+                .setTotalWeightLb(totalWeightLb)
+                .build();
+        shippingOrder = shippingOrderDbClient.put(shippingOrder);
+
+        return Response.ok(shippingOrder).build();
+    }
+
+    @POST
+    @Path("/externalCreate")
+    public Response externalCreateShippingOrder(@QueryParam("id") final String id) {
+        RequestValidator.validateNotBlank(id, "shippingOrderId");
+
+        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
+        if (shippingOrder == null) {
+            throw new NotFoundException();
+        }
+
+        Order order = teddyClient.makeOrder(
+                TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
+                TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
+                shippingOrder.getTotalWeightLb()
+        );
+
+        shippingOrder = shippingOrder.toBuilder()
+                .setTeddyOrderId(String.valueOf(order.getId()))
+                .setTeddyFormattedId(order.getFormattedId())
+                .setCustomerNotified(false)
+                .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
                 .build();
 
-        return Response.ok(response).build();
+        shippingOrder = shippingOrderDbClient.put(shippingOrder);
+        return Response.ok(shippingOrder).build();
     }
 
     @GET
@@ -132,7 +189,7 @@ public class ShippingOrderInterface {
                     if (StringUtils.isNotBlank(customerPhone) && !t.getReceiver().getPhone().getPhone().equals(customerPhone)) {
                         return false;
                     }
-                    
+
                     return true;
                 })
                 .collect(Collectors.toList());
@@ -151,74 +208,5 @@ public class ShippingOrderInterface {
                 .withPageToken(newPageToken)
                 .build();
         return Response.ok(toReturn).build();
-    }
-
-    private static Receiver toTeddyReceiver(final CreateShippingOrderRequest request) {
-//        return Receiver.builder()
-//                .withName(request.getReceiver().getName())
-//                .withUserId(request.getReceiver().getSocialContacts().getTeddyUserId())
-//                .withPhone(request.getReceiver().getPhone().getPhone())
-//                .withAddressRegion(request.getReceiver().getAddress().getRegion())
-//                .withAddressCity(request.getReceiver().getAddress().getCity())
-//                .withAddressZone(request.getReceiver().getAddress().getZone())
-//                .withAddress(request.getReceiver().getAddress().getAddress())
-//                .build();
-        return null;
-    }
-
-    // TODO:
-    // Move to TeddyUtils
-
-    private static List<Product> toTeddyProducts(final CreateShippingOrderRequest request) {
-        return request.getProductEntriesList()
-                .stream()
-                .map(ShippingOrderInterface::toTeddyProduct)
-                .collect(Collectors.toList());
-    }
-
-    private static Product toTeddyProduct(final ShippingOrder.ProductEntry productEntry) {
-        return Product.builder()
-                .withBrand(productEntry.getProduct().getBrand())
-                .withCategory(toTeddyProductCategory(productEntry.getProduct().getCategory()))
-                .withName(productEntry.getProduct().getName())
-                .withQuantity(productEntry.getQuantity())
-                .withUnitPriceInDollers((int) productEntry.getSellPrice().getValue())
-                .build();
-    }
-
-    private static Product.Category toTeddyProductCategory(final ProductCategory category) {
-        switch (category) {
-            case BAGS:
-                return Product.Category.BAGS;
-            case FOOD:
-                return Product.Category.FOOD;
-            case TOYS:
-            case DAILY_NECESSITIES:
-                return Product.Category.TOYS_AND_DAILY_NECESSITIES;
-            case SHOES:
-            case CLOTHES:
-                return Product.Category.CLOTHES_AND_SHOES;
-            case MAKE_UP:
-                return Product.Category.MAKE_UP;
-            case WATCHES:
-            case ACCESSORIES:
-                return Product.Category.WATCH_AND_ACCESSORIES;
-            case LARGE_ITEMS:
-                return Product.Category.LARGE_ITEMS;
-            case MILK_POWDER:
-                return Product.Category.MILK_POWDER;
-            case BABY_PRODUCTS:
-                return Product.Category.BABY_PRODUCTS;
-            case SMALL_APPLIANCES:
-                return Product.Category.SMALL_APPLIANCES;
-            case HEALTH_SUPPLEMENTS:
-                return Product.Category.HEALTH_SUPPLEMENTS;
-            case LARGE_COMMERCIAL_GOODS:
-                return Product.Category.LARGE_COMMERCIAL_GOODS;
-            case UNKNOWN:
-            case UNRECOGNIZED:
-            default:
-                throw new IllegalStateException("unexpected product category");
-        }
     }
 }

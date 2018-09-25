@@ -3,11 +3,13 @@ package jiaonidaigou.appengine.api.access.db;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
+import jiaonidaigou.appengine.api.access.db.core.BaseEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery;
+import jiaonidaigou.appengine.api.utils.AppEnvironments;
+import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.wiremodel.entity.Product;
 import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 
@@ -18,24 +20,40 @@ import javax.inject.Singleton;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
-import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 @Singleton
 public class ProductDbClient extends BaseDbClient<Product> {
-    private static final String KIND = NAMESPACE_JIAONIDAIGOU + "." + ENV + ".Product";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CATEGORY = "category";
 
-    private static class EntityFactory implements DatastoreEntityFactory<Product> {
-        @Override
-        public KeyType getKeyType() {
-            return KeyType.LONG_ID;
+    @Inject
+    public ProductDbClient(final DatastoreService datastoreService, final String serviceName) {
+        this(datastoreService, serviceName, AppEnvironments.ENV);
+    }
+
+    public ProductDbClient(final DatastoreService datastoreService, final String serviceName, final Env env) {
+        super(new DbClientBuilder<Product>()
+                .datastoreService(datastoreService)
+                .entityFactory(new EntityFactory(serviceName, env, "Product"))
+                .build());
+    }
+
+    public List<Product> getProductsByCategory(final ProductCategory category) {
+        checkNotNull(category);
+        checkArgument(category != ProductCategory.UNRECOGNIZED);
+        return queryInStream(DbQuery.eq(FIELD_CATEGORY, category.name()))
+                .collect(Collectors.toList());
+    }
+
+    private static class EntityFactory extends BaseEntityFactory<Product> {
+
+        protected EntityFactory(String serviceName, Env env, String tableName) {
+            super(serviceName, env, tableName);
         }
 
         @Override
-        public String getKind() {
-            return KIND;
+        public KeyType getKeyType() {
+            return KeyType.LONG_ID;
         }
 
         @Override
@@ -63,20 +81,5 @@ public class ProductDbClient extends BaseDbClient<Product> {
         public Product mergeId(Product obj, String id) {
             return obj.toBuilder().setId(id).build();
         }
-    }
-
-    @Inject
-    public ProductDbClient(final DatastoreService service, final String appName) {
-        super(new DbClientBuilder<Product>()
-                .datastoreService(service)
-                .entityFactory(new EntityFactory())
-                .build());
-    }
-
-    public List<Product> getProductsByCategory(final ProductCategory category) {
-        checkNotNull(category);
-        checkArgument(category != ProductCategory.UNRECOGNIZED);
-        return queryInStream(DbQuery.eq(FIELD_CATEGORY, category.name()))
-                .collect(Collectors.toList());
     }
 }

@@ -4,12 +4,13 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.memcache.MemcacheService;
 import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
+import jiaonidaigou.appengine.api.access.db.core.BaseEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
 import jiaonidaigou.appengine.api.auth.WxSessionTicket;
 import jiaonidaigou.appengine.api.utils.AppEnvironments;
+import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.common.utils.Environments;
 
 import javax.inject.Inject;
@@ -17,7 +18,6 @@ import javax.inject.Singleton;
 
 @Singleton
 public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
-    private static final String KIND = Environments.NAMESPACE_WX + "." + AppEnvironments.ENV + ".Session";
     private static final String FIELD_OPEN_ID = "openId";
     private static final String FIELD_SESSION_KEY = "sessionId";
     private static final String FIELD_UNION_ID = "unionId";
@@ -28,20 +28,19 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
         super(new DbClientBuilder<WxSessionTicket>()
                 .datastoreService(datastoreService)
                 .memcacheService(memcacheService)
-                .entityFactory(new EntityFactory())
+                .entityFactory(new EntityFactory(Environments.NAMESPACE_WX, AppEnvironments.ENV, "Session"))
                 .useMemcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
                 .build());
     }
 
-    private static final class EntityFactory implements DatastoreEntityFactory<WxSessionTicket> {
-        @Override
-        public KeyType getKeyType() {
-            return KeyType.STRING_NAME;
+    private static final class EntityFactory extends BaseEntityFactory<WxSessionTicket> {
+        protected EntityFactory(String serviceName, Env env, String tableName) {
+            super(serviceName, env, tableName);
         }
 
         @Override
-        public String getKind() {
-            return KIND;
+        public KeyType getKeyType() {
+            return KeyType.STRING_NAME;
         }
 
         @Override

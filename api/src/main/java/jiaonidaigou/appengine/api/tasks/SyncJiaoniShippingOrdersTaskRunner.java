@@ -191,7 +191,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
             List<ShippingOrder> ordersToTrack = orderIdsToTrack
                     .stream()
                     .map(allOrderPreviews::get)
-                    .map(TeddyUtils::convertFromOrderPreview)
+                    .map(TeddyUtils::convertToShippingOrderFromOrderPreview)
                     .collect(Collectors.toList());
 
             LOGGER.info("Track {} new shipping orders into system:{}", ordersToTrack.size(), orderIdsToTrack);
@@ -218,7 +218,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
             ShippingOrder newShippingOrder = null;
             OrderPreview orderPreview = allOrderPreviews.get(Long.parseLong(curShippingOrder.getTeddyOrderId()));
             if (orderPreview != null) {
-                ShippingOrder previewShippingOrder = TeddyUtils.convertFromOrderPreview(orderPreview);
+                ShippingOrder previewShippingOrder = TeddyUtils.convertToShippingOrderFromOrderPreview(orderPreview);
                 if (StringUtils.isBlank(previewShippingOrder.getTrackingNumber())) {
                     ShippingOrder.Status status = curShippingOrder.getStatus();
                     if (previewShippingOrder.getStatus().getNumber() > status.getNumber()) {
@@ -229,7 +229,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
             }
 
             if (newShippingOrder == null) {
-                newShippingOrder = TeddyUtils.convertShippingOrder(
+                newShippingOrder = TeddyUtils.convertToShippingOrder(
                         hackTeddyClient.getOrderDetails(Long.parseLong(curShippingOrder.getTeddyOrderId()), true));
             }
 

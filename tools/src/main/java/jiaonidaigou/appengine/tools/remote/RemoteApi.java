@@ -58,10 +58,6 @@ public class RemoteApi implements AutoCloseable {
         return DatastoreServiceFactory.getDatastoreService();
     }
 
-//    public GcsService getGcsService() {
-//        return GcsServiceFactory.createGcsService();
-//    }
-
     public AppIdentityService getAppIdentityService() {
         return AppIdentityServiceFactory.getAppIdentityService();
     }

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder.COMMON_PROP_LAST_UPDATE;
 
 public class DatastoreEntityExtractor {
     private final Entity entity;
@@ -127,5 +128,9 @@ public class DatastoreEntityExtractor {
         }
         Text text = (Text) entity.getProperty(prop);
         return text.getValue();
+    }
+
+    public DateTime getLastUpdatedTimestamp() {
+        return getAsDateTime(COMMON_PROP_LAST_UPDATE);
     }
 }

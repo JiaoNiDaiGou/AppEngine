@@ -61,6 +61,12 @@ public class ServiceModule extends AbstractModule {
 
     @Provides
     @Singleton
+    MemcacheService provideMemcacheService() {
+        return MemcacheServiceFactory.getMemcacheService();
+    }
+
+    @Provides
+    @Singleton
     @Named(TeddyAdmins.JIAONI)
     TeddyClient provideTeddyClientJiaoni() {
         return new TeddyClientImpl(TeddyAdmins.JIAONI,
@@ -92,12 +98,5 @@ public class ServiceModule extends AbstractModule {
     @JiaoNiDaiGou
     CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService) {
         return new CustomerDbClient(datastoreService, NAMESPACE_JIAONIDAIGOU);
-    }
-
-    @Provides
-    @Singleton
-    @JiaoNiDaiGou
-    MemcacheService provideMemcacheService() {
-        return MemcacheServiceFactory.getMemcacheService(Environments.NAMESPACE_JIAONIDAIGOU);
     }
 }
