@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class CustomerIntegrationTest {
-    private final ApiClient apiClient = new ApiClient(Env.PROD);
+    private final ApiClient apiClient = new ApiClient(Env.DEV);
 
     @Test
     public void testGetCustomers() throws Exception {

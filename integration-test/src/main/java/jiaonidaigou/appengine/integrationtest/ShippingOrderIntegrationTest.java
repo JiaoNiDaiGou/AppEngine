@@ -10,7 +10,7 @@ import org.junit.Test;
 import javax.ws.rs.core.GenericType;
 
 public class ShippingOrderIntegrationTest {
-    private final ApiClient client = new ApiClient(Env.PROD);
+    private final ApiClient client = new ApiClient(Env.DEV);
 
     @Test
     public void test_query_nonDelivered_byCustomer() {

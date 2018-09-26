@@ -21,7 +21,6 @@ dependencies {
     compile project(':common')
     compile project(':content-parser')
     compile project(':content-template')
-    compile project(':lib-ocrspace')
     compile project(':lib-teddy')
     compile project(':wire-model')
 
@@ -37,11 +36,11 @@ dependencies {
     compile "com.google.apis:google-api-services-oauth2:$google_apis_oauth2_ver"
     compile "com.google.apis:google-api-services-sheets:$google_apis_sheets_ver"
     compile "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"
-    compile "com.google.cloud:google-cloud-storage:$google_cloud_storage_ver"
+    compile "com.google.cloud:google-cloud-storage:$google_cloud_ver"
+    compile "com.google.cloud:google-cloud-vision:$google_cloud_ver"
     compile "com.google.inject:guice:$guice_ver"
     compile "com.google.guava:guava:$guava_ver"
     compile "com.google.oauth-client:google-oauth-client-jetty:$google_http_client_ver"
-//    compile "com.google.protobuf:protobuf-java-util:$protobuf_ver"
     compile "com.twilio.sdk:twilio:$twilio_sdk_ver"
     compile "javax.inject:javax.inject:$javax_inject_ver"
     compile "javax.mail:mail:$javax_mail_ver"

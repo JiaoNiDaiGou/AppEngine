@@ -25,7 +25,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/api/customers")
+@Path("/api/{app}/customers")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
@@ -42,7 +42,7 @@ public class CustomerInterface {
     }
 
     @GET
-    @Path("/{app}/getAll")
+    @Path("/getAll")
     public Response getAllCustomer(@PathParam("app") final String appName,
                                    @QueryParam("nextToken") final String nextToken,
                                    @QueryParam("limit") final int limit) {
@@ -55,7 +55,7 @@ public class CustomerInterface {
     }
 
     @GET
-    @Path("/{app}/get/{id}")
+    @Path("/get/{id}")
     public Response getAllCustomer(@PathParam("app") final String appName,
                                    @PathParam("id") final String id) {
         RequestValidator.validateNotBlank(appName);
@@ -71,7 +71,7 @@ public class CustomerInterface {
     }
 
     @PUT
-    @Path("/{app}/put")
+    @Path("/put")
     public Response putCustomer(@PathParam("app") final String appName,
                                 final Customer customer) {
         RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
@@ -87,7 +87,7 @@ public class CustomerInterface {
     }
 
     @DELETE
-    @Path("/{app}/delete/{id}")
+    @Path("/delete/{id}")
     public Response deleteCustomer(@PathParam("app") final String appName,
                                    @PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id);

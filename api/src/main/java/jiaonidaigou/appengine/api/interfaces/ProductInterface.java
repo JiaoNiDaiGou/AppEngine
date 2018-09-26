@@ -49,7 +49,6 @@ public class ProductInterface {
     @Path("/create")
     public Response createProduct(final Product product) {
         RequestValidator.validateNotNull(product);
-        RequestValidator.validateEmpty(product.getId());
         Product createdProduct = dbClient.put(product);
         return Response.ok(createdProduct).build();
     }

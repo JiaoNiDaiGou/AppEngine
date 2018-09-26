@@ -19,7 +19,7 @@ ext {
     google_apis_oauth2_ver = "v2-rev141-$google_http_client_ver"
     google_apis_sheets_ver = "v4-rev539-$google_http_client_ver"
     google_apis_storage_ver = "v1-rev136-$google_http_client_ver"
-    google_cloud_storage_ver = "1.40.0"
+    google_cloud_ver = '1.45.0'
     guava_ver = '25.1-jre'
     guice_ver = '4.2.0'
     httpcomponents_httpclient_ver = '4.5.5'
@@ -35,7 +35,7 @@ ext {
     jsr_305_ver = '3.0.2'
     libphonenumber_ver = '8.9.4'
     objectify_ver = '6.0'
-    protobuf_ver = '3.5.1'
+    protobuf_ver = '3.6.1'
     protobuf_plugin_ver = '0.8.6'
     qcloudsms_ver = '1.0.5'
     reflections_ver = '0.9.11'
