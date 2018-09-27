@@ -1,18 +1,24 @@
 package jiaonidaigou.appengine.api.interfaces;
 
+import com.google.common.io.ByteStreams;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -60,6 +66,43 @@ public class MediaInterface {
     }
 
     @POST
+    @Path("/formDirectUpload")
+    @Consumes({ MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON })
+    public Response directUpload(@QueryParam("ext") final String fileExtension,
+                                 @QueryParam("hasDownloadUrl") final boolean hasDownloadUrl,
+                                 @FormDataParam("file") InputStream fileInputStream) {
+        RequestValidator.validateNotBlank(fileExtension, "fileExtension");
+        byte[] body;
+        try (InputStream inputStream = fileInputStream) {
+            body = ByteStreams.toByteArray(inputStream);
+            LOGGER.info("ready bytes length: " + body.length);
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
+
+        String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
+        String mediaType = determineMediaType(fileExtension);
+        String path = toStoragePath(mediaId);
+        LOGGER.info("directUpload mediaId={}, path={}, mediaType={}, bytes.length={}", mediaId, path, mediaType, body.length);
+
+        storageClient.write(path, mediaType, body);
+
+        URL signedUrl = null;
+        if (hasDownloadUrl) {
+            signedUrl = storageClient.getSignedDownloadUrl(path, mediaType);
+        }
+
+        return Response.ok(MediaObject.newBuilder()
+                .setId(mediaId)
+                .setFullPath(path)
+                .setMediaType(mediaType)
+                .setSignedDownloadUrl(signedUrl == null ? "" : signedUrl.toString())
+                .build())
+                .build();
+    }
+
+    @POST
     @Path("/directUpload")
     public Response directUpload(@QueryParam("ext") final String fileExtension,
                                  @QueryParam("hasDownloadUrl") final boolean hasDownloadUrl,
@@ -70,7 +113,7 @@ public class MediaInterface {
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
         String mediaType = determineMediaType(fileExtension);
         String path = toStoragePath(mediaId);
-        LOGGER.info("directUpload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
+        LOGGER.info("directUpload mediaId={}, path={}, mediaType={}, bytes.length={}", mediaId, path, mediaType, body.length);
 
         storageClient.write(path, mediaType, body);
 

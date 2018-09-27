@@ -12,7 +12,6 @@ import jiaonidaigou.appengine.wiremodel.api.ParseResponse;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -24,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ParserIntegrationTest {
-    private static final String KNOWN_MEDIA_ID_CUSTOMER_ONLY = "0a9982e3-fa1a-4aaa-9bd1-958649492bb5.jpg";
+    private static final String KNOWN_MEDIA_ID_CUSTOMER_ONLY = "f3233a4f-1bdf-4245-b4c4-9f1d9c684edb.jpg";//"0a9982e3-fa1a-4aaa-9bd1-958649492bb5.jpg";
 
     private final ApiClient apiClient = new ApiClient(Env.DEV);
 
@@ -85,30 +84,7 @@ public class ParserIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void parseCustomerByImageDirectUpload() {
-        byte[] bytes = TestUtils.readResourceAsBytes("customer_only.jpg");
-
-        ParseRequest parseRequest = ParseRequest
-                .newBuilder()
-                .setDomain(ParseRequest.Domain.CUSTOMER)
-                .addDirectUploadImages(ParseRequest.DirectUploadImage.newBuilder()
-                        .setExt("jpg")
-                        .setBytes(ByteString.copyFrom(bytes)))
-                .build();
-        ParseResponse parseResponse = apiClient.newTarget()
-                .path("/api/parse")
-                .request()
-                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
-                .readEntity(ParseResponse.class);
-        assertTrue(parseResponse.getResultsCount() > 0);
-        print(parseResponse);
-    }
-
-    @Test
-    @Ignore
-    public void parseCustomerByImageDirectUpload2() {
         byte[] bytes = TestUtils.readResourceAsBytes("customer_only.jpg");
 
         ParseRequest parseRequest = ParseRequest
@@ -131,7 +107,7 @@ public class ParserIntegrationTest {
     @Test
     public void parseCustomerByKnownCustomer() {
         Customer customer = apiClient.newTarget()
-                .path("/api/customers/JiaoNiDaiGou/getAll")
+                .path("/api/JiaoNiDaiGou/customers/getAll")
                 .queryParam("limit", 1)
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
@@ -139,7 +115,6 @@ public class ParserIntegrationTest {
                 })
                 .getResults()
                 .get(0);
-        print(customer);
 
         ParseRequest parseRequest = ParseRequest
                 .newBuilder()
@@ -156,36 +131,6 @@ public class ParserIntegrationTest {
 
         assertEquals(1, parseResponse.getResultsCount());
         assertEquals(customer, parseResponse.getResultsList().get(0).getCustomer());
-        print(parseResponse);
-    }
-
-    @Test
-    public void parseCustomerByImageByMediaId() {
-        byte[] bytes = TestUtils.readResourceAsBytes("customer_only.jpg");
-
-        // Direct upload
-        MediaObject uploadObject = apiClient.newTarget()
-                .path("api/media/directUpload")
-                .queryParam("ext", "jpg")
-                .request()
-                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(bytes, MediaType.APPLICATION_OCTET_STREAM_TYPE))
-                .readEntity(MediaObject.class);
-
-        String mediaId = uploadObject.getId();
-
-        ParseRequest parseRequest = ParseRequest
-                .newBuilder()
-                .setDomain(ParseRequest.Domain.CUSTOMER)
-                .addMediaIds(mediaId)
-                .build();
-        ParseResponse parseResponse = apiClient.newTarget()
-                .path("/api/parse")
-                .request()
-                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
-                .readEntity(ParseResponse.class);
-        assertTrue(parseResponse.getResultsCount() > 0);
         print(parseResponse);
     }
 

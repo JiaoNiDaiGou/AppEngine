@@ -1,11 +1,11 @@
 package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.ocr.OcrClient;
-import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.impls.DbEnhancedCustomerParser;
 import jiaonidaigou.appengine.api.utils.MediaUtils;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.Snippet;
 import jiaonidaigou.appengine.contentparser.Answer;
 import jiaonidaigou.appengine.contentparser.Answers;
@@ -53,17 +53,14 @@ public class ParserInterface {
     private final CnAddressParser addressParser;
     private final DbEnhancedCustomerParser customerParser;
     private final OcrClient ocrClient;
-    private final StorageClient storageClient;
 
     @Inject
     public ParserInterface(final CnAddressParser addressParser,
                            final DbEnhancedCustomerParser customerParser,
-                           final OcrClient ocrClient,
-                           final StorageClient storageClient) {
+                           final OcrClient ocrClient) {
         this.addressParser = addressParser;
         this.customerParser = customerParser;
         this.ocrClient = ocrClient;
-        this.storageClient = storageClient;
     }
 
     @POST
@@ -91,6 +88,8 @@ public class ParserInterface {
                                     final Parser<T> parser,
                                     final BiConsumer<ParsedObject.Builder, T> resultSetter) {
         meterOn();
+
+        LOGGER.info("request {}", ObjectMapperProvider.prettyToJson(request));
 
         List<Snippet> snippets = extractFromRequest(request);
 
@@ -131,6 +130,9 @@ public class ParserInterface {
         if (request.getMediaIdsCount() > 0) {
             toReturn.addAll(extractFromMedia(request.getMediaIdsList()));
         }
+        if (request.getDirectUploadImagesCount() > 0) {
+            toReturn.addAll(extractFromDirectUploadBytes(request.getDirectUploadImagesList()));
+        }
         return toReturn;
     }
 
@@ -149,16 +151,29 @@ public class ParserInterface {
                     .setFullPath(fullPath)
                     .build();
             List<Snippet> snippets = ocrClient.annotateFromMediaObject(object);
-
-            // Let's filter them by confidence and size first.
-            // We don't want to parse
-            // - confidence < 0.9
-            // - size < 5 chars
-            snippets.stream()
-                    .filter(t -> t.getConfidence() >= MIN_INPUT_SNIPPET_CONF
-                            && StringUtils.length(t.getText()) >= MIN_INPUT_SNIPPET_LENGTH)
-                    .forEach(toReturn::add);
+            toReturn.addAll(filterLowConfidenceSnippets(snippets));
         }
         return toReturn;
+    }
+
+    private List<Snippet> extractFromDirectUploadBytes(final List<ParseRequest.DirectUploadImage> images) {
+        List<Snippet> toReturn = new ArrayList<>();
+        for (ParseRequest.DirectUploadImage image : images) {
+            List<Snippet> snippets = ocrClient.annotateFromBytes(image.getBytes().toByteArray());
+            toReturn.addAll(filterLowConfidenceSnippets(snippets));
+        }
+        return toReturn;
+    }
+
+    /**
+     * Filter low confidence snippets.
+     * - confidence < 0.9
+     * - size < 5 chars
+     */
+    private static List<Snippet> filterLowConfidenceSnippets(final List<Snippet> snippets) {
+        return snippets.stream()
+                .filter(t -> t.getConfidence() >= MIN_INPUT_SNIPPET_CONF
+                        && StringUtils.length(t.getText()) >= MIN_INPUT_SNIPPET_LENGTH)
+                .collect(Collectors.toList());
     }
 }

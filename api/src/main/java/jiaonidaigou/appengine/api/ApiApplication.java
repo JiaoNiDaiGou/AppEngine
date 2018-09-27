@@ -10,6 +10,7 @@ import jiaonidaigou.appengine.api.guice.HK2toGuiceModule;
 import jiaonidaigou.appengine.api.guice.ServiceModule;
 import jiaonidaigou.appengine.api.utils.ExceptionMappingFeature;
 import jiaonidaigou.appengine.api.utils.ObjectMapperContextResolver;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
@@ -24,6 +25,7 @@ public class ApiApplication extends ResourceConfig {
         register(ObjectMapperContextResolver.class);
         register(RolesAllowedDynamicFeature.class);
         register(ExceptionMappingFeature.class);
+        register(MultiPartFeature.class);
 
         register(AuthFilter.class);
         register(CorsFilter.class);

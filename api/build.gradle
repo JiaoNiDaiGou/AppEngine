@@ -52,6 +52,7 @@ dependencies {
     compile "org.glassfish.jersey.core:jersey-server:$jersey_ver"
     compile "org.glassfish.jersey.containers:jersey-container-servlet-core:$jersey_ver"
     compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"
+    compile "org.glassfish.jersey.media:jersey-media-multipart:$jersey_ver"
     compile "org.reflections:reflections:$reflections_ver"
     compile "org.slf4j:slf4j-api:$slf4j_ver"
     compile "org.slf4j:slf4j-jdk14:$slf4j_ver"

@@ -63,41 +63,39 @@ public class GoogleVisionOcrClient implements OcrClient {
 
     private List<Snippet> annotate(final AnnotateImageRequest request) {
         List<Snippet> toReturn = new ArrayList<>();
+        try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
+            BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request));
 
-        BatchAnnotateImagesResponse response = null;
-        try {
-            response = ImageAnnotatorClient.create()
-                    .batchAnnotateImages(Collections.singletonList(request));
+            for (AnnotateImageResponse res : response.getResponsesList()) {
+                if (res.hasError()) {
+                    continue;
+                }
+
+                // For full list of available annotations, see http://g.co/cloud/vision/docs
+                TextAnnotation annotation = res.getFullTextAnnotation();
+                for (Page page : annotation.getPagesList()) {
+                    for (Block block : page.getBlocksList()) {
+                        StringBuilder blockText = new StringBuilder();
+                        for (Paragraph para : block.getParagraphsList()) {
+                            StringBuilder paraText = new StringBuilder();
+                            for (Word word : para.getWordsList()) {
+                                StringBuilder wordText = new StringBuilder();
+                                for (Symbol symbol : word.getSymbolsList()) {
+                                    wordText.append(symbol.getText());
+                                }
+                                paraText.append(" ").append(wordText.toString());
+                            }
+                            blockText.append(" ").append(paraText);
+                        }
+
+                        toReturn.add(new Snippet(blockText.toString(), block.getConfidence()));
+                    }
+                }
+
+            }
+            return toReturn;
         } catch (IOException e) {
             throw new InternalIOException(e);
         }
-
-        for (AnnotateImageResponse res : response.getResponsesList()) {
-            if (res.hasError()) {
-                continue;
-            }
-
-            // For full list of available annotations, see http://g.co/cloud/vision/docs
-            TextAnnotation annotation = res.getFullTextAnnotation();
-            for (Page page : annotation.getPagesList()) {
-                for (Block block : page.getBlocksList()) {
-                    StringBuilder blockText = new StringBuilder();
-                    for (Paragraph para : block.getParagraphsList()) {
-                        StringBuilder paraText = new StringBuilder();
-                        for (Word word : para.getWordsList()) {
-                            StringBuilder wordText = new StringBuilder();
-                            for (Symbol symbol : word.getSymbolsList()) {
-                                wordText.append(symbol.getText());
-                            }
-                            paraText.append(" ").append(wordText.toString());
-                        }
-                        blockText.append(" ").append(paraText);
-                    }
-
-                    toReturn.add(new Snippet(blockText.toString(), block.getConfidence()));
-                }
-            }
-        }
-        return toReturn;
     }
 }
