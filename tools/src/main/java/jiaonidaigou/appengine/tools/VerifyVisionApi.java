@@ -15,18 +15,15 @@ import com.google.cloud.vision.v1.Word;
 import com.google.protobuf.ByteString;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VerifyVisionApi {
     public static void main(String[] args) throws Exception {
-        detectDocumentText("/Users/ruijie.fu/Documents/test.jpg", System.out);
     }
 
-    public static void detectDocumentText(String filePath, PrintStream out) throws Exception,
-            IOException {
+    public static void detectDocumentText(String filePath, PrintStream out) throws Exception {
         List<AnnotateImageRequest> requests = new ArrayList<>();
 
         ByteString imgBytes = ByteString.readFrom(new FileInputStream(filePath));
@@ -44,7 +41,7 @@ public class VerifyVisionApi {
 
             for (AnnotateImageResponse res : responses) {
                 if (res.hasError()) {
-                    out.printf("Error: %s\n", res.getError().getMessage());
+                    out.printf("Error: %s%n", res.getError().getMessage());
                     return;
                 }
 
