@@ -33,4 +33,15 @@ public class ObjectMapperProvider {
             return "<error>: " + e.getMessage();
         }
     }
+
+    public static String compactToJson(Object object) {
+        if (object == null) {
+            return "null";
+        }
+        try {
+            return get().writer().writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            return "<error>: " + e.getMessage();
+        }
+    }
 }

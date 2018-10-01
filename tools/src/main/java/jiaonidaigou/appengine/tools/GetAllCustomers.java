@@ -1,34 +1,33 @@
 package jiaonidaigou.appengine.tools;
 
-import com.google.common.net.HttpHeaders;
+import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
 import jiaonidaigou.appengine.common.model.Env;
-import jiaonidaigou.appengine.tools.remote.ApiClient;
+import jiaonidaigou.appengine.common.utils.Environments;
+import jiaonidaigou.appengine.tools.remote.RemoteApi;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 
 import java.util.List;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import static jiaonidaigou.appengine.tools.ResponseHandler.handle;
+import java.util.stream.Collectors;
 
 public class GetAllCustomers {
-    public static void main(String[] args) {
-        ApiClient client = new ApiClient(Env.PROD);
-        Response response;
+    public static void main(String[] args) throws Exception {
 
-        response = client.newTarget("Direct upload")
-                .path("/api/media/directUpload")
-                .queryParam("ext", "txt")
-                .queryParam("hasDownloadUrl", true)
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, client.getGoogleAuthTokenBearerHeader())
-                .post(Entity.entity("this is some content", MediaType.APPLICATION_OCTET_STREAM));
+        try (RemoteApi remoteApi = RemoteApi.login()) {
 
-        List<Customer> customers = handle(response, new GenericType<List<Customer>>() {
-        });
-
-        System.out.println(customers);
+            CustomerDbClient client = new CustomerDbClient(
+                    remoteApi.getDatastoreService(),
+                    Environments.NAMESPACE_JIAONIDAIGOU,
+                    Env.DEV
+            );
+            List<Customer> customers = client.scan()
+                    .map(t -> {
+                        Customer.Builder builder = t.toBuilder();
+                        builder.getPhoneBuilder().setPhone("12345678901");
+                        builder.getSocialContactsBuilder().setTeddyUserId("").build();
+                        return builder.build();
+                    })
+                    .collect(Collectors.toList());
+            client.put(customers);
+        }
     }
 }

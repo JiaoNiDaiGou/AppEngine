@@ -1,15 +1,22 @@
 package jiaonidaigou.appengine.api.interfaces;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.io.Resources;
 import jiaonidaigou.appengine.api.access.db.ProductDbClient;
+import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.wiremodel.entity.Product;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -24,7 +31,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
-//@RolesAllowed({ Roles.ADMIN })
+@RolesAllowed({ Roles.ADMIN })
 public class ProductInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductInterface.class);
 
@@ -60,5 +67,19 @@ public class ProductInterface {
         RequestValidator.validateNotBlank(product.getId());
         Product createdProduct = dbClient.put(product);
         return Response.ok(createdProduct).build();
+    }
+
+    @GET
+    @Path("/hints")
+    public Response getProductsHints() {
+        JsonNode jsonNode;
+        try {
+            jsonNode = ObjectMapperProvider.get()
+                    .readTree(Resources.getResource("products_hints.json"));
+            LOGGER.info("Load {} product hints", jsonNode.size());
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
+        return Response.ok(jsonNode).build();
     }
 }

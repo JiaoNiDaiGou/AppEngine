@@ -13,3 +13,7 @@ message InitShippingOrderRequest {
     repeated jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.ProductEntry product_entries = 3;
     double total_weight_lb = 4;
 }
+
+message ExternalCreateShippingOrderRequest {
+    double total_weight_lb = 1;
+}

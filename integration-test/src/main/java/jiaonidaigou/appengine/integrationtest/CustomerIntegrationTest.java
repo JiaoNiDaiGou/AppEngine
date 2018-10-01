@@ -55,7 +55,7 @@ public class CustomerIntegrationTest {
                 .path("api/customers/JiaoNiDaiGou/put")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
-                .put(Entity.entity(beforeCreate, MediaType.APPLICATION_JSON_TYPE))
+                .put(Entity.json(beforeCreate))
                 .readEntity(Customer.class);
         String id = afterCreate.getId();
         assertNotNull(id);
@@ -77,7 +77,7 @@ public class CustomerIntegrationTest {
                 .path("api/customers/JiaoNiDaiGou/put")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
-                .put(Entity.entity(beforeUpdate, MediaType.APPLICATION_JSON_TYPE))
+                .put(Entity.json(beforeUpdate))
                 .readEntity(Customer.class);
         assertEquals(beforeUpdate, afterUpdate);
 

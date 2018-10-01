@@ -67,7 +67,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
     public DumpTeddyShippingOrdersTaskRunner(final EmailClient emailClient,
                                              final StorageClient storageClient,
                                              final PubSubClient pubSubClient,
-                                             @Named(TeddyAdmins.HACK) final TeddyClient teddyClient) {
+                                             @Named(TeddyAdmins.HACK) TeddyClient teddyClient) {
         this.emailClient = emailClient;
         this.storageClient = storageClient;
         this.pubSubClient = pubSubClient;

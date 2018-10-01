@@ -10,7 +10,6 @@ import jiaonidaigou.appengine.tools.remote.ApiClient;
 import jiaonidaigou.appengine.wiremodel.api.ParseRequest;
 import jiaonidaigou.appengine.wiremodel.api.ParseResponse;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
-import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import org.junit.Test;
 
@@ -39,7 +38,7 @@ public class ParserIntegrationTest {
                 .path("/api/parse")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
+                .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
         assertTrue(parseResponse.getResultsCount() > 0);
         print(parseResponse);
@@ -58,7 +57,7 @@ public class ParserIntegrationTest {
                 .path("/api/parse")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
+                .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
         assertEquals(1, parseResponse.getResultsCount());
         print(parseResponse);
@@ -77,7 +76,7 @@ public class ParserIntegrationTest {
                 .path("/api/parse")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
+                .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
 
         System.out.println(ObjectMapperProvider.prettyToJson(parseResponse));
@@ -98,7 +97,7 @@ public class ParserIntegrationTest {
                 .path("/api/parse")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
+                .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
         assertTrue(parseResponse.getResultsCount() > 0);
         print(parseResponse);
@@ -126,7 +125,7 @@ public class ParserIntegrationTest {
                 .path("/api/parse")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .post(Entity.entity(parseRequest, MediaType.APPLICATION_JSON_TYPE))
+                .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
 
         assertEquals(1, parseResponse.getResultsCount());

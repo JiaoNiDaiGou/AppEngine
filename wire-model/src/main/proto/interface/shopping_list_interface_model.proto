@@ -1,0 +1,34 @@
+syntax = "proto3";
+package jiaonidaigou.appengine.wiremodel.api;
+
+option java_package = "jiaonidaigou.appengine.wiremodel.api";
+option java_multiple_files = true;
+
+import "entity/common.proto";
+import "entity/shopping_list_item.proto";
+
+message InitShoppingListItemRequest {
+    string creator_name = 1;
+    repeated jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.ProductEntry product_entries = 2;
+    repeated string media_ids = 3;
+}
+
+message AssignOwnershipShoppingListItemRequest {
+    string owner_name = 1;
+}
+
+message PurchaseShoppingListItemRequest {
+    string purchaser_name = 1;
+    jiaonidaigou.appengine.wiremodel.entity.Price total_purchase_price = 2;
+    string purchasing_source = 3;
+    repeated string media_ids = 4;
+}
+
+message AddMediaToShoppingListItemRequest {
+    repeated string media_ids = 1;
+}
+
+message ExpireShoppingListItemRequest {
+    string expire_name = 1;
+    int64 expiration_time = 2;
+}

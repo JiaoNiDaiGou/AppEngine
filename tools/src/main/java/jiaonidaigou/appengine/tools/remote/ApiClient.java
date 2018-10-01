@@ -75,12 +75,8 @@ public class ApiClient implements Closeable {
                 }
             });
 
-    public ApiClient() {
-        this(Env.LOCAL);
-    }
-
     public ApiClient(final Env env) {
-        this(HOSTNAMES_BY_ENV.get(env));
+        this(HOSTNAMES_BY_ENV.get(protectProd(env)));
     }
 
     public ApiClient(final String hostname) {
@@ -147,5 +143,12 @@ public class ApiClient implements Closeable {
         public void filter(final ClientRequestContext requestContext) {
             requestContext.getHeaders().putSingle(API_CLIENT_OP_NAME_HEADER, testName);
         }
+    }
+
+    protected static Env protectProd(final Env env) {
+        if (env == Env.PROD) {
+            throw new IllegalStateException("cannot hit prod");
+        }
+        return env;
     }
 }

@@ -21,6 +21,7 @@ import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
+import jiaonidaigou.appengine.api.utils.AppEnvironments;
 import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
@@ -85,6 +86,19 @@ public class ServiceModule extends AbstractModule {
                 new MockBrowserClient("teddyclient." + TeddyAdmins.HACK, new InMemoryCookieStore()));
     }
 
+    @Provides
+    @Singleton
+    @Named(TeddyAdmins.BY_ENV)
+    TeddyClient provideTeddyClientByEnv() {
+        switch (AppEnvironments.ENV) {
+            case PROD:
+                return new TeddyClientImpl(TeddyAdmins.JIAONI,
+                        new MockBrowserClient("teddyclient." + TeddyAdmins.JIAONI, new InMemoryCookieStore()));
+            default:
+                return new TeddyClientImpl(TeddyAdmins.HACK,
+                        new MockBrowserClient("teddyclient." + TeddyAdmins.HACK, new InMemoryCookieStore()));
+        }
+    }
 
     @Provides
     @Singleton
