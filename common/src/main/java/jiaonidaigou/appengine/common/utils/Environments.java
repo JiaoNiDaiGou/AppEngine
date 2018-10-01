@@ -1,8 +1,12 @@
 package jiaonidaigou.appengine.common.utils;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import jiaonidaigou.appengine.common.model.Env;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class Environments {
@@ -13,6 +17,7 @@ public class Environments {
     public static final String NAMESPACE_JIAONIDAIGOU = "JiaoNiDaiGou";
     public static final String NAMESPACE_SONGFAN = "SongFan";
     public static final String NAMESPACE_WX = "Wx";
+    public static final String NAMESPACE_SYS = "Sys";
 
     public static final Set<String> ALL_OPEN_NAMESPACES = ImmutableSet.of(
             NAMESPACE_JIAONIDAIGOU,
@@ -33,10 +38,21 @@ public class Environments {
     public static final String GAE_ADMIN_EMAIL = "songfan.rfu@gmail.com";
     public static final String[] ADMIN_EMAILS = { "furuijie@gmail.com" };
 
+    private static final Map<Env, String> HOSTNAMES_BY_ENV = ImmutableMap
+            .<Env, String>builder()
+            .put(Env.LOCAL, Environments.LOCAL_ENDPOINT)
+            .put(Env.DEV, "https://" + Environments.DEV_VERSION_GAE_HOSTNAME)
+            .put(Env.PROD, "https://" + Environments.PROD_VERSION_GAE_HOSTNAME)
+            .build();
+
     static {
         OS_TYPE = determineOSType();
         LOCAL_TEMP_DIR_ENDSLASH = determineLocalTempDir();
 
+    }
+
+    public static String getGaeHostNameByEnv(final Env env) {
+        return Preconditions.checkNotNull(HOSTNAMES_BY_ENV.get(env));
     }
 
     private static OSType determineOSType() {

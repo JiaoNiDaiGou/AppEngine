@@ -50,10 +50,6 @@ public class RemoteApi implements AutoCloseable {
         return new RemoteApi(Environments.GAE_HOSTNAME);
     }
 
-    public static RemoteApi login(final String hostname) {
-        return new RemoteApi(hostname);
-    }
-
     public DatastoreService getDatastoreService() {
         return DatastoreServiceFactory.getDatastoreService();
     }

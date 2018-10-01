@@ -5,7 +5,6 @@ import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.Env;
@@ -22,7 +21,6 @@ import java.io.Reader;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -42,13 +40,6 @@ public class ApiClient implements Closeable {
         CLIENT_KEY = Base64.getDecoder().decode(lines[0].getBytes(Charsets.UTF_8));
         CLIENT_IV = Base64.getDecoder().decode(lines[1].getBytes(Charsets.UTF_8));
     }
-
-    private static final Map<Env, String> HOSTNAMES_BY_ENV = ImmutableMap
-            .<Env, String>builder()
-            .put(Env.LOCAL, Environments.LOCAL_ENDPOINT)
-            .put(Env.DEV, "https://" + Environments.DEV_VERSION_GAE_HOSTNAME)
-            .put(Env.PROD, "https://" + Environments.PROD_VERSION_GAE_HOSTNAME)
-            .build();
 
     private static final JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
 
@@ -76,7 +67,7 @@ public class ApiClient implements Closeable {
             });
 
     public ApiClient(final Env env) {
-        this(HOSTNAMES_BY_ENV.get(protectProd(env)));
+        this(Environments.getGaeHostNameByEnv(protectProd(env)));
     }
 
     public ApiClient(final String hostname) {

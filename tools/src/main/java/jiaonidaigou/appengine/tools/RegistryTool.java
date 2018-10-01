@@ -1,6 +1,7 @@
 package jiaonidaigou.appengine.tools;
 
 import jiaonidaigou.appengine.api.registry.Registry;
+import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 import org.apache.commons.lang3.tuple.Pair;
@@ -8,14 +9,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner.REGISTRY_KEY_LAST_DUMP_ID;
-
 public class RegistryTool {
     public static void main(String[] args) throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
-            Registry registry = new Registry(remoteApi.getDatastoreService());
+            Registry registry = new Registry(remoteApi.getDatastoreService(), Env.PROD);
 //            listRegistries(registry);
-            putRegistry(registry);
+//            putRegistry(registry);
         }
     }
 
@@ -30,7 +29,11 @@ public class RegistryTool {
     private static void putRegistry(Registry registry) {
         registry.setRegistry(
                 Environments.NAMESPACE_JIAONIDAIGOU,
-                REGISTRY_KEY_LAST_DUMP_ID,
-                "134154");
+                "dumpShippingOrder.lastDumpId.forward",
+                "138759");
+        registry.setRegistry(
+                Environments.NAMESPACE_JIAONIDAIGOU,
+                "dumpShippingOrder.lastDumpId.backward",
+                "93801");
     }
 }
