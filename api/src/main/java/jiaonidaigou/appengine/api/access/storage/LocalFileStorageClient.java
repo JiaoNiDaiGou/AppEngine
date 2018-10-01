@@ -1,5 +1,6 @@
 package jiaonidaigou.appengine.api.access.storage;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import jiaonidaigou.appengine.common.model.InternalIOException;
@@ -15,11 +16,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 public class LocalFileStorageClient implements StorageClient {
     @Override
     public boolean exists(String path) {
         return toFile(path).exists();
+    }
+
+    @Override
+    public boolean delete(String path) {
+        return toFile(path).delete();
     }
 
     @Override
@@ -64,6 +72,13 @@ public class LocalFileStorageClient implements StorageClient {
     @Override
     public URL getSignedUploadUrl(String path, String mediaType, DateTime expiration) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> listAll(String bucketPath) {
+        File folder = toFile(bucketPath);
+        String[] toReturn = folder.list();
+        return toReturn == null ? ImmutableList.of() : Arrays.asList(toReturn);
     }
 
     @Override

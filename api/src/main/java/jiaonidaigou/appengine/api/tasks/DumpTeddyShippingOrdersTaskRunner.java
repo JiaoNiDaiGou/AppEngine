@@ -3,12 +3,16 @@ package jiaonidaigou.appengine.api.tasks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
 import jiaonidaigou.appengine.api.access.email.EmailClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.registry.Registry;
+import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.utils.Environments;
@@ -24,8 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -36,7 +40,8 @@ import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONID
  * What other people send.
  */
 public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> {
-    private static final String ORDER_ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "xiaoxiong_shipping_orders/";
+    private static final String DUMP_DIR = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_dump/";
+    private static final String ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_archive/";
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpTeddyShippingOrdersTaskRunner.class);
     private static final long KNOWN_START_ID = 134009;
     /**
@@ -181,6 +186,8 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
                             .increaseReachCount()
                             .build());
         } else {
+            archiveShippingOrders();
+            
             LOGGER.info("No more next task. end ticket {}.", message);
             for (String adminEmal : Environments.ADMIN_EMAILS) {
                 emailClient.sendText(adminEmal,
@@ -188,6 +195,59 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
                         String.format("End RID %s.", message.id));
             }
         }
+    }
+
+    private void archiveShippingOrders() {
+        LOGGER.info("Archiving shipping orders");
+        try {
+            List<String> paths = storageClient.listAll(DUMP_DIR);
+            List<ShippingOrder> shippingOrders = new ArrayList<>();
+            for (String path : paths) {
+                LOGGER.info("Load dump {}", path);
+                shippingOrders.addAll(loadShippingOrders(path));
+            }
+
+            Multimap<String, ShippingOrder> map = ArrayListMultimap.create();
+            for (ShippingOrder shippingOrder : shippingOrders) {
+                DateTime creationTime = new DateTime(shippingOrder.getCreationTime());
+                String month = creationTime.toString("yyyy_MM");
+                map.put(month, shippingOrder);
+            }
+            LOGGER.info("Totally load {} shipping orders from dump", map.size());
+
+            for (Map.Entry<String, Collection<ShippingOrder>> entry : map.asMap().entrySet()) {
+                // archive_dir/2018_04.json
+                String path = ARCHIEVE_DIR + entry.getKey() + ".json";
+                List<ShippingOrder> toSave = new ArrayList<>(loadShippingOrders(path));
+                toSave.addAll(entry.getValue());
+                toSave.sort(ShippingOrderUtils.comparatorByTeddyOrderIdAsc());
+
+                byte[] bytes;
+                try {
+                    bytes = ObjectMapperProvider.get().writeValueAsBytes(toSave);
+                } catch (JsonProcessingException e) {
+                    LOGGER.error("Failed to save orders to {}.", path, e);
+                    return;
+                }
+                LOGGER.info("Write archive {} orders to archive: {}", toSave.size(), path);
+                storageClient.write(path, MediaType.JSON_UTF_8.toString(), bytes);
+            }
+
+            for (String path : paths) {
+                LOGGER.info("Delete dump file {}", path);
+                storageClient.delete(path);
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to archive shipping orders", e);
+        }
+    }
+
+    private List<ShippingOrder> loadShippingOrders(final String path)
+            throws IOException {
+        byte[] bytes = storageClient.read(path);
+        return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<ShippingOrder>>() {
+        });
     }
 
     private void saveLastDumpId(final String key, final long id) {
@@ -218,11 +278,11 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         }
 
         List<ShippingOrder> toSave = new ArrayList<>(shippingOrders);
-        toSave.sort(Comparator.comparing(ShippingOrder::getTeddyOrderId));
+        toSave.sort(ShippingOrderUtils.comparatorByTeddyOrderIdAsc());
         String minTeddyId = toSave.get(0).getTeddyOrderId();
         String maxTeddyId = toSave.get(toSave.size() - 1).getTeddyOrderId();
 
-        String path = ORDER_ARCHIEVE_DIR + DateTime.now().toString("yyyy_MM_dd") + "_" + minTeddyId + "_" + maxTeddyId + ".json";
+        String path = DUMP_DIR + DateTime.now().toString("yyyy_MM_dd") + "_" + minTeddyId + "_" + maxTeddyId + ".json";
 
         byte[] bytes;
         try {

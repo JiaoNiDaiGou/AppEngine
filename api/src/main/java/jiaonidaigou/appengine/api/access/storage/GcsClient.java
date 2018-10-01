@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -94,5 +96,19 @@ public class GcsClient implements StorageClient {
                 TimeUnit.MILLISECONDS,
                 Storage.SignUrlOption.httpMethod(HttpMethod.GET)
         );
+    }
+
+    @Override
+    public List<String> listAll(final String bucketPath) {
+        List<String> toReturn = new ArrayList<>();
+        storage.list(bucketPath)
+                .iterateAll()
+                .forEach(b -> toReturn.add("gs://" + b.getBucket() + "/" + b.getName()));
+        return toReturn;
+    }
+
+    @Override
+    public boolean delete(final String path) {
+        return storage.delete(blobId(path));
     }
 }

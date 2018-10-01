@@ -8,6 +8,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
 import java.net.URL;
+import java.util.List;
 
 public interface StorageClient {
     Duration DEFAULT_EXPIRATION_DURATION = Duration.standardHours(12);
@@ -16,6 +17,11 @@ public interface StorageClient {
      * If a file or a directory exists.
      */
     boolean exists(final String path);
+
+    /**
+     * Delete the file given path. Returns true means file get deleted. false means file not found.
+     */
+    boolean delete(final String path);
 
     Metadata getMetadata(final String path);
 
@@ -26,6 +32,8 @@ public interface StorageClient {
     void copy(final String fromPath, final String toPath);
 
     URL getSignedUploadUrl(final String path, final String mediaType, final DateTime expiration);
+
+    List<String> listAll(final String bucketPath);
 
     default URL getSignedUploadUrl(final String path, final String mediaType, final Duration duration) {
         return getSignedUploadUrl(path, mediaType, DateTime.now(DateTimeZone.UTC).plus(duration));
