@@ -92,10 +92,10 @@ public class TeddyUtils {
     private static ShippingOrder.ProductEntry convertToShippingOrderProductEntry(
             final jiaonidaigou.appengine.lib.teddy.model.Product product) {
         Product.Builder productBuilder = Product.newBuilder();
-        boolean hasProduct = setIfNotBlank(product.getBrand(), productBuilder::setBrand)
-                || setIfNotNull(convertProductCategory(product.getCategory()), productBuilder::setCategory)
-                || setIfNotBlank(product.getName(), productBuilder::setName);
-        if (!hasProduct) {
+        boolean hasBrand = setIfNotBlank(product.getBrand(), productBuilder::setBrand);
+        boolean hasCategory = setIfNotNull(convertProductCategory(product.getCategory()), productBuilder::setCategory);
+        boolean hasProductName = setIfNotBlank(product.getName(), productBuilder::setName);
+        if (!hasBrand && !hasCategory && !hasProductName) {
             return null;
         }
         return ShippingOrder.ProductEntry.newBuilder()

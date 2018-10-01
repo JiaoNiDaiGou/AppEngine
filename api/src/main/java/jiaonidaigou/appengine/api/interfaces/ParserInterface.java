@@ -1,26 +1,30 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import com.google.common.base.Enums;
-import jiaonidaigou.appengine.api.access.storage.StorageClient;
+import jiaonidaigou.appengine.api.access.ocr.OcrClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.impls.DbEnhancedCustomerParser;
+import jiaonidaigou.appengine.api.utils.MediaUtils;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaonidaigou.appengine.common.model.Snippet;
+import jiaonidaigou.appengine.contentparser.Answer;
 import jiaonidaigou.appengine.contentparser.Answers;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
 import jiaonidaigou.appengine.contentparser.Conf;
-import jiaonidaigou.appengine.lib.ocrspace.OcrSpaceClient;
-import jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest.FileType;
-import jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest.Language;
+import jiaonidaigou.appengine.contentparser.Parser;
 import jiaonidaigou.appengine.wiremodel.api.ParseRequest;
 import jiaonidaigou.appengine.wiremodel.api.ParseResponse;
 import jiaonidaigou.appengine.wiremodel.api.ParsedObject;
-import jiaonidaigou.appengine.wiremodel.entity.Address;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
+import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -32,7 +36,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.api.utils.MediaUtils.toStoragePath;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
 import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 
@@ -44,20 +47,20 @@ import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
 public class ParserInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParserInterface.class);
 
+    private static final double MIN_INPUT_SNIPPET_CONF = 0.9;
+    private static final double MIN_INPUT_SNIPPET_LENGTH = 5;
+
     private final CnAddressParser addressParser;
     private final DbEnhancedCustomerParser customerParser;
-    private final OcrSpaceClient ocrSpaceClient;
-    private final StorageClient storageClient;
+    private final OcrClient ocrClient;
 
     @Inject
     public ParserInterface(final CnAddressParser addressParser,
                            final DbEnhancedCustomerParser customerParser,
-                           final OcrSpaceClient ocrSpaceClient,
-                           final StorageClient storageClient) {
+                           final OcrClient ocrClient) {
         this.addressParser = addressParser;
         this.customerParser = customerParser;
-        this.ocrSpaceClient = ocrSpaceClient;
-        this.storageClient = storageClient;
+        this.ocrClient = ocrClient;
     }
 
     @POST
@@ -67,10 +70,10 @@ public class ParserInterface {
         ParseResponse response;
         switch (parseRequest.getDomain()) {
             case ADDRESS:
-                response = parseAddress(parseRequest);
+                response = parse(parseRequest, addressParser, ParsedObject.Builder::setAddress);
                 break;
             case CUSTOMER:
-                response = parseCustomerContact(parseRequest);
+                response = parse(parseRequest, customerParser, ParsedObject.Builder::setCustomer);
                 break;
             case ALL:
             case UNRECOGNIZED:
@@ -81,94 +84,96 @@ public class ParserInterface {
         return Response.ok(response).build();
     }
 
-    private ParseResponse parseAddress(final ParseRequest request) {
+    private <T> ParseResponse parse(final ParseRequest request,
+                                    final Parser<T> parser,
+                                    final BiConsumer<ParsedObject.Builder, T> resultSetter) {
         meterOn();
 
-        final String text = extractRequestText(request);
+        LOGGER.info("request {}", ObjectMapperProvider.prettyToJson(request));
 
-        Answers<Address> addressAnswers = addressParser.parse(text);
+        List<Snippet> snippets = extractFromRequest(request);
+
+        List<Answer<T>> answers = new ArrayList<>();
+        for (Snippet snippet : snippets) {
+            parser.parse(snippet.getText())
+                    .stream()
+                    .filter(t -> t.getConfidence() > Conf.ZERO)
+                    .forEach(answers::add);
+        }
+
+        // Form an Answers to sort
+        Answers<T> addressAnswers = Answers.of(answers);
 
         ParseResponse toReturn = ParseResponse
                 .newBuilder()
                 .addAllResults(addressAnswers
                         .stream()
-                        .filter(t -> t.getConfidence() > Conf.ZERO)
-                        .map(t -> ParsedObject.newBuilder().setAddress(t.getTarget()).build())
+                        .map(t -> {
+                            ParsedObject.Builder builder = ParsedObject.newBuilder();
+                            resultSetter.accept(builder, t.getTarget());
+                            return builder.build();
+                        })
                         .limit(request.getLimit() == 0 ? Integer.MAX_VALUE : request.getLimit())
                         .collect(Collectors.toList()))
                 .build();
 
         meterOff();
+
         return toReturn;
     }
 
-    private ParseResponse parseCustomerContact(final ParseRequest request) {
-        meterOn();
-        final String text = extractRequestText(request);
-
-        Answers<Customer> addressAnswers = customerParser.parse(text);
-
-        ParseResponse toReturn = ParseResponse
-                .newBuilder()
-                .addAllResults(addressAnswers
-                        .stream()
-                        .filter(t -> t.getConfidence() > Conf.ZERO)
-                        .map(t -> ParsedObject.newBuilder().setCustomer(t.getTarget()).build())
-                        .limit(request.getLimit() == 0 ? Integer.MAX_VALUE : request.getLimit())
-                        .collect(Collectors.toList()))
-                .build();
-
-        meterOff();
+    private List<Snippet> extractFromRequest(final ParseRequest request) {
+        List<Snippet> toReturn = new ArrayList<>();
+        if (request.getTextsCount() > 0) {
+            toReturn.addAll(extractFromText(request.getTextsList()));
+        }
+        if (request.getMediaIdsCount() > 0) {
+            toReturn.addAll(extractFromMedia(request.getMediaIdsList()));
+        }
+        if (request.getDirectUploadImagesCount() > 0) {
+            toReturn.addAll(extractFromDirectUploadBytes(request.getDirectUploadImagesList()));
+        }
         return toReturn;
     }
 
-    public String extractRequestText(final ParseRequest request) {
-        StringBuilder sb = new StringBuilder();
+    private List<Snippet> extractFromText(final List<String> texts) {
+        // Treat all input texts as single one.
+        String text = String.join(" ", texts);
+        return Collections.singletonList(new Snippet(text, 1d));
+    }
 
-        for (String text : request.getTextsList()) {
-            sb.append(text).append(" ");
+    private List<Snippet> extractFromMedia(final List<String> mediaIds) {
+        List<Snippet> toReturn = new ArrayList<>();
+        for (String mediaId : mediaIds) {
+            String fullPath = MediaUtils.toStoragePath(mediaId);
+            MediaObject object = MediaObject.newBuilder()
+                    .setId(mediaId)
+                    .setFullPath(fullPath)
+                    .build();
+            List<Snippet> snippets = ocrClient.annotateFromMediaObject(object);
+            toReturn.addAll(filterLowConfidenceSnippets(snippets));
         }
+        return toReturn;
+    }
 
-        for (String mediaId : request.getMediaIdsList()) {
-            String extension = StringUtils.substringAfterLast(mediaId, ".");
-            FileType fileType = Enums.getIfPresent(FileType.class, StringUtils.upperCase(extension)).orNull();
-            RequestValidator.validateNotNull(fileType, extension + " is not supported.");
-
-            // Download URL somehow is not working for ocrspace.
-            // We have to download the bytes here.
-
-            byte[] bytes = storageClient.read(toStoragePath(mediaId));
-
-            jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest ocrParseRequest =
-                    jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest.builder()
-                            .withImageBytes(bytes)
-                            .withFileType(fileType)
-                            .withLanguage(Language.CHINESE_SIMPLIFIED)
-                            .build();
-            jiaonidaigou.appengine.lib.ocrspace.model.ParseResponse ocrParseResponse = ocrSpaceClient
-                    .parse(ocrParseRequest);
-
-            LOGGER.info("Parse OCR: {}", ocrParseResponse);
-            sb.append(ocrParseResponse.getAllParsedText()).append(" ");
+    private List<Snippet> extractFromDirectUploadBytes(final List<ParseRequest.DirectUploadImage> images) {
+        List<Snippet> toReturn = new ArrayList<>();
+        for (ParseRequest.DirectUploadImage image : images) {
+            List<Snippet> snippets = ocrClient.annotateFromBytes(image.getBytes().toByteArray());
+            toReturn.addAll(filterLowConfidenceSnippets(snippets));
         }
+        return toReturn;
+    }
 
-        for (ParseRequest.DirectUploadImage image : request.getDirectUploadImagesList()) {
-            String extension = image.getExt();
-            FileType fileType = Enums.getIfPresent(FileType.class, StringUtils.upperCase(extension)).orNull();
-            RequestValidator.validateNotNull(fileType, extension + " is not supported.");
-
-            jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest ocrParseRequest =
-                    jiaonidaigou.appengine.lib.ocrspace.model.ParseRequest.builder()
-                            .withImageBytes(image.getBytes().toByteArray())
-                            .withFileType(fileType)
-                            .withLanguage(Language.CHINESE_SIMPLIFIED)
-                            .build();
-            jiaonidaigou.appengine.lib.ocrspace.model.ParseResponse ocrParseResponse = ocrSpaceClient
-                    .parse(ocrParseRequest);
-
-            LOGGER.info("Parse OCR: {}", ocrParseResponse);
-            sb.append(ocrParseResponse.getAllParsedText()).append(" ");
-        }
-        return sb.toString();
+    /**
+     * Filter low confidence snippets.
+     * - confidence < 0.9
+     * - size < 5 chars
+     */
+    private static List<Snippet> filterLowConfidenceSnippets(final List<Snippet> snippets) {
+        return snippets.stream()
+                .filter(t -> t.getConfidence() >= MIN_INPUT_SNIPPET_CONF
+                        && StringUtils.length(t.getText()) >= MIN_INPUT_SNIPPET_LENGTH)
+                .collect(Collectors.toList());
     }
 }

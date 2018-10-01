@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MediaIntegrationTest {
-    private final ApiClient client = new ApiClient(Env.PROD);
+    private final ApiClient client = new ApiClient(Env.DEV);
 
     @Test
     public void test_directUpload_download() {

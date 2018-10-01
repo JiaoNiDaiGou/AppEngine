@@ -67,45 +67,31 @@ public interface DbQuery {
     }
 
     static <T> InMemoryQuery<T> inMemory(final Predicate<T> predicate) {
-        return new InMemoryQuery<>(predicate);
+        return new InMemoryQuery<>(null, predicate);
     }
 
-    static <T> MemcacheQuery<T> memcache(final Predicate<T> predicate, final List<String> shards) {
-        return new MemcacheQuery<>(shards, false, predicate);
-    }
-
-    static <T> MemcacheQuery<T> memcacheAllShards(final Predicate<T> predicate) {
-        return new MemcacheQuery<>(null, true, predicate);
-    }
-
-    class MemcacheQuery<T> extends InMemoryQuery<T> {
-        private final List<String> shards;
-        private final boolean allShards;
-
-        MemcacheQuery(final List<String> shards, final boolean allShards, Predicate<T> predicate) {
-            super(predicate);
-            this.shards = shards;
-            this.allShards = allShards;
-        }
-
-        public List<String> getShards() {
-            return shards;
-        }
-
-        public boolean isAllShards() {
-            return allShards;
-        }
+    static <T> InMemoryQuery<T> inMemory(final DbQuery dbQuery, final Predicate<T> predicate) {
+        return new InMemoryQuery<>(dbQuery, predicate);
     }
 
     class InMemoryQuery<T> implements DbQuery {
         private final Predicate<T> predicate;
+        private DbQuery dbQuery;
 
-        InMemoryQuery(final Predicate<T> predicate) {
-            this.predicate = predicate;
+        InMemoryQuery(final DbQuery dbQuery, final Predicate<T> predicate) {
+            if (dbQuery != null) {
+                checkState(!(dbQuery instanceof InMemoryQuery), "The dbQuery cannot be inMemory");
+            }
+            this.predicate = checkNotNull(predicate);
+            this.dbQuery = dbQuery;
         }
 
-        public Predicate<T> getPredicate() {
+        Predicate<T> getPredicate() {
             return predicate;
+        }
+
+        DbQuery getDbQuery() {
+            return dbQuery;
         }
 
         @Override

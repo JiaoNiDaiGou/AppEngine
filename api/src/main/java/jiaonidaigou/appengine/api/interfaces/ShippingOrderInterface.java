@@ -10,9 +10,11 @@ import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
+import jiaonidaigou.appengine.wiremodel.api.ExternalCreateShippingOrderRequest;
 import jiaonidaigou.appengine.wiremodel.api.InitShippingOrderRequest;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
+import jiaonidaigou.appengine.wiremodel.entity.Price;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
@@ -31,6 +33,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -49,7 +52,7 @@ public class ShippingOrderInterface {
     private final CustomerDbClient customerDbClient;
 
     @Inject
-    public ShippingOrderInterface(@Named(TeddyAdmins.HACK) final TeddyClient teddyClient,
+    public ShippingOrderInterface(@Named(TeddyAdmins.BY_ENV) final TeddyClient teddyClient,
                                   final ShippingOrderDbClient shippingOrderDbClient,
                                   @JiaoNiDaiGou final CustomerDbClient customerDbClient) {
         this.teddyClient = teddyClient;
@@ -68,9 +71,6 @@ public class ShippingOrderInterface {
             throw new NotFoundException("invalid customer ID: " + request.getReceiverCustomerId());
         }
 
-        //
-        // TODO: save products.
-
         receiver = receiver.toBuilder()
                 .clearAddresses()
                 .addAddresses(request.getAddress())
@@ -79,43 +79,54 @@ public class ShippingOrderInterface {
         ShippingOrder.Status status = request.getTotalWeightLb() == 0
                 ? ShippingOrder.Status.INIT : ShippingOrder.Status.PACKED;
 
+        Price totalPrice = Price.newBuilder()
+                .setUnit(Price.Unit.USD)
+                .setValue(request.getProductEntriesList()
+                        .stream()
+                        .map(t -> t.getSellPrice().getValue())
+                        .reduce((a, b) -> a + b)
+                        .get())
+                .build();
+
         ShippingOrder shippingOrder = ShippingOrder.newBuilder()
                 .setStatus(status)
                 .setCreationTime(System.currentTimeMillis())
                 .setReceiver(receiver)
                 .addAllProductEntries(request.getProductEntriesList())
                 .setTotalWeightLb(request.getTotalWeightLb())
+                .setTotalPrice(totalPrice)
                 .build();
 
         shippingOrder = shippingOrderDbClient.put(shippingOrder);
 
-        return Response.ok(shippingOrder).build();
-    }
+        if (status == ShippingOrder.Status.PACKED) {
+            LOGGER.info("Call teddy for {}", shippingOrder.getId());
 
-    @POST
-    @Path("/pack")
-    public Response packShippingOrder(@QueryParam("id") final String id,
-                                      @QueryParam("totalWeightLb") final double totalWeightLb) {
-        RequestValidator.validateNotBlank(id, "shippingOrderId");
-        RequestValidator.validateRequest(totalWeightLb > 0, "weight (lb) must be greater than 0.");
+            Order order = teddyClient.makeOrder(
+                    TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
+                    TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
+                    shippingOrder.getTotalWeightLb()
+            );
 
-        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
-        if (shippingOrder == null) {
-            throw new NotFoundException("invalid shipping order ID: " + id);
+            shippingOrder = shippingOrder.toBuilder()
+                    .setTeddyOrderId(String.valueOf(order.getId()))
+                    .setTeddyFormattedId(order.getFormattedId())
+                    .setCustomerNotified(false)
+                    .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
+                    .build();
+
+            shippingOrder = shippingOrderDbClient.put(shippingOrder);
         }
 
-        shippingOrder = shippingOrder.toBuilder()
-                .setTotalWeightLb(totalWeightLb)
-                .build();
-        shippingOrder = shippingOrderDbClient.put(shippingOrder);
-
         return Response.ok(shippingOrder).build();
     }
 
     @POST
-    @Path("/externalCreate")
-    public Response externalCreateShippingOrder(@QueryParam("id") final String id) {
+    @Path("/{id}/externalCreate")
+    public Response externalCreateShippingOrder(@PathParam("id") final String id,
+                                                final ExternalCreateShippingOrderRequest request) {
         RequestValidator.validateNotBlank(id, "shippingOrderId");
+        RequestValidator.validateRequest(request.getTotalWeightLb() >= 0);
 
         ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
         if (shippingOrder == null) {
@@ -125,7 +136,7 @@ public class ShippingOrderInterface {
         Order order = teddyClient.makeOrder(
                 TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
                 TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
-                shippingOrder.getTotalWeightLb()
+                request.getTotalWeightLb()
         );
 
         shippingOrder = shippingOrder.toBuilder()
@@ -140,8 +151,8 @@ public class ShippingOrderInterface {
     }
 
     @GET
-    @Path("/get")
-    public Response getShippingOrderById(@QueryParam("id") final String id) {
+    @Path("/get/{id}")
+    public Response getShippingOrderById(@PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id, "shippingOrderId");
 
         ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
@@ -153,8 +164,8 @@ public class ShippingOrderInterface {
     }
 
     @DELETE
-    @Path("/delete")
-    public Response deleteShippingOrderById(@QueryParam("id") final String id) {
+    @Path("/{id}/delete")
+    public Response deleteShippingOrderById(@PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id, "shippingOrderId");
         shippingOrderDbClient.delete(id);
         return Response.ok().build();
@@ -165,32 +176,23 @@ public class ShippingOrderInterface {
     public Response queryShippingOrders(@QueryParam("customerId") final String customerId,
                                         @QueryParam("customerName") final String customerName,
                                         @QueryParam("customerPhone") final String customerPhone,
+                                        @QueryParam("status") final ShippingOrder.Status status,
                                         @QueryParam("includeDelivered") final boolean includeDelivered,
                                         @QueryParam("pageToken") final String pageTokenStr,
                                         @QueryParam("limit") final int limit) {
-        if (includeDelivered) {
-            throw new NotSupportedException("includeDelivered not supported yet");
-        }
-
         PageToken pageToken = PageToken.fromPageToken(pageTokenStr);
         RequestValidator.validateRequest(pageToken == null || pageToken.isSourceInMemory());
+        RequestValidator.validateRequest(status == null || status != ShippingOrder.Status.DELIVERED);
 
-        List<ShippingOrder> shippingOrders = shippingOrderDbClient.queryNonDeliveredOrders()
+        List<ShippingOrder> shippingOrders = queryShippingOrdersFromDb(customerId, status, includeDelivered)
                 .stream()
                 .filter(t -> {
-                    if (StringUtils.isNotBlank(customerId) && !t.getReceiver().getId().equals(customerId)) {
-                        return false;
-                    }
-
-                    if (StringUtils.isNotBlank(customerName) && !t.getReceiver().getName().equals(customerName)) {
-                        return false;
-                    }
-
-                    if (StringUtils.isNotBlank(customerPhone) && !t.getReceiver().getPhone().getPhone().equals(customerPhone)) {
-                        return false;
-                    }
-
-                    return true;
+                    boolean filterOut = (!includeDelivered && t.getStatus() == ShippingOrder.Status.DELIVERED)
+                            || (status != null && t.getStatus() != status)
+                            || (StringUtils.isNotBlank(customerId) && !t.getReceiver().getId().equals(customerId))
+                            || (StringUtils.isNotBlank(customerName) && !t.getReceiver().getName().equals(customerName))
+                            || (StringUtils.isNotBlank(customerPhone) && !t.getReceiver().getPhone().getPhone().equals(customerPhone));
+                    return !filterOut;
                 })
                 .collect(Collectors.toList());
 
@@ -208,5 +210,18 @@ public class ShippingOrderInterface {
                 .withPageToken(newPageToken)
                 .build();
         return Response.ok(toReturn).build();
+    }
+
+    private List<ShippingOrder> queryShippingOrdersFromDb(final String customerId,
+                                                          ShippingOrder.Status status,
+                                                          final boolean includeDelivered) {
+        if (StringUtils.isNotBlank(customerId)) {
+            return shippingOrderDbClient.queryOrdersByCustomerId(customerId);
+        } else if (status != null) {
+            return shippingOrderDbClient.queryOrdersByStatus(status);
+        } else if (!includeDelivered) {
+            return shippingOrderDbClient.queryNonDeliveredOrders();
+        }
+        throw new NotSupportedException("includeDelivered not supported yet");
     }
 }

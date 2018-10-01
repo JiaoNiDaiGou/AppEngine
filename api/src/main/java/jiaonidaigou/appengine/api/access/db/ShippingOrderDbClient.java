@@ -58,6 +58,20 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                 .collect(Collectors.toList());
     }
 
+    public List<ShippingOrder> queryOrdersByStatus(final ShippingOrder.Status status) {
+        DbQuery query = DbQuery.eq(FIELD_STATUS, status.name());
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
+    }
+
+    public List<ShippingOrder> queryOrdersByCustomerId(final String customerId) {
+        DbQuery query = DbQuery.eq(FIELD_CUSTOMER_ID, customerId);
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
+    }
+
     private static class EntityFactory extends BaseEntityFactory<ShippingOrder> {
 
         protected EntityFactory(String serviceName, Env env, String tableName) {
@@ -76,7 +90,6 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
 
         @Override
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, ShippingOrder obj) {
-            System.out.println("customerId:" + obj.getReceiver().getId());
             return partialBuilder
                     .indexedLong(FIELD_CREATION_TIME, obj.getCreationTime())
                     .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())

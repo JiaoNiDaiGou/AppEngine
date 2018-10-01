@@ -14,6 +14,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.Streams;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery.AndQuery;
+import jiaonidaigou.appengine.api.access.db.core.DbQuery.InMemoryQuery;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery.KeyRangeQuery;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery.OrQuery;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery.SimpleQuery;
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -105,7 +107,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
             if (entity == null) {
                 return null;
             }
-            toReturn = entityFactory.fromEntity(DatastoreEntityExtractor.of(entity));
+            toReturn = toObj(entity);
         } catch (EntityNotFoundException e) {
             toReturn = null;
         }
@@ -175,10 +177,15 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         meterOn();
 
         Query theQuery = new Query(entityFactory.getKind());
+        Predicate<T> inMemoryPredicate = t -> true;
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
+            inMemoryPredicate = convertInMemoryPredicate(query);
         }
-        Stream<T> toReturn = Streams.stream(service.prepare(theQuery).asIterable()).map(this::toObj);
+        Stream<T> toReturn = Streams.stream(service.prepare(theQuery)
+                .asIterable())
+                .map(this::toObj)
+                .filter(inMemoryPredicate);
 
         meterOff();
         return toReturn;
@@ -196,8 +203,10 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         meterOn();
 
         Query theQuery = new Query(entityFactory.getKind());
+        Predicate<T> inMemoryPredicate = t -> true;
         if (query != null) {
             theQuery.setFilter(convertQueryFilter(query));
+            inMemoryPredicate = convertInMemoryPredicate(query);
         }
 
         FetchOptions fetchOptions = FetchOptions.Builder
@@ -209,7 +218,10 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         }
         QueryResultList<Entity> results = service.prepare(theQuery).asQueryResultList(fetchOptions);
 
-        List<T> content = Streams.stream(results.iterator()).map(this::toObj).collect(Collectors.toList());
+        List<T> content = Streams.stream(results.iterator())
+                .map(this::toObj)
+                .filter(inMemoryPredicate)
+                .collect(Collectors.toList());
 
         String newNextToken = results.getCursor() == null ? null : results.getCursor().toWebSafeString();
         if (StringUtils.isBlank(newNextToken)) {
@@ -354,7 +366,10 @@ public class DatastoreDbClient<T> implements DbClient<T> {
      * Converts {@link DbQuery}.
      */
     private Filter convertQueryFilter(final DbQuery query) {
-        if (query instanceof AndQuery) {
+        if (query instanceof InMemoryQuery) {
+            InMemoryQuery inMemoryQuery = (InMemoryQuery) query;
+            return inMemoryQuery.getDbQuery() == null ? null : convertQueryFilter(inMemoryQuery.getDbQuery());
+        } else if (query instanceof AndQuery) {
             return convertAndQuery((AndQuery) query);
         } else if (query instanceof OrQuery) {
             return convertOrQuery((OrQuery) query);
@@ -365,5 +380,12 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         } else {
             throw new IllegalStateException("unexpected query " + query.getClass().getName());
         }
+    }
+
+    private Predicate<T> convertInMemoryPredicate(final DbQuery query) {
+        if (query instanceof InMemoryQuery) {
+            return ((InMemoryQuery) query).getPredicate();
+        }
+        return t -> true;
     }
 }

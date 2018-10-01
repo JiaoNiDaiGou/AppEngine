@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class CustomerIntegrationTest {
-    private final ApiClient apiClient = new ApiClient(Env.PROD);
+    private final ApiClient apiClient = new ApiClient(Env.DEV);
 
     @Test
     public void testGetCustomers() throws Exception {
@@ -55,7 +55,7 @@ public class CustomerIntegrationTest {
                 .path("api/customers/JiaoNiDaiGou/put")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
-                .put(Entity.entity(beforeCreate, MediaType.APPLICATION_JSON_TYPE))
+                .put(Entity.json(beforeCreate))
                 .readEntity(Customer.class);
         String id = afterCreate.getId();
         assertNotNull(id);
@@ -77,7 +77,7 @@ public class CustomerIntegrationTest {
                 .path("api/customers/JiaoNiDaiGou/put")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
-                .put(Entity.entity(beforeUpdate, MediaType.APPLICATION_JSON_TYPE))
+                .put(Entity.json(beforeUpdate))
                 .readEntity(Customer.class);
         assertEquals(beforeUpdate, afterUpdate);
 

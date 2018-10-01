@@ -5,7 +5,6 @@ option java_package = "jiaonidaigou.appengine.wiremodel.entity";
 option java_multiple_files = true;
 
 import "entity/common.proto";
-import "entity/media_object.proto";
 
 message Product {
     string id = 1;
@@ -14,8 +13,8 @@ message Product {
     string brand = 4;
     string description = 5;
 
-    MediaObject main_media = 20;
-    repeated MediaObject other_media = 21;
+    string main_media_id = 20;
+    repeated string other_media_ids = 21;
 
     Price suggested_unit_price = 30;
 

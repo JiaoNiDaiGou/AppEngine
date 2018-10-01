@@ -4,6 +4,7 @@ import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
 import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
+import jiaonidaigou.appengine.lib.teddy.model.Product;
 import jiaonidaigou.appengine.lib.teddy.model.Receiver;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,10 +98,12 @@ public class TeddyClientTest {
         assertNotNull(order.getReceiver());
         assertNotNull(order.getSenderName());
         assertNotNull(order.getIdCardUploaded());
-        assertTrue(order.getProducts().size() > 0);
+        assertEquals(1, order.getProducts().size());
+        Product product = order.getProducts().get(0);
+        assertEquals(Product.Category.HEALTH_SUPPLEMENTS, product.getCategory());
+        assertEquals("维生素b族", product.getName());
+        assertEquals("kirkland", product.getBrand());
         assertEquals(Order.Status.PENDING, order.getStatus());
-
-        System.out.println(order);
     }
 
     @Test

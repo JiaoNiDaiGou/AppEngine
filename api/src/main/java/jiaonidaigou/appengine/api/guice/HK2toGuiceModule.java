@@ -35,7 +35,7 @@ public class HK2toGuiceModule extends AbstractBinder {
     private void bindInterfaces() {
         List<Class> interfaceClasses = findInterfaceClasses();
         for (Class clazz : interfaceClasses) {
-            LOGGER.info("Bind interface {}", clazz.getName());
+            LOGGER.info("Bind interface: {}", clazz.getSimpleName());
             bindInterface(clazz);
         }
     }

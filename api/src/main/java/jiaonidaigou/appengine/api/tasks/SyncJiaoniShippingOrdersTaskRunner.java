@@ -39,9 +39,9 @@ import javax.inject.Singleton;
 import static jiaonidaigou.appengine.api.utils.TeddyUtils.getKnownShippingCarriers;
 import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.CN_POSTMAN_ASSIGNED;
 import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.CN_TRACKING_NUMBER_ASSIGNED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.CREATED;
 import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.DELIVERED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.PENDING;
+import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED;
+import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHPPING_PENDING;
 
 @Singleton
 public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage> {
@@ -284,13 +284,13 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 
         TemplateData overview = new TemplateData()
                 .add("a.下单成功 待付款 - 总数",
-                        newOrdersByStatus.get(CREATED).size())
+                        newOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED).size())
                 .add("a.下单成功 待付款 - 新增数",
-                        Math.max(0, newOrdersByStatus.get(CREATED).size() - oldOrdersByStatus.get(CREATED).size()))
+                        Math.max(0, newOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED).size() - oldOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED).size()))
                 .add("b.小熊处理 - 总数",
-                        newOrdersByStatus.get(PENDING).size())
+                        newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING).size())
                 .add("b.小熊处理 - 新增数",
-                        Math.max(0, newOrdersByStatus.get(PENDING).size() - newOrdersByStatus.get(PENDING).size()))
+                        Math.max(0, newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING).size() - newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING).size()))
                 .add("d.国内快递追踪号生成 - 新增数",
                         Math.max(0, newOrdersByStatus.get(CN_TRACKING_NUMBER_ASSIGNED).size() - oldOrdersByStatus.get(CN_TRACKING_NUMBER_ASSIGNED).size()))
                 .add("e.国内配送快递员信息获知 - 新增数",
@@ -310,8 +310,8 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
                 .addAsDateTime("queryTime", DateTime.now())
                 .add("overview", overview.build())
                 .add("noUpdatesWarnDays", NO_UPDATES_WARN_DAYS)
-                .add("newlyCreated", shippingOrdersInTemplate(newOrdersByStatus.get(CREATED), notifyCustomer))
-                .add("newlyPending", shippingOrdersInTemplate(newOrdersByStatus.get(PENDING), notifyCustomer))
+                .add("newlyCreated", shippingOrdersInTemplate(newOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED), notifyCustomer))
+                .add("newlyPending", shippingOrdersInTemplate(newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING), notifyCustomer))
                 .add("newlyTrackingNumberAssigned", shippingOrdersInTemplate(newOrdersByStatus.get(CN_TRACKING_NUMBER_ASSIGNED), notifyCustomer))
                 .add("newlyPostmanAssigned", shippingOrdersInTemplate(newOrdersByStatus.get(CN_POSTMAN_ASSIGNED), notifyCustomer))
                 .add("noUpdatesOverDays", shippingOrdersInTemplate(noUpdatesOverDays, ImmutableList.of()))

@@ -45,13 +45,15 @@ public class Answers<T> implements Iterable<Answer<T>> {
         }
     }
 
-    private static final Answers NO_ANSWER = new Answers<>(ImmutableList.of());
+    private static final Answers NO_ANSWER = new Answers<>(ImmutableList.of(), false);
 
     private final List<Answer<T>> results;
 
-    private Answers(List<Answer<T>> results) {
+    private Answers(final List<Answer<T>> results, final boolean autoSort) {
         List<Answer<T>> sorted = new ArrayList<>(results);
-        sorted.sort((a, b) -> Integer.compare(b.getConfidence(), a.getConfidence()));
+        if (autoSort) {
+            sorted.sort((a, b) -> Integer.compare(b.getConfidence(), a.getConfidence()));
+        }
         this.results = sorted;
     }
 
@@ -59,12 +61,16 @@ public class Answers<T> implements Iterable<Answer<T>> {
         return NO_ANSWER;
     }
 
+    public static <T> Answers<T> of(final Iterable<Answer<T>> answers, final boolean autoSort) {
+        return new Answers<>(ImmutableList.copyOf(answers), autoSort);
+    }
+
     public static <T> Answers<T> of(final Iterable<Answer<T>> answers) {
-        return new Answers<>(ImmutableList.copyOf(answers));
+        return of(answers, true);
     }
 
     public static <T> Answers<T> of(final Answer<T> answer) {
-        return new Answers<>(ImmutableList.of(answer));
+        return new Answers<>(ImmutableList.of(answer), false);
     }
 
     public List<Answer<T>> getResults() {

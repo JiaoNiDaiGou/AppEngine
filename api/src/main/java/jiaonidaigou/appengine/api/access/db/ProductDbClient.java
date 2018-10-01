@@ -15,18 +15,14 @@ import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Singleton
 public class ProductDbClient extends BaseDbClient<Product> {
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CATEGORY = "category";
 
-    @Inject
     public ProductDbClient(final DatastoreService datastoreService, final String serviceName) {
         this(datastoreService, serviceName, AppEnvironments.ENV);
     }

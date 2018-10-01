@@ -16,6 +16,24 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StringUtils2 {
+    public static String[] multiSplit(String str, String... splits) {
+        if (str == null) {
+            return null;
+        }
+
+        List<String> cur = new ArrayList<>();
+        cur.add(str);
+        for (String split : splits) {
+            List<String> next = new ArrayList<>();
+            for (String text : cur) {
+                String[] parts = StringUtils.split(text, split);
+                next.addAll(Arrays.asList(parts));
+            }
+            cur = next;
+        }
+        return cur.toArray(new String[]{ });
+    }
+
     public static String concatStringExceptIndexAt(final String[] str, final String splitter, final int... exceptIndex) {
         Set<Integer> exclude = new HashSet<>();
         Arrays.stream(exceptIndex).forEach(exclude::add);
