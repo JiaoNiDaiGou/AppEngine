@@ -3,11 +3,7 @@ package jiaonidaigou.appengine.api.tasks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
-import com.google.common.util.concurrent.Uninterruptibles;
 import jiaonidaigou.appengine.api.access.email.EmailClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
@@ -20,6 +16,7 @@ import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,25 +34,28 @@ import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONID
 
 /**
  * What other people send.
- * <p>
- * Start from 119520, and run backward.
  */
 public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> {
     private static final String ORDER_ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "xiaoxiong_shipping_orders/";
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpTeddyShippingOrdersTaskRunner.class);
     private static final long KNOWN_START_ID = 134009;
     /**
-     * Register key to store last dumped ShippingOrder ID.
+     * Register key to store last forward dumped ShippingOrder ID.
      */
-    public static final String REGISTRY_KEY_LAST_DUMP_ID = "dumpShippingOrder.lastDumpId";
+    private static final String REGISTRY_KEY_LAST_FORWARD_DUMP_ID = "dumpShippingOrder.lastDumpId.forward";
+    /**
+     * Register key to store last backward dumped ShippingOrder ID.
+     */
+    private static final String REGISTRY_KEY_LAST_BACKWARD_DUMP_ID = "dumpShippingOrder.lastDumpId.backward";
     /**
      * If we find this number of continuous null orders, break it.
      */
-    private static final int MIN_NUM_CONTINUOUS_NULL_ORDER = 100;
+    private static final int MAX_NUM_CONTINUOUS_NULL_ORDER = 100;
     /**
      * How long the task can run
      */
     private static final int TASK_ALIVE_TIME_SECONDS = 9 * 60;
+
     private final EmailClient emailClient;
     private final StorageClient storageClient;
     private final PubSubClient pubSubClient;
@@ -74,95 +72,84 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         this.teddyClient = teddyClient;
     }
 
-    private static String decideDumpFileName(final DateTime dateTime) {
-        return ORDER_ARCHIEVE_DIR + dateTime.toString("yyyy-MM-dd") + ".json";
-    }
-
     private Message handleBackward(final Message message,
                                    final TaskMessage taskMessage,
-                                   final DateTime startTime,
-                                   final List<ShippingOrder> shippingOrders) {
-        int count = 0;
-        long id = determineStartId(message);
+                                   final DateTime startTime) {
+        final DateTime endTime = startTime.plusSeconds(TASK_ALIVE_TIME_SECONDS);
+        final long startId = determineStartId(message, REGISTRY_KEY_LAST_BACKWARD_DUMP_ID);
 
-        while (DateTime.now().isBefore(startTime.plusSeconds(TASK_ALIVE_TIME_SECONDS))) {
-            id--;
-            Order order = loadOrder(id);
-            boolean orderNull = order == null || order.getCreationTime() == null;
-            LOGGER.info("Dump backward. task.reachCount={}, dumpCount={}, order.id={}, order is null? {}",
-                    taskMessage.getReachCount(), count, id, orderNull);
-            if (orderNull) {
-                continue;
+        List<ShippingOrder> shippingOrders = new ArrayList<>();
+
+        long curId = startId;
+        while (DateTime.now().isBefore(endTime)) {
+            curId--;
+            ShippingOrder shippingOrder = loadShippingOrder(curId);
+            boolean isNull = shippingOrder == null || shippingOrder.getCreationTime() == 0;
+            if (!isNull) {
+                shippingOrders.add(shippingOrder);
             }
-            shippingOrders.add(TeddyUtils.convertToShippingOrder(order));
-            if (id <= KNOWN_START_ID) {
+
+            if (curId <= KNOWN_START_ID) {
+                LOGGER.info("Reach known start ID {}", KNOWN_START_ID);
                 break;
             }
         }
+        boolean hasNextTask = (curId > KNOWN_START_ID) && (message.limit == 0 || taskMessage.getReachCount() < message.limit);
 
-        LOGGER.info("Load {} orders. Save new start order id {}", shippingOrders, id);
-        Registry.instance().setRegistry(NAMESPACE_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID, String.valueOf(id));
+        LOGGER.info("Load {} orders and save. startId={}, endId={}. hasNextTask={}. newStartId={}",
+                shippingOrders.size(), startId, curId, hasNextTask, curId);
+        saveLastDumpId(REGISTRY_KEY_LAST_BACKWARD_DUMP_ID, curId);
+        saveShippingOrders(shippingOrders);
 
-        boolean hasNextTask = (id > KNOWN_START_ID) && (message.limit == 0 || message.limit > taskMessage.getReachCount());
         if (!hasNextTask) {
             return null;
         }
-        return new Message(id, message.limit, true);
+        return new Message(curId, message.limit, true);
     }
 
     private Message handleForward(final Message message,
                                   final TaskMessage taskMessage,
-                                  final DateTime startTime,
-                                  final List<ShippingOrder> shippingOrders) {
-        int count = 0;
-        int continuousNull = 0;
-        long id = determineStartId(message);
-        long lastNonNullId = message.id;
+                                  final DateTime startTime) {
+
+        final DateTime endTime = startTime.plusSeconds(TASK_ALIVE_TIME_SECONDS);
+        final long startId = determineStartId(message, REGISTRY_KEY_LAST_FORWARD_DUMP_ID);
+
+        List<ShippingOrder> shippingOrders = new ArrayList<>();
+
+        int continuousNullCount = 0;
+        long curId = startId;
+        long lastNonNullId = startId;
         boolean hasNextTask = true;
 
-        while (DateTime.now().isBefore(startTime.plusSeconds(TASK_ALIVE_TIME_SECONDS))) {
-            id++;
-            Order order = loadOrder(id);
-            boolean orderNull = order == null || order.getCreationTime() == null;
-            LOGGER.info("Dump forward. task.reachCount={}, dumpCount={}, order.id={}, order is null? {}",
-                    taskMessage.getReachCount(), count, id, orderNull);
-            if (orderNull) {
-                continuousNull++;
-                if (continuousNull > MIN_NUM_CONTINUOUS_NULL_ORDER) {
-                    LOGGER.info("Found {} continuous null order. I think no newer orders.", continuousNull);
+        while (DateTime.now().isBefore(endTime)) {
+            curId++;
+            ShippingOrder shippingOrder = loadShippingOrder(curId);
+            boolean isNull = shippingOrder == null || shippingOrder.getCreationTime() == 0;
+            if (isNull) {
+                continuousNullCount++;
+                if (continuousNullCount > MAX_NUM_CONTINUOUS_NULL_ORDER) {
+                    LOGGER.info("Found {} continuous null order. I think no newer orders.", continuousNullCount);
                     hasNextTask = false;
                     break;
                 }
             } else {
-                continuousNull = 0;
-                lastNonNullId = id;
-                shippingOrders.add(TeddyUtils.convertToShippingOrder(order));
+                continuousNullCount = 0;
+                lastNonNullId = curId;
+                shippingOrders.add(shippingOrder);
             }
         }
 
-        LOGGER.info("Load {} orders. Save new start order id {}", shippingOrders.size(), lastNonNullId);
-        Registry.instance().setRegistry(NAMESPACE_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID, String.valueOf(lastNonNullId));
+        hasNextTask &= message.limit == 0 || taskMessage.getReachCount() < message.limit;
 
-        hasNextTask &= message.limit == 0 || message.limit > taskMessage.getReachCount();
+        LOGGER.info("Load {} orders and save. startId={}, endId={}. hasNextTask={}. newStartId={}",
+                shippingOrders.size(), startId, curId, hasNextTask, lastNonNullId);
+        saveLastDumpId(REGISTRY_KEY_LAST_FORWARD_DUMP_ID, lastNonNullId);
+        saveShippingOrders(shippingOrders);
         if (!hasNextTask) {
             return null;
         }
-        return new Message(lastNonNullId, message.limit, false);
-    }
-
-    private void writeToStorage(final List<ShippingOrder> orders) {
-        Multimap<String, ShippingOrder> ordersByPath = ArrayListMultimap.create();
-        for (ShippingOrder order : orders) {
-            String path = decideDumpFileName(new DateTime(order.getCreationTime()));
-            ordersByPath.put(path, order);
-        }
-        for (Map.Entry<String, Collection<ShippingOrder>> entry : ordersByPath.asMap().entrySet()) {
-            String path = entry.getKey();
-            List<ShippingOrder> allOrders = loadShippingOrders(path);
-            allOrders.addAll(entry.getValue());
-            LOGGER.info("Save {} more orders (totally {}) into {}", entry.getValue().size(), allOrders.size(), path);
-            saveShippingOrders(path, allOrders);
-        }
+        // If we continue task, just start from curId. Otherwise, tomorrow, the task will start from lastNonNullId.
+        return new Message(curId - 1, message.limit, false);
     }
 
     @Override
@@ -177,15 +164,13 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             LOGGER.error("bad task message payload {}", taskMessage, e);
             return;
         }
-        List<ShippingOrder> shippingOrders = new ArrayList<>();
+
         Message nextMessage;
         if (message.backward) {
-            nextMessage = handleBackward(message, taskMessage, startTime, shippingOrders);
+            nextMessage = handleBackward(message, taskMessage, startTime);
         } else {
-            nextMessage = handleForward(message, taskMessage, startTime, shippingOrders);
+            nextMessage = handleForward(message, taskMessage, startTime);
         }
-
-        writeToStorage(shippingOrders);
 
         if (nextMessage != null) {
             LOGGER.info("Arrange next task with order id {}", message.id);
@@ -200,44 +185,45 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             for (String adminEmal : Environments.ADMIN_EMAILS) {
                 emailClient.sendText(adminEmal,
                         "Teddy OrderDump " + taskMessage.getReachCount(),
-                        String.format("End RID %s, Total order %s.", message.id, shippingOrders.size()));
+                        String.format("End RID %s.", message.id));
             }
         }
     }
 
-    private Order loadOrder(final long id) {
-        Order order = teddyClient.getOrderDetails(id, false);
-        Uninterruptibles.sleepUninterruptibly((long) (1000L + Math.random() * 1000L),
-                TimeUnit.MILLISECONDS);
-        return order;
+    private void saveLastDumpId(final String key, final long id) {
+        Registry.instance().setRegistry(NAMESPACE_JIAONIDAIGOU, key, String.valueOf(id));
     }
 
-    private long determineStartId(final Message message) {
+    private long determineStartId(final Message message, final String key) {
         long id = message.id;
         if (id == 0) {
-            id = Long.parseLong(Registry.instance().getRegistry(NAMESPACE_JIAONIDAIGOU, REGISTRY_KEY_LAST_DUMP_ID));
+            id = Long.parseLong(Registry.instance().getRegistry(NAMESPACE_JIAONIDAIGOU, key));
         }
         LOGGER.info("determine start ID {}", id);
         return id;
     }
 
-    private List<ShippingOrder> loadShippingOrders(final String path) {
-        if (!storageClient.exists(path)) {
-            return new ArrayList<>();
+    private ShippingOrder loadShippingOrder(final long id) {
+        Order order = teddyClient.getOrderDetails(id, false);
+        if (order == null) {
+            return null;
         }
-        byte[] bytes = storageClient.read(path);
-        try {
-            return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<ShippingOrder>>() {
-            });
-        } catch (IOException e) {
-            LOGGER.error("Failed to load orders from {}.", path, e);
-            return new ArrayList<>();
-        }
+        return TeddyUtils.convertToShippingOrder(order);
     }
 
-    private void saveShippingOrders(final String path, final Collection<ShippingOrder> shippingOrders) {
+    private void saveShippingOrders(final Collection<ShippingOrder> shippingOrders) {
+        if (CollectionUtils.isEmpty(shippingOrders)) {
+            LOGGER.warn("Nothing to save");
+            return;
+        }
+
         List<ShippingOrder> toSave = new ArrayList<>(shippingOrders);
         toSave.sort(Comparator.comparing(ShippingOrder::getTeddyOrderId));
+        String minTeddyId = toSave.get(0).getTeddyOrderId();
+        String maxTeddyId = toSave.get(toSave.size() - 1).getTeddyOrderId();
+
+        String path = ORDER_ARCHIEVE_DIR + DateTime.now().toString("yyyy_MM_dd") + "_" + minTeddyId + "_" + maxTeddyId + ".json";
+
         byte[] bytes;
         try {
             bytes = ObjectMapperProvider.get().writeValueAsBytes(toSave);
@@ -249,6 +235,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
     }
 
     public static class Message {
+        // Last stopped ID.
         @JsonProperty
         private long id;
         @JsonProperty
