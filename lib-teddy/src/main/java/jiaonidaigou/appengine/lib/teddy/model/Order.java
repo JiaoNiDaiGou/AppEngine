@@ -94,6 +94,12 @@ public class Order {
     @JsonProperty
     private DeliveryEnding deliveryEnding;
 
+    @JsonProperty
+    private Double shippingFee;
+
+    @JsonProperty
+    private Double totalWeight;
+
     public static Builder builder() {
         return new Builder();
     }
@@ -181,6 +187,14 @@ public class Order {
         return deliveryEnding;
     }
 
+    public Double getShippingFee() {
+        return shippingFee;
+    }
+
+    public Double getTotalWeight() {
+        return totalWeight;
+    }
+
     public enum Status {
         CREATED,
         PENDING,
@@ -215,6 +229,8 @@ public class Order {
         private List<ShippingHistoryEntry> shippingHistory = new ArrayList<>();
         private boolean delivered;
         private DeliveryEnding deliveryEnding;
+        private Double shippingFee;
+        private Double totalWeight;
 
         private Builder() {
         }
@@ -304,6 +320,16 @@ public class Order {
             return this;
         }
 
+        public Builder withShippingFee(final Double shippingFee) {
+            this.shippingFee = shippingFee;
+            return this;
+        }
+
+        public Builder withTotalWeight(final Double totalWeight) {
+            this.totalWeight = totalWeight;
+            return this;
+        }
+
         public Order build() {
             Order order = new Order();
             order.products = this.products;
@@ -323,6 +349,8 @@ public class Order {
             order.postmanPhone = this.postmanPhone;
             order.delivered = this.delivered;
             order.deliveryEnding = this.deliveryEnding;
+            order.shippingFee = this.shippingFee;
+            order.totalWeight = this.totalWeight;
             return order;
         }
     }

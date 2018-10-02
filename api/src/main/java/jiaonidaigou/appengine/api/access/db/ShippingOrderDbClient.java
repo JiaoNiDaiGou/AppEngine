@@ -10,6 +10,7 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery;
 import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +44,8 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
     public List<ShippingOrder> queryByTeddyOrderIdRange(final long minTeddyIdInclusive,
                                                         final long maxTeddyIdInclusive) {
         DbQuery query = DbQuery.and(
-                DbQuery.ge(FIELD_TEDDY_ORDER_ID, String.valueOf(minTeddyIdInclusive)),
-                DbQuery.le(FIELD_TEDDY_ORDER_ID, String.valueOf(maxTeddyIdInclusive))
+                DbQuery.ge(FIELD_TEDDY_ORDER_ID, minTeddyIdInclusive),
+                DbQuery.le(FIELD_TEDDY_ORDER_ID, maxTeddyIdInclusive)
         );
         return this.queryInStream(query)
                 .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
@@ -95,7 +96,7 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                     .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())
                     .indexedString(FIELD_CUSTOMER_PHONE, obj.getReceiver().getPhone().getPhone())
                     .indexedString(FIELD_CUSTOMER_NAME, obj.getReceiver().getName())
-                    .indexedString(FIELD_TEDDY_ORDER_ID, obj.getTeddyOrderId())
+                    .indexedLong(FIELD_TEDDY_ORDER_ID, StringUtils.isNotBlank(obj.getTeddyOrderId()) ? Long.parseLong(obj.getTeddyOrderId()) : 0)
                     .indexedEnum(FIELD_STATUS, obj.getStatus())
                     .unindexedProto(FIELD_DATA, obj)
                     .unindexedLastUpdatedTimestampAsNow()

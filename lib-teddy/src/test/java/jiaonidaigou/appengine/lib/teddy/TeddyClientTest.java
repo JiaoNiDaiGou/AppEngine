@@ -18,6 +18,7 @@ import static jiaonidaigou.appengine.common.test.TestUtils.mockBrowserClient;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -67,7 +68,7 @@ public class TeddyClientTest {
 
     @Test
     public void testGetOrderDetails_withShippingInfo() {
-        arrangeClient("order_view", "shipping_history");
+        arrangeClient("order_view_created", "shipping_history");
         Order order = underTest.getOrderDetails(93036, true);
 
         assertTrue(order.getId() > 0);
@@ -88,8 +89,8 @@ public class TeddyClientTest {
     }
 
     @Test
-    public void testGetOrderDetails_noShippingInfo() {
-        arrangeClient("order_view");
+    public void testGetOrderDetails_noShippingInfo_created() {
+        arrangeClient("order_view_created");
         Order order = underTest.getOrderDetails(93036, false);
 
         assertTrue(order.getId() > 0);
@@ -103,7 +104,30 @@ public class TeddyClientTest {
         assertEquals(Product.Category.HEALTH_SUPPLEMENTS, product.getCategory());
         assertEquals("维生素b族", product.getName());
         assertEquals("kirkland", product.getBrand());
+        assertEquals(Order.Status.CREATED, order.getStatus());
+        assertNull(order.getShippingFee());
+        assertEquals(1.5d, order.getTotalWeight(), 0d);
+    }
+
+    @Test
+    public void testGetOrderDetails_noShippingInfo_pending() {
+        arrangeClient("order_view_pending");
+        Order order = underTest.getOrderDetails(138359, false);
+
+        assertTrue(order.getId() > 0);
+        assertNotNull(order.getFormattedId());
+        assertNotNull(order.getCreationTime());
+        assertNotNull(order.getReceiver());
+        assertNotNull(order.getSenderName());
+        assertNotNull(order.getIdCardUploaded());
+        assertEquals(1, order.getProducts().size());
+        Product product = order.getProducts().get(0);
+        assertEquals(Product.Category.HEALTH_SUPPLEMENTS, product.getCategory());
+        assertEquals("胶原蛋白软糖", product.getName());
+        assertEquals("Costco", product.getBrand());
         assertEquals(Order.Status.PENDING, order.getStatus());
+        assertEquals(5.2d, order.getShippingFee(), 0d);
+        assertEquals(1.3d, order.getTotalWeight(), 0d);
     }
 
     @Test
@@ -122,7 +146,7 @@ public class TeddyClientTest {
             assertNotNull(preview.getRawShippingStatus());
             assertNotNull(preview.getRawStatus());
             assertNotNull(preview.getReceiverName());
-            if ("邮政平邮".equals(preview.getRawShippingStatus())) {
+            if (preview.getRawShippingStatus().contains("邮政")) {
                 assertNotNull(preview.getTrackingNumber());
                 numOfOrderWithTrackingNumber++;
             }

@@ -78,5 +78,7 @@ message ShippingOrder {
 
     Price total_price = 130;
 
+    Price shipping_fee = 135;
+
     bool customer_notified = 140;
 }

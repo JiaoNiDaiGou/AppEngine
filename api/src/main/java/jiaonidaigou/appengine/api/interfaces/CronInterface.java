@@ -4,7 +4,6 @@ import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
-import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -50,13 +49,14 @@ public class CronInterface {
     @Path("/syncJiaoniShippingOrders")
     @GET
     public Response dumpJiaoniShippingOrders() {
-        taskQueueClient.submit(
-                HIGH_FREQUENCY,
-                TaskMessage.builder()
-                        .withHandler(SyncJiaoniShippingOrdersTaskRunner.class)
-                        .build()
-        );
-        return Response.ok().build();
+//        taskQueueClient.submit(
+//                HIGH_FREQUENCY,
+//                TaskMessage.builder()
+//                        .withHandler(SyncJiaoniShippingOrdersTaskRunner.class)
+//                        .build()
+//        );
+//        return Response.ok().build();
+        return null;
     }
 
     @Path("/dumpTeddyShippingOrders")
