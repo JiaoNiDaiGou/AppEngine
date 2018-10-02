@@ -13,9 +13,6 @@
         <url>/cron/dumpTeddyShippingOrders?limit=10</url>
         <description>Teddy full shipping orders dump</description>
         <schedule>every day 07:00</schedule>
-        <url>/cron/dumpTeddyShippingOrders?limit=10</url>
-        <description>Teddy full shipping orders dump</description>
-        <schedule>every day 07:00</schedule>
         <target>prod</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
