@@ -349,9 +349,6 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
             };
         }
 
-        // TODO:
-        // Enable it after some time.
-
         smsClient.sendTextWithTemplate("cn",
                 shippingOrder.getReceiver().getPhone().getPhone(),
                 templateId,
