@@ -275,6 +275,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         long waitTime = (long) (1000L + 1000 * Math.random());
         Uninterruptibles.sleepUninterruptibly(waitTime, TimeUnit.MILLISECONDS);
         if (order == null) {
+            LOGGER.info("Order id {} is null", id);
             return null;
         }
         return TeddyUtils.convertToShippingOrder(order);
