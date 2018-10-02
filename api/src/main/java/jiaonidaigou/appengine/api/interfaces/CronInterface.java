@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
@@ -69,6 +70,18 @@ public class CronInterface {
                 TaskMessage.builder()
                         .withHandler(DumpTeddyShippingOrdersTaskRunner.class)
                         .withPayloadJson(new DumpTeddyShippingOrdersTaskRunner.Message(id, limit, backward))
+                        .build()
+        );
+        return Response.ok().build();
+    }
+
+    @Path("/buildProductHints")
+    @GET
+    public Response buildProductHints() {
+        taskQueueClient.submit(
+                HIGH_FREQUENCY,
+                TaskMessage.builder()
+                        .withHandler(BuildProductHintsTaskRunner.class)
                         .build()
         );
         return Response.ok().build();

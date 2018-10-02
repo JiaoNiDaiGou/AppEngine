@@ -31,7 +31,14 @@ public class Environments {
 
 
     public static final String GCS_ROOT_ENDSLASH = "gs://" + GAE_HOSTNAME + "/";
-    public static final String GCS_MEDIA_ROOT_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "media/";
+
+    public interface Dir {
+        String MEDIA_ROOT_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "media/";
+        String SHIPPING_ORDERS_DUMP_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_dump/";
+        String SHIPPING_ORDERS_ARCHIVE_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_archive/";
+        String PRODUCTS_HINTS_ENDSLASH = Environments.GCS_ROOT_ENDSLASH + "products_hints/";
+    }
+
     public static final OSType OS_TYPE;
     public static final String LOCAL_TEMP_DIR_ENDSLASH;
     public static final String LOCAL_ENDPOINT = "http://127.0.0.1:33256";

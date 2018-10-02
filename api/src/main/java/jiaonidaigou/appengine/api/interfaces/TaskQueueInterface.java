@@ -2,8 +2,10 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import com.google.common.collect.ImmutableMap;
 import jiaonidaigou.appengine.api.auth.Roles;
+import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
+import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import org.jvnet.hk2.annotations.Service;
@@ -33,11 +35,16 @@ public class TaskQueueInterface {
 
     @Inject
     public TaskQueueInterface(final SyncJiaoniCustomersTaskRunner syncJiaoniCustomersTaskRunner,
-                              final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner) {
+                              final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner,
+                              final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
+                              final BuildProductHintsTaskRunner buildProductHintsTaskRunner) {
         this.consumers = buildConsumerMap(
                 syncJiaoniCustomersTaskRunner,
-                dumpJiaoniShippingOrderTaskRunner
+                dumpJiaoniShippingOrderTaskRunner,
+                syncJiaoniShippingOrdersTaskRunner,
+                buildProductHintsTaskRunner
         );
+        LOGGER.info("Register following Tasks: {}", consumers.keySet());
     }
 
     @POST
