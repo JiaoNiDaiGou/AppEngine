@@ -42,8 +42,8 @@ import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONID
  * What other people send.
  */
 public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> {
-    private static final String DUMP_DIR = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_dump/";
-    private static final String ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_archive/";
+    private static final String DUMP_DIR = Environments.Dir.SHIPPING_ORDERS_DUMP_ENDSLASH;
+    private static final String ARCHIEVE_DIR = Environments.Dir.SHIPPING_ORDERS_ARCHIVE_ENDSLASH;
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpTeddyShippingOrdersTaskRunner.class);
     private static final long KNOWN_START_ID = 134009;
     /**

@@ -25,4 +25,12 @@
         <timezone>America/Los_Angeles</timezone>
     </cron>
 
+    <cron>
+        <url>/cron/syncJiaoniShippingOrders</url>
+        <description>Sync JiaoNiDaiGou orders</description>
+        <schedule>every day 08:00</schedule>
+        <target>prod</target>
+        <timezone>America/Los_Angeles</timezone>
+    </cron>
+
 </cronentries>

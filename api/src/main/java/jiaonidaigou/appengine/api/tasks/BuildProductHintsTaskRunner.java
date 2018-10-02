@@ -1,17 +1,22 @@
-package jiaonidaigou.appengine.tools;
+package jiaonidaigou.appengine.api.tasks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.net.MediaType;
+import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.common.utils.StringUtils2;
 import jiaonidaigou.appengine.wiremodel.entity.Product;
 import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,25 +24,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class CleanUpProducts {
-    private static List<ShippingOrder> loadAllShippingOrders() throws Exception {
+@Singleton
+public class BuildProductHintsTaskRunner implements Consumer<TaskMessage> {
+    private static final String ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_archive/";
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildProductHintsTaskRunner.class);
 
-        List<ShippingOrder> toReturn = new ArrayList<>();
 
-        File folder = new File("/Users/ruijie.fu/tmp/great_dump");
-        for (File file : folder.listFiles()) {
-            System.out.println("handle " + file.getName());
-            List<ShippingOrder> shippingOrders = ObjectMapperProvider.get().readValue(file, new TypeReference<List<ShippingOrder>>() {
-            });
-            toReturn.addAll(shippingOrders);
-        }
-        return toReturn;
+    private final StorageClient storageClient;
+
+    @Inject
+    public BuildProductHintsTaskRunner(final StorageClient storageClient) {
+        this.storageClient = storageClient;
     }
 
-    public static void main(String[] args) throws Exception {
+    @Override
+    public void accept(TaskMessage taskMessage) {
         List<ShippingOrder> shippingOrders = loadAllShippingOrders();
+
         List<Product> products = shippingOrders.stream()
                 .map(ShippingOrder::getProductEntriesList)
                 .flatMap(Collection::stream)
@@ -84,8 +92,36 @@ public class CleanUpProducts {
                 .map(t -> Triple.of(t.getRowKey(), t.getColumnKey(), t.getValue()))
                 .collect(Collectors.toList());
 
-        File file = new File("/Users/ruijie.fu/tmp/product_analysis.json");
-        ObjectMapperProvider.get().writeValue(file,  filteredTable);
+        writeProductsHints(filteredTable);
+    }
+
+    private void writeProductsHints(List<Triple<ProductCategory, String, Set<String>>> hints) {
+        try {
+            byte[] bytes = ObjectMapperProvider.get().writeValueAsBytes(hints);
+            String path = ARCHIEVE_DIR + "latest.json";
+            LOGGER.info("Write hints to {}", path);
+            storageClient.write(path, MediaType.JSON_UTF_8.toString(), bytes);
+        } catch (Exception e) {
+            LOGGER.error("Failed to write product hints.", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<ShippingOrder> loadAllShippingOrders() {
+        List<ShippingOrder> toReturn = new ArrayList<>();
+        List<String> paths = storageClient.listAll(ARCHIEVE_DIR);
+        for (String path : paths) {
+            LOGGER.info("Load {}", path);
+            List<ShippingOrder> shippingOrders = new ArrayList<>();
+            try {
+                shippingOrders = ObjectMapperProvider.get().readValue(storageClient.read(path), new TypeReference<List<ShippingOrder>>() {
+                });
+            } catch (IOException e) {
+                LOGGER.error("Failed read {}. SKIP!", path, e);
+            }
+            toReturn.addAll(shippingOrders);
+        }
+        return toReturn;
     }
 
     private static String normBrand(String brand) {

@@ -1,9 +1,8 @@
 package jiaonidaigou.appengine.api.utils;
 
 import com.google.common.net.MediaType;
+import jiaonidaigou.appengine.common.utils.Environments;
 import org.apache.commons.lang3.StringUtils;
-
-import static jiaonidaigou.appengine.common.utils.Environments.GCS_MEDIA_ROOT_ENDSLASH;
 
 public class MediaUtils {
     public static String determineMediaType(final String pathOrFileExtension) {
@@ -27,6 +26,6 @@ public class MediaUtils {
     }
 
     public static String toStoragePath(final String mediaId) {
-        return GCS_MEDIA_ROOT_ENDSLASH + mediaId;
+        return Environments.Dir.MEDIA_ROOT_ENDSLASH + mediaId;
     }
 }
