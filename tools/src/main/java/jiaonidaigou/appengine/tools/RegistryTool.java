@@ -11,8 +11,9 @@ import java.util.stream.Collectors;
 
 public class RegistryTool {
     public static void main(String[] args) throws Exception {
+
         try (RemoteApi remoteApi = RemoteApi.login()) {
-            Registry registry = new Registry(remoteApi.getDatastoreService(), Env.PROD);
+//            Registry registry = new Registry(remoteApi.getDatastoreService(), Env.PROD);
 //            listRegistries(registry);
 //            putRegistry(registry);
         }

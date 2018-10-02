@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
+import com.google.common.util.concurrent.Uninterruptibles;
 import jiaonidaigou.appengine.api.access.email.EmailClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -187,7 +189,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
                             .build());
         } else {
             archiveShippingOrders();
-            
+
             LOGGER.info("No more next task. end ticket {}.", message);
             for (String adminEmal : Environments.ADMIN_EMAILS) {
                 emailClient.sendText(adminEmal,
@@ -201,6 +203,11 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         LOGGER.info("Archiving shipping orders");
         try {
             List<String> paths = storageClient.listAll(DUMP_DIR);
+            if (paths.isEmpty()) {
+                return;
+            }
+            LOGGER.info("Ready to archive following dump files: {}", paths);
+
             List<ShippingOrder> shippingOrders = new ArrayList<>();
             for (String path : paths) {
                 LOGGER.info("Load dump {}", path);
@@ -265,6 +272,8 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
 
     private ShippingOrder loadShippingOrder(final long id) {
         Order order = teddyClient.getOrderDetails(id, false);
+        long waitTime = (long) (1000L + 1000 * Math.random());
+        Uninterruptibles.sleepUninterruptibly(waitTime, TimeUnit.MILLISECONDS);
         if (order == null) {
             return null;
         }
