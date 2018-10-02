@@ -357,7 +357,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 //                templateId,
 //                params);
 
-//        shippingOrderDbClient.put(shippingOrder.toBuilder().setCustomerNotified(true).build());
+        shippingOrderDbClient.put(shippingOrder.toBuilder().setCustomerNotified(true).build());
     }
 
     private static class Report {
