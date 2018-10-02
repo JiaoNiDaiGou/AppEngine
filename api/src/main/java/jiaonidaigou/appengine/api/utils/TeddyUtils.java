@@ -40,15 +40,14 @@ public class TeddyUtils {
         if (preview.getPrice() > 0) {
             builder.setTotalPrice(Price.newBuilder().setUnit(Price.Unit.USD).setValue(preview.getPrice()));
         }
-        String rawStatus = preview.getRawShippingStatus();
-        if ("运单创建成功".equals(rawStatus)) {
+        if (StringUtils.isNotBlank(preview.getTrackingNumber())) {
+            builder.setStatus(ShippingOrder.Status.CN_TRACKING_NUMBER_ASSIGNED)
+                    .setTrackingNumber(preview.getTrackingNumber())
+                    .setShippingCarrier(preview.getRawShippingStatus());
+        } else if ("运单创建成功".equals(preview.getRawShippingStatus())) {
             builder.setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED);
-        } else if (rawStatus.contains("(") && rawStatus.contains(")")) {
-            String shippingCarrier = StringUtils.substringBefore(rawStatus, "(").trim();
-            builder.setShippingCarrier(shippingCarrier);
-            String trackingNumber = StringUtils.substringBetween(rawStatus, "(", ")");
-            builder.setTrackingNumber(trackingNumber)
-                    .setStatus(ShippingOrder.Status.CN_TRACKING_NUMBER_ASSIGNED);
+        } else {
+            builder.setStatus(ShippingOrder.Status.EXTERNAL_SHPPING_PENDING);
         }
         return builder.build();
     }
@@ -63,6 +62,8 @@ public class TeddyUtils {
         setIfNotBlank(order.getTrackingNumber(), builder::setTrackingNumber);
         setIfNotBlank(order.getRawShippingStatus(), builder::setShippingCarrier);
         setIfNotNull(convertToShippingEnding(order.getDeliveryEnding()), builder::setShippingEnding);
+        setIfNotNull(order.getTotalWeight(), builder::setTotalWeightLb);
+        setIfNotNull(order.getShippingFee(), t -> Price.newBuilder().setUnit(Price.Unit.USD).setValue(t).build());
         return builder.addAllProductEntries(
                 order.getProducts()
                         .stream()
@@ -270,7 +271,7 @@ public class TeddyUtils {
                 .withAddressRegion(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getRegion() : null)
                 .withAddressCity(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getCity() : null)
                 .withAddressZone(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getZone() : null)
-                .withAddressCity(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getAddress() : null)
+                .withAddress(customer.getAddressesCount() > 0 ? customer.getAddresses(0).getAddress() : null)
                 .withName(customer.getName())
                 .withPhone(customer.getPhone().getPhone())
                 .build();

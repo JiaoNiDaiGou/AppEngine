@@ -2,21 +2,21 @@ package jiaonidaigou.appengine.api.tasks;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import jiaonidaigou.appengine.api.access.db.ShippingOrderDbClient;
 import jiaonidaigou.appengine.api.access.email.EmailClient;
 import jiaonidaigou.appengine.api.access.sms.SmsClient;
+import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.contenttemplate.TemplateData;
 import jiaonidaigou.appengine.contenttemplate.TemplatesFactory;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
-import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
 import jiaonidaigou.appengine.wiremodel.entity.Price;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
-import org.apache.commons.collections4.CollectionUtils;
+import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -42,6 +41,8 @@ import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.CN_TR
 import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.DELIVERED;
 import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED;
 import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHPPING_PENDING;
+import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.INIT;
+import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.PACKED;
 
 @Singleton
 public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage> {
@@ -51,7 +52,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
     private static final String JIAONI_SMS_TEMPLATE_ID_WITHOUT_POSTMAN = "176833";
     private static final int DISPLAY_SHIPPING_HISTORY_ITEMS = 7;
     private static final int NO_UPDATES_WARN_DAYS = 20;
-    private static final int MAX_ORDER_PREVIEWS_TO_CHECK = 5;
+    private static final int MAX_ORDER_PREVIEWS_TO_CHECK = 4;
 
     private final TeddyClient jiaoniTeddyClient;
     private final TeddyClient hackTeddyClient;
@@ -72,21 +73,17 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
         this.smsClient = smsClient;
     }
 
-
     private static boolean determineNotifyCustomer(final ShippingOrder shippingOrder) {
         if (shippingOrder.getCustomerNotified()) {
             return false;
         }
-        ShippingOrder.Status status = shippingOrder.getStatus();
+        Status status = shippingOrder.getStatus();
         return (status == CN_TRACKING_NUMBER_ASSIGNED || status == CN_POSTMAN_ASSIGNED)
                 || (status == DELIVERED && shippingOrder.getShippingEnding() == ShippingOrder.ShippingEnding.PICK_UP_BOX);
     }
 
     private static List<Map<String, Object>> shippingOrdersInTemplate(final Collection<ShippingOrder> shippingOrders,
-                                                                      final List<ShippingOrder> toNotifyCustomer) {
-        Set<String> toNotifyCustomerOrderIds = toNotifyCustomer.stream()
-                .map(ShippingOrder::getId)
-                .collect(Collectors.toSet());
+                                                                      final List<String> toNotifyCustomerOrderIds) {
         return shippingOrders.stream()
                 .map(t -> shippingOrderInTemplate(t, toNotifyCustomerOrderIds.contains(t.getId())))
                 .collect(Collectors.toList());
@@ -131,7 +128,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 
     private static long lastUpdateTime(final ShippingOrder shippingOrder) {
         if (shippingOrder.getShippingHistoryCount() == 0) {
-            return 0;
+            return shippingOrder.getCreationTime();
         }
         return shippingOrder.getShippingHistory(shippingOrder.getShippingHistoryCount() - 1).getTimestamp();
     }
@@ -154,174 +151,164 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
         return unitStr + valStr;
     }
 
-    @Override
-    public void accept(TaskMessage taskMessage) {
-        // First track new orders.
-        Map<Long, OrderPreview> allOrderPreviews = new HashMap<>();
-        for (int page = 1; page <= MAX_ORDER_PREVIEWS_TO_CHECK; page++) {
-            LOGGER.info("Handle order preview page {}", page);
+    private void syncFromPreview() {
+        List<ShippingOrder> toSave = new ArrayList<>();
 
-            Map<Long, OrderPreview> orderPreviews = jiaoniTeddyClient.getOrderPreviews(page);
-            allOrderPreviews.putAll(orderPreviews);
-            if (MapUtils.isEmpty(orderPreviews)) {
-                LOGGER.info("Load 0 order previews from page {}. break!", page);
-                break;
-            }
+        // Load preview first.
+        for (int i = 1; i <= MAX_ORDER_PREVIEWS_TO_CHECK; i++) {
+            List<ShippingOrder> toSaveInThisPage = new ArrayList<>();
 
-            LOGGER.info("Load {} order previews from page {}", orderPreviews.size(), page);
-
-            long minOrderId = orderPreviews.keySet().stream().min(Long::compare).get();
-            long maxOrderId = orderPreviews.keySet().stream().max(Long::compare).get();
-
-            List<ShippingOrder> shippingOrders = shippingOrderDbClient.queryByTeddyOrderIdRange(minOrderId, maxOrderId);
-            LOGGER.info("Load {} orders from DB. minTeddyId={}, maxTeddyId={}. page {} all tracked={}. ",
-                    shippingOrders.size(), minOrderId, maxOrderId, page, orderPreviews.size() == shippingOrders.size());
-
-            boolean allOrdersInThisPageTracked = shippingOrders.size() >= orderPreviews.size();
-            if (allOrdersInThisPageTracked) {
-                LOGGER.info("All {} orders in page {} has been tracked in DB. break!", orderPreviews.size(), page);
-                break;
-            }
-
-            LOGGER.info("Found {} new orders in Teddy. Tracking them!", orderPreviews.size() - shippingOrders.size());
-            Set<Long> trackedOrderIds = shippingOrders.stream()
-                    .map(t -> Long.parseLong(t.getTeddyOrderId()))
-                    .collect(Collectors.toSet());
-            Collection<Long> orderIdsToTrack = CollectionUtils.subtract(orderPreviews.keySet(), trackedOrderIds);
-            List<ShippingOrder> ordersToTrack = orderIdsToTrack
+            LOGGER.info("teddy preview page {}", i);
+            Map<Long, ShippingOrder> fromPreview = jiaoniTeddyClient.getOrderPreviews(i).entrySet()
                     .stream()
-                    .map(allOrderPreviews::get)
-                    .map(TeddyUtils::convertToShippingOrderFromOrderPreview)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            t -> TeddyUtils.convertToShippingOrderFromOrderPreview(t.getValue())
+                    ));
 
-            LOGGER.info("Track {} new shipping orders into system:{}", ordersToTrack.size(), orderIdsToTrack);
-            shippingOrderDbClient.put(ordersToTrack);
+            if (MapUtils.isEmpty(fromPreview)) {
+                LOGGER.info("Load 0 order previews from page {}. break!", i);
+                break;
+            }
+
+            long minTeddyOrderId = fromPreview.keySet().stream().min(Long::compare).get();
+            long maxTeddyOrderId = fromPreview.keySet().stream().max(Long::compare).get();
+
+            Map<Long, ShippingOrder> fromDb = shippingOrderDbClient.queryByTeddyOrderIdRange(minTeddyOrderId, maxTeddyOrderId)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            t -> Long.parseLong(t.getTeddyOrderId()),
+                            t -> t
+                    ));
+            LOGGER.info("Load {} orders from DB. minTeddyId={}, maxTeddyId={}.", fromDb.size(), minTeddyOrderId, maxTeddyOrderId);
+
+            for (Map.Entry<Long, ShippingOrder> entry : fromPreview.entrySet()) {
+                ShippingOrder previewOrder = entry.getValue();
+                ShippingOrder dbOrder = fromDb.get(entry.getKey());
+                if (dbOrder == null) { // A new order
+                    toSaveInThisPage.add(previewOrder);
+                    continue;
+                }
+                boolean canUpdate = dbOrder.getStatus() == EXTERNAL_SHPPING_PENDING || StringUtils.isBlank(dbOrder.getTrackingNumber());
+                if (canUpdate && StringUtils.isNotBlank(previewOrder.getTrackingNumber())) {
+                    ShippingOrder toUpdate = dbOrder.toBuilder()
+                            .setTrackingNumber(previewOrder.getTrackingNumber())
+                            .setShippingCarrier(previewOrder.getShippingCarrier())
+                            .setStatus(CN_TRACKING_NUMBER_ASSIGNED)
+                            .build();
+                    toSaveInThisPage.add(toUpdate);
+                }
+            }
+
+            if (toSaveInThisPage.isEmpty()) {
+                LOGGER.info("All {} orders in preview page {} has been tracked in DB. break!", fromPreview.size(), i);
+                break;
+            }
+
+            toSave.addAll(toSaveInThisPage);
         }
 
-        List<ShippingOrder> curShippingOrders = shippingOrderDbClient.queryNonDeliveredOrders();
-        LOGGER.info("Need to sync {} non-delivered orders.", curShippingOrders.size());
+        LOGGER.info("Totally need to track {} added/updated orders.", toSave.size());
+        shippingOrderDbClient.put(toSave);
+    }
 
-        List<ShippingOrder> newShippingOrders = new ArrayList<>();
+    private void syncFromDb(final Report report) {
+        List<ShippingOrder> toCheck = shippingOrderDbClient.queryNonDeliveredOrders();
         List<ShippingOrder> toSave = new ArrayList<>();
         List<ShippingOrder> toNotifyCustomer = new ArrayList<>();
 
-        for (int i = 0; i < curShippingOrders.size(); i++) {
-            ShippingOrder curShippingOrder = curShippingOrders.get(i);
-            LOGGER.info("Sync [{} / {}]: {}", i, curShippingOrders.size(), curShippingOrder.getTeddyOrderId());
-
-
-            // If we have preview, and preview doesn't have tracking number, just update the status if needed.
-            // But if preview has tracking number, need to check the shipping history.
-            //
-            // If no preview, that item properly pretty old, need a full check.
-
-            ShippingOrder newShippingOrder = null;
-            OrderPreview orderPreview = allOrderPreviews.get(Long.parseLong(curShippingOrder.getTeddyOrderId()));
-            if (orderPreview != null) {
-                ShippingOrder previewShippingOrder = TeddyUtils.convertToShippingOrderFromOrderPreview(orderPreview);
-                if (StringUtils.isBlank(previewShippingOrder.getTrackingNumber())) {
-                    ShippingOrder.Status status = curShippingOrder.getStatus();
-                    if (previewShippingOrder.getStatus().getNumber() > status.getNumber()) {
-                        status = previewShippingOrder.getStatus();
-                    }
-                    newShippingOrder = curShippingOrder.toBuilder().setStatus(status).build();
-                }
+        for (ShippingOrder order : toCheck) {
+            if (StringUtils.isBlank(order.getTeddyOrderId())) {
+                report.orderByStatus.put(order.getStatus(), order);
+                continue;
             }
 
-            if (newShippingOrder == null) {
-                newShippingOrder = TeddyUtils.convertToShippingOrder(
-                        hackTeddyClient.getOrderDetails(Long.parseLong(curShippingOrder.getTeddyOrderId()), true));
+            long teddyOrderId = Long.parseLong(order.getTeddyOrderId());
+            boolean includeShippingHistory = StringUtils.isNotBlank(order.getTrackingNumber());
+            ShippingOrder syncedOrder = TeddyUtils.convertToShippingOrder(
+                    hackTeddyClient.getOrderDetails(teddyOrderId, includeShippingHistory));
+            order = ShippingOrderUtils.mergeSyncedOrder(order, syncedOrder);
+
+            report.orderByStatus.put(order.getStatus(), order);
+
+            boolean notifyCustomer = determineNotifyCustomer(order);
+            if (notifyCustomer) {
+                toNotifyCustomer.add(order);
             }
 
-            // Carry over other information:
-            newShippingOrder = newShippingOrder.toBuilder()
-                    .setId(curShippingOrder.getId())
-                    .setCustomerNotified(curShippingOrder.getCustomerNotified())
-                    .build();
-
-
-            if (determineNotifyCustomer(newShippingOrder)) {
-                toNotifyCustomer.add(newShippingOrder);
-            } else {
-                newShippingOrder = newShippingOrder.toBuilder()
-                        .setCustomerNotified(true)
-                        .build();
-            }
-
-            newShippingOrders.add(newShippingOrder);
-            if (!curShippingOrder.equals(newShippingOrder)) {
-                if (StringUtils.isBlank(newShippingOrder.getId())) {
-                    LOGGER.error("Something wrong. I must forget to set id to newShippingOrder. {}",
-                            ObjectMapperProvider.prettyToJson(newShippingOrder));
-                } else {
-                    toSave.add(newShippingOrder);
-                }
-            }
+            toSave.add(order);
         }
         shippingOrderDbClient.put(toSave);
 
-        for (ShippingOrder shippingOrder : toNotifyCustomer) {
-            notifyCustomer(shippingOrder);
-            shippingOrderDbClient.put(shippingOrder.toBuilder().setCustomerNotified(true).build());
+        for (ShippingOrder order : toNotifyCustomer) {
+            notifyCustomer(order);
+            report.customerNotifiedIds.add(order.getId());
         }
-        notifyAdmin(curShippingOrders, newShippingOrders, toNotifyCustomer);
     }
 
-    private void notifyAdmin(
-            final List<ShippingOrder> curShippingOrders,
-            final List<ShippingOrder> newShippingOrders,
-            final List<ShippingOrder> notifyCustomer) {
-        Multimap<ShippingOrder.Status, ShippingOrder> oldOrdersByStatus = ArrayListMultimap.create();
-        curShippingOrders.forEach(t -> oldOrdersByStatus.put(t.getStatus(), t));
-        Multimap<ShippingOrder.Status, ShippingOrder> newOrdersByStatus = ArrayListMultimap.create();
-        newShippingOrders.forEach(t -> newOrdersByStatus.put(t.getStatus(), t));
-        DateTime now = DateTime.now();
-        List<ShippingOrder> noUpdatesOverDays = newShippingOrders
+    @Override
+    public void accept(TaskMessage taskMessage) {
+        Report report = new Report();
+        syncFromPreview();
+        syncFromDb(report);
+        notifyAdmin(report);
+    }
+
+    private void notifyAdmin(final Report report) {
+        long noUpdatesLine = DateTime.now().minusDays(NO_UPDATES_WARN_DAYS).getMillis();
+
+        Multimap<Status, ShippingOrder> byStatus = report.orderByStatus;
+        List<ShippingOrder> noUpdates = byStatus.values()
                 .stream()
-                .filter(t -> new DateTime(lastUpdateTime(t)).isBefore(now.minusDays(NO_UPDATES_WARN_DAYS)))
+                .filter(t -> lastUpdateTime(t) < noUpdatesLine)
                 .collect(Collectors.toList());
 
-
         TemplateData overview = new TemplateData()
-                .add("a.下单成功 待付款 - 总数",
-                        newOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED).size())
-                .add("a.下单成功 待付款 - 新增数",
-                        Math.max(0, newOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED).size() - oldOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED).size()))
-                .add("b.小熊处理 - 总数",
-                        newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING).size())
-                .add("b.小熊处理 - 新增数",
-                        Math.max(0, newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING).size() - newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING).size()))
-                .add("d.国内快递追踪号生成 - 新增数",
-                        Math.max(0, newOrdersByStatus.get(CN_TRACKING_NUMBER_ASSIGNED).size() - oldOrdersByStatus.get(CN_TRACKING_NUMBER_ASSIGNED).size()))
-                .add("e.国内配送快递员信息获知 - 新增数",
-                        Math.max(0, newOrdersByStatus.get(CN_POSTMAN_ASSIGNED).size() - oldOrdersByStatus.get(CN_POSTMAN_ASSIGNED).size()))
+                .add("a.新建快递单 待包货",
+                        byStatus.get(INIT).size() + byStatus.get(PACKED).size())
+                .add("b.等待小熊付款",
+                        byStatus.get(EXTERNAL_SHIPPING_CREATED).size())
+                .add("c.小熊处理 - 总数",
+                        byStatus.get(EXTERNAL_SHPPING_PENDING).size())
+                .add("d.国内快递可追踪",
+                        byStatus.get(CN_TRACKING_NUMBER_ASSIGNED).size() + byStatus.get(CN_POSTMAN_ASSIGNED).size())
+                .add("e.已送达",
+                        byStatus.get(DELIVERED).size())
                 .add("f.发送短信通知",
-                        notifyCustomer.size())
-                .add("f." + NO_UPDATES_WARN_DAYS + "天小熊未更新 - 总数",
-                        noUpdatesOverDays.size());
-//        for (Map.Entry<Integer, Integer> entry : stats.getOrderCntBySenderJiaoRank().entrySet()) {
-//            overview.add("h.过去" + entry.getKey() + "天" + UserMode.JIAO.getSenderName() + "小熊发货排名",
-//                    entry.getValue() + 1);
+                        report.customerNotifiedIds.size())
+                .add("g." + NO_UPDATES_WARN_DAYS + "天小熊未更新 - 总数",
+                        noUpdates.size());
 
         String date = DateTime.now().toString("yyyy-MM-dd");
         String subject = "小熊发货单状态 更新 " + date;
 
-        Map<String, Object> data = new TemplateData()
+        TemplateData templateData = new TemplateData()
                 .addAsDateTime("queryTime", DateTime.now())
                 .add("overview", overview.build())
-                .add("noUpdatesWarnDays", NO_UPDATES_WARN_DAYS)
-                .add("newlyCreated", shippingOrdersInTemplate(newOrdersByStatus.get(EXTERNAL_SHIPPING_CREATED), notifyCustomer))
-                .add("newlyPending", shippingOrdersInTemplate(newOrdersByStatus.get(EXTERNAL_SHPPING_PENDING), notifyCustomer))
-                .add("newlyTrackingNumberAssigned", shippingOrdersInTemplate(newOrdersByStatus.get(CN_TRACKING_NUMBER_ASSIGNED), notifyCustomer))
-                .add("newlyPostmanAssigned", shippingOrdersInTemplate(newOrdersByStatus.get(CN_POSTMAN_ASSIGNED), notifyCustomer))
-                .add("noUpdatesOverDays", shippingOrdersInTemplate(noUpdatesOverDays, ImmutableList.of()))
-                // TODO
-                .add("last30DaysSenderReports", new ArrayList<>())
+                .add("noUpdatesOverDays", shippingOrdersInTemplate(noUpdates, ImmutableList.of()));
+
+        Map<Status, String> statusNameMap = ImmutableMap
+                .<Status, String>builder()
+                .put(INIT, "新建 待包货")
+                .put(PACKED, "已包货 待发货")
+                .put(EXTERNAL_SHIPPING_CREATED, "小熊已发货 待付款")
+                .put(EXTERNAL_SHPPING_PENDING, "小熊处理")
+                .put(CN_TRACKING_NUMBER_ASSIGNED, "到达国内 已知快递单号")
+                .put(CN_POSTMAN_ASSIGNED, "最后一里 已知邮递员")
+                .put(DELIVERED, "已送达")
                 .build();
+        List<Map<String, Object>> statusObjs = new ArrayList<>();
+        for (Map.Entry<Status, Collection<ShippingOrder>> entry : byStatus.asMap().entrySet()) {
+            Map<String, Object> statusMap = new HashMap<>();
+            statusMap.put("name", statusNameMap.get(entry.getKey()));
+            statusMap.put("dat", shippingOrdersInTemplate(entry.getValue(), report.customerNotifiedIds));
+            statusObjs.add(statusMap);
+        }
+        templateData.add("statusMaps", statusObjs);
 
         String html = TemplatesFactory.instance()
                 .getTemplate("jiaoni_shippingorders_summary_zh_cn.ftl")
-                .toContent(data);
+                .toContent(templateData.build());
 
         if (StringUtils.isNotBlank(subject) && StringUtils.isNotBlank(html)) {
             emailClient.sendHtml(String.join(",", Environments.ADMIN_EMAILS), subject, html);
@@ -329,39 +316,49 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
     }
 
     private void notifyCustomer(final ShippingOrder shippingOrder) {
-        if (StringUtils.isNoneBlank(
+        if (StringUtils.isAnyBlank(
                 shippingOrder.getReceiver().getPhone().getPhone(),
                 shippingOrder.getTrackingNumber()
         )) {
-            String rawShippingStatus = StringUtils.trimToEmpty(shippingOrder.getShippingCarrier());
-            if (!getKnownShippingCarriers().contains(rawShippingStatus)) {
-                LOGGER.warn("Order {} has tracking number {}. But its shipping carrier is unknown {}.",
-                        shippingOrder, shippingOrder.getTrackingNumber(), shippingOrder.getShippingCarrier());
-            }
-
-            final String[] params;
-            final String templateId;
-            if (shippingOrder.hasPostman() && StringUtils.isNoneBlank(
-                    shippingOrder.getPostman().getName(),
-                    shippingOrder.getPostman().getPhone().getPhone())) {
-                templateId = JIAONI_SMS_TEMPLATE_ID_WITH_POSTMAN;
-                params = new String[]{
-                        rawShippingStatus,
-                        shippingOrder.getTrackingNumber(),
-                        shippingOrder.getPostman().getName(),
-                        shippingOrder.getPostman().getPhone().getPhone()
-                };
-            } else {
-                templateId = JIAONI_SMS_TEMPLATE_ID_WITHOUT_POSTMAN;
-                params = new String[]{
-                        rawShippingStatus,
-                        shippingOrder.getTrackingNumber()
-                };
-            }
-            smsClient.sendTextWithTemplate("cn",
-                    shippingOrder.getReceiver().getPhone().getPhone(),
-                    templateId,
-                    params);
+            return;
         }
+
+        String shippingCarrier = StringUtils.trimToEmpty(shippingOrder.getShippingCarrier());
+        if (!getKnownShippingCarriers().contains(shippingCarrier)) {
+            LOGGER.warn("Order {} has tracking number {}. But its shipping carrier is unknown {}.",
+                    shippingOrder, shippingOrder.getTrackingNumber(), shippingOrder.getShippingCarrier());
+        }
+
+        final String[] params;
+        final String templateId;
+        if (shippingOrder.hasPostman() && StringUtils.isNoneBlank(
+                shippingOrder.getPostman().getName(),
+                shippingOrder.getPostman().getPhone().getPhone())) {
+            templateId = JIAONI_SMS_TEMPLATE_ID_WITH_POSTMAN;
+            params = new String[]{
+                    shippingCarrier,
+                    shippingOrder.getTrackingNumber(),
+                    shippingOrder.getPostman().getName(),
+                    shippingOrder.getPostman().getPhone().getPhone()
+            };
+        } else {
+            templateId = JIAONI_SMS_TEMPLATE_ID_WITHOUT_POSTMAN;
+            params = new String[]{
+                    shippingCarrier,
+                    shippingOrder.getTrackingNumber()
+            };
+        }
+
+        smsClient.sendTextWithTemplate("cn",
+                shippingOrder.getReceiver().getPhone().getPhone(),
+                templateId,
+                params);
+
+        shippingOrderDbClient.put(shippingOrder.toBuilder().setCustomerNotified(true).build());
+    }
+
+    private static class Report {
+        Multimap<Status, ShippingOrder> orderByStatus = ArrayListMultimap.create();
+        List<String> customerNotifiedIds = new ArrayList<>();
     }
 }

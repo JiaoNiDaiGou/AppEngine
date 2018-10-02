@@ -6,6 +6,8 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import jiaonidaigou.appengine.common.utils.Environments;
 
 import java.io.IOException;
@@ -50,16 +52,16 @@ public class RemoteApi implements AutoCloseable {
         return new RemoteApi(Environments.GAE_HOSTNAME);
     }
 
-    public static RemoteApi login(final String hostname) {
-        return new RemoteApi(hostname);
-    }
-
     public DatastoreService getDatastoreService() {
         return DatastoreServiceFactory.getDatastoreService();
     }
 
     public AppIdentityService getAppIdentityService() {
         return AppIdentityServiceFactory.getAppIdentityService();
+    }
+
+    public Storage getStorage() {
+        return StorageOptions.getDefaultInstance().getService();
     }
 
     @Override

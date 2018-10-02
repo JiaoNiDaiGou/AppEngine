@@ -6,6 +6,7 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
 import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaonidaigou.appengine.common.utils.JsoupUtils;
 import jiaonidaigou.appengine.common.utils.Secrets;
 import jiaonidaigou.appengine.common.utils.StringUtils2;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
@@ -34,6 +35,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -316,6 +318,14 @@ public class TeddyClientImpl implements TeddyClient {
             }
         }
 
+        Double totalWeight = Doubles.tryParse(StringUtils.trimToEmpty(
+                JsoupUtils.getElementTextById(orderViewPage, "lblWeight")));
+        Element moneyEle = orderViewPage.selectFirst("b.money");
+        Double shippingFee = null;
+        if (moneyEle != null) {
+            shippingFee = Doubles.tryParse(StringUtils.trimToEmpty(moneyEle.text()));
+        }
+
         String idCardNumber = getElementTextById(orderViewPage, "lblReceiverIDCardNum");
 
         Order.Builder builder = Order.builder()
@@ -331,18 +341,21 @@ public class TeddyClientImpl implements TeddyClient {
                 .withCreationTime(parseTimestamp(getElementTextById(orderViewPage, "lblCreatime")))
                 .withProducts(products)
                 .withProductSummary(productSummary.toString())
-                .withPrice(totalPrice);
+                .withPrice(totalPrice)
+                .withTotalWeight(totalWeight)
+                .withShippingFee(shippingFee);
 
-
-        Order.Status status = Order.Status.PENDING;
+        Order.Status status = shippingFee != null ? Order.Status.PENDING : Order.Status.CREATED;
         if (includeShippingInfo) {
-            status = syncOrderShippingHistory(formattedIdFromPage, builder);
+            Order.Status anotherStatus = syncOrderShippingHistory(formattedIdFromPage, builder);
+            status = anotherStatus != null ? anotherStatus : status;
         }
 
         return builder.withStatus(status)
                 .build();
     }
 
+    @Nullable
     private Order.Status syncOrderShippingHistory(final String formattedId, final Order.Builder builder) {
         Document page = autoLogin(() -> client
                 .doGet()
@@ -353,7 +366,7 @@ public class TeddyClientImpl implements TeddyClient {
 
         Element table = page.selectFirst("table.yundanTable");
         if (table == null) {
-            return Order.Status.PENDING;
+            return null;
         }
 
         List<ShippingHistoryEntry> shippingHistory = new ArrayList<>();
@@ -414,7 +427,7 @@ public class TeddyClientImpl implements TeddyClient {
         // Determine order status
         //
 
-        Order.Status status = Order.Status.PENDING;
+        Order.Status status = null;
         if (StringUtils.isNotBlank(trackingNumber)) {
             Order.DeliveryEnding deliveryEnding = determineDeliveryEnding(shippingHistory);
             if (deliveryEnding != null) {

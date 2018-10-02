@@ -5,13 +5,16 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.HttpMethod;
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.Streams;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -94,5 +97,22 @@ public class GcsClient implements StorageClient {
                 TimeUnit.MILLISECONDS,
                 Storage.SignUrlOption.httpMethod(HttpMethod.GET)
         );
+    }
+
+    @Override
+    public List<String> listAll(final String bucketPath) {
+        BlobId blobId = blobId(bucketPath);
+        return Streams.stream(
+                storage.list(blobId.getBucket(),
+                        Storage.BlobListOption.prefix(blobId.getName()))
+                        .iterateAll())
+                .filter(t -> t.getName().endsWith(".json"))
+                .map(t -> "gs://" + t.getBucket() + "/" + t.getName())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean delete(final String path) {
+        return storage.delete(blobId(path));
     }
 }

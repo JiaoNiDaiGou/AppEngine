@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
+
     <cron>
         <url>/cron/syncJiaoniCustomers</url>
         <description>Sync JiaoNiDaiGou customers</description>
-        <schedule>every day 04:00</schedule>
+        <schedule>every day 03:00</schedule>
         <target>prod</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
 
     <cron>
+        <url>/cron/dumpTeddyShippingOrders?limit=10</url>
+        <description>Teddy full shipping orders dump</description>
+        <schedule>every day 07:00</schedule>
         <url>/cron/dumpTeddyShippingOrders?limit=10</url>
         <description>Teddy full shipping orders dump</description>
         <schedule>every day 07:00</schedule>
@@ -18,10 +22,10 @@
 
     <cron>
         <url>/cron/syncJiaoniShippingOrders</url>
-        <description>Sync JiaoNiDaiGou shipping orders</description>
-        <schedule>every day 21:00</schedule>
-        <target>$VERSION</target>
-        <timezone>Asia/Shanghai</timezone>
+        <description>Sync JiaoNiDaiGou orders</description>
+        <schedule>every day 04:00</schedule>
+        <target>prod</target>
+        <timezone>America/Los_Angeles</timezone>
     </cron>
 
 </cronentries>

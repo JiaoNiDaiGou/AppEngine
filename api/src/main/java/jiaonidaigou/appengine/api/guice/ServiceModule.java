@@ -17,6 +17,8 @@ import jiaonidaigou.appengine.api.access.email.GaeEmailSender;
 import jiaonidaigou.appengine.api.access.gcp.GoogleCloudLibFactory;
 import jiaonidaigou.appengine.api.access.ocr.GoogleVisionOcrClient;
 import jiaonidaigou.appengine.api.access.ocr.OcrClient;
+import jiaonidaigou.appengine.api.access.sms.ConsoleSmsClient;
+import jiaonidaigou.appengine.api.access.sms.SmsClient;
 import jiaonidaigou.appengine.api.access.storage.GcsClient;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
@@ -45,6 +47,7 @@ public class ServiceModule extends AbstractModule {
         bind(EmailClient.class).to(GaeEmailSender.class);
         bind(PubSubClient.class).to(TaskQueueClient.class);
         bind(OcrClient.class).to(GoogleVisionOcrClient.class);
+        bind(SmsClient.class).to(ConsoleSmsClient.class);
 
         bind(CnCustomerContactParser.class).toInstance(new CnCustomerContactParser());
         bind(CnAddressParser.class).toInstance(new CnAddressParser());

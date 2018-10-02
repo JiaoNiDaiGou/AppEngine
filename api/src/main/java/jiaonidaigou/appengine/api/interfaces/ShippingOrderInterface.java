@@ -7,6 +7,7 @@ import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
@@ -65,6 +66,8 @@ public class ShippingOrderInterface {
     public Response initShippingOrder(final InitShippingOrderRequest request) {
         RequestValidator.validateNotNull(request);
         RequestValidator.validateNotBlank(request.getReceiverCustomerId(), "customerId");
+
+        LOGGER.info("init shipping order: " + ObjectMapperProvider.compactToJson(request));
 
         Customer receiver = customerDbClient.getById(request.getReceiverCustomerId());
         if (receiver == null) {
