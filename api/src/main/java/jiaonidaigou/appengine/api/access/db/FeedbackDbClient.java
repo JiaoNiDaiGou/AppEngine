@@ -45,7 +45,7 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
         @Override
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, Feedback obj) {
             return partialBuilder
-                    .unindexedBoolean(FIELD_OPEN, obj.getOpen())
+                    .indexedBoolean(FIELD_OPEN, obj.getOpen())
                     .unindexedProto(FIELD_DATA, obj)
                     .build();
         }
@@ -70,22 +70,14 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
     public FeedbackDbClient(final DatastoreService service, final Env env) {
         super(new DbClientBuilder<Feedback>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(Environments.NAMESPACE_SYS, env, "Feedback"))
+                .entityFactory(new EntityFactory(Environments.NAMESPACE_SYS, env, TABLE_NAME))
                 .build());
     }
 
     public List<Feedback> getAllOpenFeedbacks() {
         DbQuery dbQuery = DbQuery.eq(FIELD_OPEN, true);
-        return queryInStream(dbQuery)
+        return this.queryInStream(dbQuery)
                 .sorted((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()))
                 .collect(Collectors.toList());
-    }
-
-    public void closeFeedback(final String id) {
-        Feedback feedback = getById(id);
-        if (feedback != null) {
-            feedback = feedback.toBuilder().setOpen(false).build();
-            put(feedback);
-        }
     }
 }

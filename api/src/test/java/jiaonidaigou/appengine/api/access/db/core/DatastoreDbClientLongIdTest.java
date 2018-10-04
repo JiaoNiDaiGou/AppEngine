@@ -13,6 +13,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -146,6 +147,17 @@ public class DatastoreDbClientLongIdTest {
         assertIdsMatch(fetchedItems, "1", "2", "5");
     }
 
+    @Test
+    public void testBooleanIndexQuery() {
+        Item a = new Item("namea");
+        a.booleanField = true;
+        Item b = new Item("nameb");
+        b.booleanField = false;
+        underTest.put(a, b);
+        List<Item> items = underTest.queryInStream(DbQuery.eq(ItemFactory.FIELD_BOOLEAN, true)).collect(Collectors.toList());
+        assertEquals(Collections.singletonList(a), items);
+    }
+
     private static void assertIdsMatch(Iterable<Item> actualItems, String... expectedIds) {
         List<String> expected = Arrays.stream(expectedIds).sorted().collect(Collectors.toList());
         List<String> actual = Streams.stream(actualItems).sorted().map(t -> t.id).collect(Collectors.toList());
@@ -161,6 +173,7 @@ public class DatastoreDbClientLongIdTest {
     private static class Item implements Comparable<Item> {
         private String id;
         private String name;
+        private boolean booleanField;
 
         Item(String name) {
             this.name = name;
@@ -189,6 +202,7 @@ public class DatastoreDbClientLongIdTest {
 
     private static class ItemFactory implements DatastoreEntityFactory<Item> {
         private static final String FIELD_NAME = "item";
+        private static final String FIELD_BOOLEAN = "field_boolean";
 
         @Override
         public KeyType getKeyType() {
@@ -204,6 +218,7 @@ public class DatastoreDbClientLongIdTest {
         public Item fromEntity(DatastoreEntityExtractor entity) {
             Item item = new Item(entity.getAsString(FIELD_NAME));
             item.id = entity.getKeyLongId();
+            item.booleanField = entity.getAsBoolean(FIELD_BOOLEAN);
             return item;
         }
 
@@ -220,7 +235,10 @@ public class DatastoreDbClientLongIdTest {
 
         @Override
         public Entity toEntity(DatastoreEntityBuilder partialBuilder, Item obj) {
-            return partialBuilder.indexedString(FIELD_NAME, obj.name).build();
+            return partialBuilder
+                    .indexedString(FIELD_NAME, obj.name)
+                    .indexedBoolean(FIELD_BOOLEAN, obj.booleanField)
+                    .build();
         }
     }
 }
