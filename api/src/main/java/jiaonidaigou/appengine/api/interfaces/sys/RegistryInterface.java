@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.interfaces;
+package jiaonidaigou.appengine.api.interfaces.sys;
 
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.registry.Registry;
@@ -15,7 +15,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/api/products")
+@Path("/api/sys/registry")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton

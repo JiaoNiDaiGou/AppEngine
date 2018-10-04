@@ -2,16 +2,20 @@ package jiaonidaigou.appengine.tools;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClient;
+import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
+import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.google.api.client.util.Preconditions.checkState;
@@ -21,6 +25,14 @@ import static com.google.api.client.util.Preconditions.checkState;
  */
 public class VerifyDbClient {
     public static void main(String[] args) throws Exception {
+        try (RemoteApi remoteApi = RemoteApi.login()) {
+            FeedbackDbClient dbClient = new FeedbackDbClient(remoteApi.getDatastoreService(), Env.DEV);
+            List<Feedback> feedbacks = dbClient.getAllOpenFeedbacks();
+            System.out.println(feedbacks);
+        }
+    }
+
+    private static void testDummp() throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
             ItemDbClient client = new ItemDbClient(remoteApi.getDatastoreService());
 
