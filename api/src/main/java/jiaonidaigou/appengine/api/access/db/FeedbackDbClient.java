@@ -70,7 +70,7 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
     public FeedbackDbClient(final DatastoreService service, final Env env) {
         super(new DbClientBuilder<Feedback>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(Environments.NAMESPACE_SYS, env, "Feedback"))
+                .entityFactory(new EntityFactory(Environments.NAMESPACE_SYS, env, TABLE_NAME))
                 .build());
     }
 
