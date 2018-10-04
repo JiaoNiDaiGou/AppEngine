@@ -27,11 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +65,7 @@ public class TeddyClientImpl implements TeddyClient {
     private final Admin admin;
     private final MockBrowserClient client;
     private final State curState;
+    private final CompletionService<String> makeOrderResultFetchCompletionService;
 
     public TeddyClientImpl(final String adminUsername,
                            final MockBrowserClient client) {
@@ -70,6 +77,7 @@ public class TeddyClientImpl implements TeddyClient {
         this.client = checkNotNull(client);
         this.admin = admin;
         this.curState = new State();
+        this.makeOrderResultFetchCompletionService = new ExecutorCompletionService<>(Executors.newFixedThreadPool(3));
     }
 
     @Override
@@ -204,31 +212,70 @@ public class TeddyClientImpl implements TeddyClient {
         // <h2>Object moved to <a href="/Member/Out.aspx?ID=109371">here</a>.</h2>
         //
         // <h2>Object moved to <a href="/sessionOut.aspx">here</a>.</h2> that is login expired
-        String link = document.select("h2 a").attr("href");
+        // Do we really need this out page, what is it used for.
+        String orderLink = document.select("h2 a").attr("href");
+        String orderIdStr = StringUtils.substringAfter(orderLink, "Out.aspx?ID=");
+        if (StringUtils.isBlank(orderIdStr)) {
+            throw new RuntimeException("Failed to make order. SessionOut?! think about retry");
+        }
+        long orderId = Long.parseLong(orderIdStr);
 
-        Document outPage = autoLogin(() -> client
-                .doGet()
-                .url(BASE_URL + link)
-                .request()
-                .callToHtml());
-        // Response:
-        // <div class="showContent showContentInfo" style="padding: 60px 200px; font-size: 18px;">
-        // 运单号：<b style="color: #8FC320;">RB100113911</b>创建成功！...
-        Element outEle = outPage.selectFirst("div.showContent");
-        String formattedId = replaceNonCharTypesWith(
-                outEle.text(),
-                new StringUtils2.CharType[]{
-                        StringUtils2.CharType.DIGIT,
-                        StringUtils2.CharType.A2Z,
-                        StringUtils2.CharType.CHINESE },
-                " ");
-        formattedId = StringUtils.substringBetween(formattedId, "运单号", "创建成功").trim();
-        long id = Long.parseLong(StringUtils.substringAfterLast(link, "="));
-        LOGGER.info("Make order success. Order# Id={}, formattedId={}", id, formattedId);
+        // Let's kick off 3 threads
+        // one call: /Member/Out.aspx?ID=109371
+        // another is call: /Member/OrderView?ID=109371
+        // Once any of it finished, we could get the formatted ID.
+        Callable<String> fetchFormattedIdFromOutPage = () -> {
+            Document outPage = autoLogin(() -> client
+                    .doGet()
+                    .url(BASE_URL + orderLink)
+                    .request()
+                    .callToHtml());
+            // Response:
+            // <div class="showContent showContentInfo" style="padding: 60px 200px; font-size: 18px;">
+            // 运单号：<b style="color: #8FC320;">RB100113911</b>创建成功！...
+            Element outEle = outPage.selectFirst("div.showContent");
+            String formattedId = replaceNonCharTypesWith(
+                    outEle.text(),
+                    new StringUtils2.CharType[]{
+                            StringUtils2.CharType.DIGIT,
+                            StringUtils2.CharType.A2Z,
+                            StringUtils2.CharType.CHINESE },
+                    " ");
+            return StringUtils.substringBetween(formattedId, "运单号", "创建成功").trim();
+        };
+        Callable<String> fetchFormattedIdFromOrderViewPage = () -> getOrderDetails(orderId).getFormattedId();
+        List<Callable<String>> callables = Arrays.asList(fetchFormattedIdFromOrderViewPage, fetchFormattedIdFromOutPage);
+        List<Future<String>> futures = new ArrayList<>(callables.size());
+        for (Callable<String> callable : callables) {
+            futures.add(this.makeOrderResultFetchCompletionService.submit(callable));
+        }
+        String formattedOrderIdToReturn = null;
+        try {
+            for (int i = 0; i < callables.size(); i++) {
+                try {
+                    String formattedOrderId = makeOrderResultFetchCompletionService.take().get();
+                    if (StringUtils.isNotBlank(formattedOrderId)) {
+                        formattedOrderIdToReturn = formattedOrderId;
+                        break;
+                    }
+                } catch (ExecutionException | InterruptedException ignore) {
+                    // I will just ignore it
+                }
+            }
+        } finally {
+            for (Future<String> f : futures) {
+                // As we get any result, cancel others
+                f.cancel(true);
+            }
+        }
+        if (StringUtils.isBlank(formattedOrderIdToReturn)) {
+            throw new RuntimeException("Well I still cannot get the formatted id for " + orderIdStr);
+        }
 
+        LOGGER.info("Make order success. Order# Id={}, formattedId={}", orderId, formattedOrderIdToReturn);
         return Order.builder()
-                .withId(id)
-                .withFormattedId(formattedId)
+                .withId(orderId)
+                .withFormattedId(formattedOrderIdToReturn)
                 .withStatus(Order.Status.CREATED)
                 .withReceiver(receiver)
                 .withProducts(products)
