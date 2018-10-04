@@ -16,6 +16,7 @@ import jiaonidaigou.appengine.api.registry.Registry;
 import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaonidaigou.appengine.common.model.InternalIOException;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
@@ -201,60 +202,58 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
 
     private void archiveShippingOrders() {
         LOGGER.info("Archiving shipping orders");
-        try {
-            List<String> paths = storageClient.listAll(DUMP_DIR);
-            if (paths.isEmpty()) {
+        List<String> paths = storageClient.listAll(DUMP_DIR);
+        if (paths.isEmpty()) {
+            return;
+        }
+        LOGGER.info("Ready to archive following dump files: {}", paths);
+
+        List<ShippingOrder> shippingOrders = new ArrayList<>();
+        for (String path : paths) {
+            LOGGER.info("Load dump {}", path);
+            shippingOrders.addAll(loadShippingOrders(path));
+        }
+
+        Multimap<String, ShippingOrder> map = ArrayListMultimap.create();
+        for (ShippingOrder shippingOrder : shippingOrders) {
+            DateTime creationTime = new DateTime(shippingOrder.getCreationTime());
+            String month = creationTime.toString("yyyy_MM");
+            map.put(month, shippingOrder);
+        }
+        LOGGER.info("Totally load {} shipping orders from dump", map.size());
+
+        for (Map.Entry<String, Collection<ShippingOrder>> entry : map.asMap().entrySet()) {
+            // archive_dir/2018_04.json
+            String path = ARCHIEVE_DIR + entry.getKey() + ".json";
+            List<ShippingOrder> toSave = new ArrayList<>(loadShippingOrders(path));
+            toSave.addAll(entry.getValue());
+            toSave.sort(ShippingOrderUtils.comparatorByTeddyOrderIdAsc());
+
+            byte[] bytes;
+            try {
+                bytes = ObjectMapperProvider.get().writeValueAsBytes(toSave);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Failed to save orders to {}.", path, e);
                 return;
             }
-            LOGGER.info("Ready to archive following dump files: {}", paths);
+            LOGGER.info("Write archive {} orders to archive: {}", toSave.size(), path);
+            storageClient.write(path, MediaType.JSON_UTF_8.toString(), bytes);
+        }
 
-            List<ShippingOrder> shippingOrders = new ArrayList<>();
-            for (String path : paths) {
-                LOGGER.info("Load dump {}", path);
-                shippingOrders.addAll(loadShippingOrders(path));
-            }
-
-            Multimap<String, ShippingOrder> map = ArrayListMultimap.create();
-            for (ShippingOrder shippingOrder : shippingOrders) {
-                DateTime creationTime = new DateTime(shippingOrder.getCreationTime());
-                String month = creationTime.toString("yyyy_MM");
-                map.put(month, shippingOrder);
-            }
-            LOGGER.info("Totally load {} shipping orders from dump", map.size());
-
-            for (Map.Entry<String, Collection<ShippingOrder>> entry : map.asMap().entrySet()) {
-                // archive_dir/2018_04.json
-                String path = ARCHIEVE_DIR + entry.getKey() + ".json";
-                List<ShippingOrder> toSave = new ArrayList<>(loadShippingOrders(path));
-                toSave.addAll(entry.getValue());
-                toSave.sort(ShippingOrderUtils.comparatorByTeddyOrderIdAsc());
-
-                byte[] bytes;
-                try {
-                    bytes = ObjectMapperProvider.get().writeValueAsBytes(toSave);
-                } catch (JsonProcessingException e) {
-                    LOGGER.error("Failed to save orders to {}.", path, e);
-                    return;
-                }
-                LOGGER.info("Write archive {} orders to archive: {}", toSave.size(), path);
-                storageClient.write(path, MediaType.JSON_UTF_8.toString(), bytes);
-            }
-
-            for (String path : paths) {
-                LOGGER.info("Delete dump file {}", path);
-                storageClient.delete(path);
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("Failed to archive shipping orders", e);
+        for (String path : paths) {
+            LOGGER.info("Delete dump file {}", path);
+            storageClient.delete(path);
         }
     }
 
-    private List<ShippingOrder> loadShippingOrders(final String path)
-            throws IOException {
+    private List<ShippingOrder> loadShippingOrders(final String path) {
         byte[] bytes = storageClient.read(path);
-        return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<ShippingOrder>>() {
-        });
+        try {
+            return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<ShippingOrder>>() {
+            });
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
     }
 
     private void saveLastDumpId(final String key, final long id) {

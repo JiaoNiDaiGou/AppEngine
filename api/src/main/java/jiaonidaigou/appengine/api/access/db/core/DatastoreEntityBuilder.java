@@ -38,6 +38,10 @@ public class DatastoreEntityBuilder {
         return setProp(prop, StringUtils.trimToNull(str), true);
     }
 
+    public DatastoreEntityBuilder indexedBoolean(final String prop, final Boolean bool) {
+        return setProp(prop, bool, true);
+    }
+
     public DatastoreEntityBuilder unindexedString(final String prop, final String str) {
         return setProp(prop, str, false);
     }
