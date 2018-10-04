@@ -8,6 +8,7 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClient;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
@@ -25,11 +26,12 @@ import static com.google.api.client.util.Preconditions.checkState;
  */
 public class VerifyDbClient {
     public static void main(String[] args) throws Exception {
-        try (RemoteApi remoteApi = RemoteApi.login()) {
-            FeedbackDbClient dbClient = new FeedbackDbClient(remoteApi.getDatastoreService(), Env.DEV);
-            List<Feedback> feedbacks = dbClient.getAllOpenFeedbacks();
-            System.out.println(feedbacks);
-        }
+        Feedback feedback = Feedback
+                .newBuilder()
+                .setContent("")
+                .addMediaIds("me")
+                .build();
+        System.out.println(ObjectMapperProvider.prettyToJson(feedback));
     }
 
     private static void testDummp() throws Exception {

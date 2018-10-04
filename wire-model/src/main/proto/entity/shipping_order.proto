@@ -81,4 +81,6 @@ message ShippingOrder {
     Price shipping_fee = 135;
 
     bool customer_notified = 140;
+
+    repeated string media_ids = 150;
 }

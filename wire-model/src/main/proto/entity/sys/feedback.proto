@@ -10,4 +10,5 @@ message Feedback {
     int64 timestamp = 3;
     bool open = 4;
     string content = 5;
+    repeated string media_ids = 6;
 }

@@ -64,10 +64,9 @@ public class FeedbackInterface {
         RequestValidator.validateNotNull(feedback);
         RequestValidator.validateNotBlank(feedback.getContent());
         RequestValidator.validateRequest(StringUtils.isBlank(feedback.getId()));
-        Feedback toSave = Feedback.newBuilder()
+        Feedback toSave = feedback.toBuilder()
                 .setOpen(true)
                 .setRequesterName(StringUtils.isNotBlank(feedback.getRequesterName()) ? feedback.getRequesterName() : "anonymous")
-                .setContent(feedback.getContent())
                 .setTimestamp(System.currentTimeMillis())
                 .build();
         Feedback afterSave = dbClient.put(toSave);
