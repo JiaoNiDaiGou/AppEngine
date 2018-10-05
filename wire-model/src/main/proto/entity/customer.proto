@@ -18,9 +18,8 @@ message Customer {
     PhoneNumber phone = 3;
     repeated Address addresses = 4;
     string id_card = 5;
-    MediaObject id_card_front_media = 6;
-    MediaObject id_card_back_media = 7;
     repeated string emails = 8;
+    int32 default_address_index = 9;
     SocialContacts social_contacts = 30;
 
     int64 lastUpdatedTime = 40;

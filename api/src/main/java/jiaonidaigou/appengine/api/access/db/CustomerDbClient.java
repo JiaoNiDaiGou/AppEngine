@@ -83,4 +83,8 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
             return obj.toBuilder().setId(id).build();
         }
     }
+
+    public Customer putAndUpdateTimestamp(final Customer customer) {
+        return put(customer.toBuilder().setLastUpdatedTime(System.currentTimeMillis()).build());
+    }
 }

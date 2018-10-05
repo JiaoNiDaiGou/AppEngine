@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
@@ -52,7 +51,7 @@ public class CustomerIntegrationTest {
                 .build();
 
         Customer afterCreate = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/put")
+                .path("api/customers/JiaoNiDaiGou/create")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
                 .put(Entity.json(beforeCreate))
@@ -74,7 +73,7 @@ public class CustomerIntegrationTest {
                 .setIdCard("idcard")
                 .build();
         Customer afterUpdate = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/put")
+                .path("api/customers/JiaoNiDaiGou/create")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
                 .put(Entity.json(beforeUpdate))
@@ -83,7 +82,7 @@ public class CustomerIntegrationTest {
 
         // Delete
         apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/delete/" + id)
+                .path("api/customers/JiaoNiDaiGou/" + id + "/delete")
                 .request()
                 .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
                 .delete();

@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.tools;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
 import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
@@ -10,7 +11,11 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClient;
 import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.Env;
+import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
+import jiaonidaigou.appengine.wiremodel.entity.Address;
+import jiaonidaigou.appengine.wiremodel.entity.Customer;
+import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
 import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -26,12 +31,17 @@ import static com.google.api.client.util.Preconditions.checkState;
  */
 public class VerifyDbClient {
     public static void main(String[] args) throws Exception {
-        Feedback feedback = Feedback
-                .newBuilder()
-                .setContent("")
-                .addMediaIds("me")
+        Customer customer = Customer.newBuilder()
+                .setId("coolkey")
+                .setName("test")
+                .setPhone(PhoneNumber.newBuilder().setPhone("12345678901").setCountryCode("86").build())
+                .addAddresses(Address.newBuilder().setRegion("r1").build())
+                .addAddresses(Address.newBuilder().setRegion("r2").build())
                 .build();
-        System.out.println(ObjectMapperProvider.prettyToJson(feedback));
+        try (RemoteApi remoteApi = RemoteApi.login()) {
+            CustomerDbClient dbClient = new CustomerDbClient(remoteApi.getDatastoreService(), Environments.NAMESPACE_JIAONIDAIGOU, Env.DEV);
+            dbClient.put(customer);
+        }
     }
 
     private static void testDummp() throws Exception {
