@@ -2,95 +2,195 @@ package jiaonidaigou.appengine.integrationtest;
 
 import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
+import jiaonidaigou.appengine.wiremodel.entity.Address;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static jiaonidaigou.appengine.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class CustomerIntegrationTest {
     private final ApiClient apiClient = new ApiClient(Env.DEV);
 
     @Test
-    public void testGetCustomers() throws Exception {
+    public void testGetCustomers() {
+        int pageSize = 2;
+
         PaginatedResults<Customer> firstPage = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/getAll")
-                .queryParam("limit", 100)
+                .path("api/JiaoNiDaiGou/customers/all")
+                .queryParam("limit", pageSize)
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
                 .readEntity(new GenericType<PaginatedResults<Customer>>() {
                 });
-        assertEquals(100, firstPage.getResults().size());
+        assertEquals(pageSize, firstPage.getResults().size());
 
         PaginatedResults<Customer> secondPage = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/getAll")
-                .queryParam("limit", 100)
+                .path("api/JiaoNiDaiGou/customers/all")
+                .queryParam("limit", pageSize)
                 .queryParam("nextToken", firstPage.getPageToken())
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
                 .readEntity(new GenericType<PaginatedResults<Customer>>() {
                 });
-        assertEquals(100, secondPage.getResults().size());
+        assertEquals(pageSize, secondPage.getResults().size());
     }
 
     @Test
-    public void test_put_get_delete() {
+    public void testSetDefaultAddress() {
+        // Add
+        Customer afterCreate = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/create")
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .post(Entity.json(Customer.newBuilder()
+                        .setName(UUID.randomUUID().toString())
+                        .setPhone(PhoneNumber.newBuilder().setCountryCode("86").setPhone("1234567890").build())
+                        .addAddresses(Address.newBuilder().setRegion("r1"))
+                        .addAddresses(Address.newBuilder().setRegion("r2"))
+                        .build()))
+                .readEntity(Customer.class);
+        String id = afterCreate.getId();
+        assertTrue(StringUtils.isNotBlank(id));
+        assertEquals(0, afterCreate.getDefaultAddressIndex());
+
+        Customer fetched = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/" + id)
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .get()
+                .readEntity(Customer.class);
+        assertEquals(0, fetched.getDefaultAddressIndex());
+
+        Customer afterSetDefaultAddress = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/" + id + "/setDefaultAddress")
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .post(Entity.json(afterCreate.getAddresses(1)))
+                .readEntity(Customer.class);
+        assertEquals(1, afterSetDefaultAddress.getDefaultAddressIndex());
+
+        Customer fetchedAgain = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/" + id)
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .get()
+                .readEntity(Customer.class);
+        assertEquals(1, fetchedAgain.getDefaultAddressIndex());
+    }
+
+    @Test
+    public void test_add_address() {
         // Create
-        Customer beforeCreate = Customer.newBuilder()
-                .setName("tom")
+        String name = UUID.randomUUID().toString();
+        PhoneNumber phoneNumber = PhoneNumber.newBuilder().setCountryCode("86").setPhone("1234567890").build();
+
+        Customer toCreate = Customer.newBuilder()
+                .setName(name)
+                .setPhone(phoneNumber)
+                .addAddresses(Address.newBuilder().setRegion("r1"))
+                .build();
+
+        Customer afterCreate = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/create")
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .post(Entity.json(toCreate))
+                .readEntity(Customer.class);
+        String id = afterCreate.getId();
+        assertEquals(1, afterCreate.getAddressesCount());
+
+        // Add address
+        Customer toCreateAgain = Customer.newBuilder()
+                .setName(name)
+                .setPhone(phoneNumber)
+                .addAddresses(Address.newBuilder().setRegion("r2"))
+                .build();
+
+        Customer afterCreateAgain = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/create")
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .post(Entity.json(toCreateAgain))
+                .readEntity(Customer.class);
+
+        assertEquals(2, afterCreateAgain.getAddressesCount());
+        assertEquals(Arrays.asList("r2", "r1"), afterCreateAgain.getAddressesList().stream().map(Address::getRegion).collect(Collectors.toList()));
+
+        // Get
+        Customer fetchedCustomer = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/" + id)
+                .request()
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .get()
+                .readEntity(Customer.class);
+        assertEquals(afterCreateAgain, fetchedCustomer);
+    }
+
+    @Test
+    public void test_create_get_delete() {
+        // Create
+        Customer toCreate = Customer.newBuilder()
+                .setName(UUID.randomUUID().toString())
                 .setPhone(PhoneNumber.newBuilder().setCountryCode("86").setPhone("1234567890").build())
                 .build();
 
         Customer afterCreate = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/create")
+                .path("api/JiaoNiDaiGou/customers/create")
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
-                .put(Entity.json(beforeCreate))
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .post(Entity.json(toCreate))
                 .readEntity(Customer.class);
         String id = afterCreate.getId();
         assertNotNull(id);
 
         // Get
-        Customer fetchedCustomer = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/get/" + afterCreate.getId())
+        Customer fetched = apiClient.newTarget()
+                .path("api/JiaoNiDaiGou/customers/" + afterCreate.getId())
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
                 .readEntity(Customer.class);
-        assertEquals(afterCreate, fetchedCustomer);
+        assertEquals(afterCreate, fetched);
 
         // Update
-        Customer beforeUpdate = fetchedCustomer.toBuilder()
+        Customer toUpdate = fetched.toBuilder()
                 .setIdCard("idcard")
                 .build();
         Customer afterUpdate = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/create")
+                .path("api/JiaoNiDaiGou/customers/update")
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
-                .put(Entity.json(beforeUpdate))
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .post(Entity.json(toUpdate))
                 .readEntity(Customer.class);
-        assertEquals(beforeUpdate, afterUpdate);
+        assertEquals(toUpdate.toBuilder().clearLastUpdatedTime().build(),
+                afterUpdate.toBuilder().clearLastUpdatedTime().build());
 
         // Delete
         apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/" + id + "/delete")
+                .path("api/JiaoNiDaiGou/customers/" + id + "/delete")
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .delete();
 
         Response response = apiClient.newTarget()
-                .path("api/customers/JiaoNiDaiGou/get/" + afterCreate.getId())
+                .path("api/JiaoNiDaiGou/customers/" + afterCreate.getId())
                 .request()
-                .header(AUTHORIZATION, apiClient.getGoogleAuthTokenBearerHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }

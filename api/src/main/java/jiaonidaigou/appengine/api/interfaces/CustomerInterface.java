@@ -44,7 +44,7 @@ public class CustomerInterface {
     }
 
     @GET
-    @Path("/getAll")
+    @Path("/all")
     public Response getAllCustomer(@PathParam("app") final String appName,
                                    @QueryParam("nextToken") final String nextToken,
                                    @QueryParam("limit") final int limit) {
@@ -57,7 +57,7 @@ public class CustomerInterface {
     }
 
     @GET
-    @Path("/get/{id}")
+    @Path("/{id}")
     public Response getAllCustomer(@PathParam("app") final String appName,
                                    @PathParam("id") final String id) {
         RequestValidator.validateNotBlank(appName);
@@ -73,9 +73,9 @@ public class CustomerInterface {
     }
 
     @POST
-    @Path("/add")
-    public Response addCustomer(@PathParam("app") final String appName,
-                                final Customer customer) {
+    @Path("/create")
+    public Response createCustomer(@PathParam("app") final String appName,
+                                   final Customer customer) {
         RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
         RequestValidator.validateNotBlank(appName);
         RequestValidator.validateNotNull(customer);
@@ -113,10 +113,10 @@ public class CustomerInterface {
     }
 
     @POST
-    @Path("/{id}/markDefaultAddress")
-    public Response markDefaultAddress(@PathParam("app") final String appName,
-                                       @PathParam("id") final String id,
-                                       final Address address) {
+    @Path("/{id}/setDefaultAddress")
+    public Response setDefaultAddress(@PathParam("app") final String appName,
+                                      @PathParam("id") final String id,
+                                      final Address address) {
         RequestValidator.validateNotBlank(appName);
         RequestValidator.validateNotBlank(id);
         RequestValidator.validateAppName(appName);

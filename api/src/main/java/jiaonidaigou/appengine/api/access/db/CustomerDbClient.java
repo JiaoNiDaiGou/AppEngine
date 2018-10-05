@@ -60,10 +60,7 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
 
         @Override
         public Customer fromEntity(DatastoreEntityExtractor entity) {
-            return entity.getAsProtobuf(FIELD_DATA, Customer.parser())
-                    .toBuilder()
-                    .setId(entity.getKeyStringName())
-                    .build();
+            return entity.getAsProtobuf(FIELD_DATA, Customer.parser());
         }
 
         @Override
