@@ -19,7 +19,7 @@ public class TaskMessage {
 
     @JsonProperty
     private String handler;
-
+    
     public static Builder builder() {
         return new Builder();
     }

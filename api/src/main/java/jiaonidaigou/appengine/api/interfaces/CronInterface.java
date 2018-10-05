@@ -4,6 +4,7 @@ import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
+import jiaonidaigou.appengine.api.tasks.NotifyFeedbackTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
@@ -11,6 +12,7 @@ import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -36,30 +38,6 @@ public class CronInterface {
         this.taskQueueClient = taskQueueClient;
     }
 
-    @Path("/syncJiaoniCustomers")
-    @GET
-    public Response syncJiaoniCustomers() {
-        taskQueueClient.submit(
-                HIGH_FREQUENCY,
-                TaskMessage.builder()
-                        .withHandler(SyncJiaoniCustomersTaskRunner.class)
-                        .build()
-        );
-        return Response.ok().build();
-    }
-
-    @Path("/syncJiaoniShippingOrders")
-    @GET
-    public Response dumpJiaoniShippingOrders() {
-        taskQueueClient.submit(
-                HIGH_FREQUENCY,
-                TaskMessage.builder()
-                        .withHandler(SyncJiaoniShippingOrdersTaskRunner.class)
-                        .build()
-        );
-        return Response.ok().build();
-    }
-
     @Path("/dumpTeddyShippingOrders")
     @GET
     public Response dumpTeddyShippingOrders(@QueryParam("id") final long id,
@@ -75,13 +53,35 @@ public class CronInterface {
         return Response.ok().build();
     }
 
+    @Path("/syncJiaoniCustomers")
+    @GET
+    public Response syncJiaoniCustomers() {
+        return sendEmptyTaskMessage(SyncJiaoniCustomersTaskRunner.class);
+    }
+
+    @Path("/syncJiaoniShippingOrders")
+    @GET
+    public Response dumpJiaoniShippingOrders() {
+        return sendEmptyTaskMessage(SyncJiaoniShippingOrdersTaskRunner.class);
+    }
+
     @Path("/buildProductHints")
     @GET
     public Response buildProductHints() {
+        return sendEmptyTaskMessage(BuildProductHintsTaskRunner.class);
+    }
+
+    @Path("/notifyFeedback")
+    @GET
+    public Response buildNotifyFeedback() {
+        return sendEmptyTaskMessage(NotifyFeedbackTaskRunner.class);
+    }
+
+    private Response sendEmptyTaskMessage(final Class<? extends Consumer<TaskMessage>> handleType) {
         taskQueueClient.submit(
                 HIGH_FREQUENCY,
                 TaskMessage.builder()
-                        .withHandler(BuildProductHintsTaskRunner.class)
+                        .withHandler(handleType)
                         .build()
         );
         return Response.ok().build();

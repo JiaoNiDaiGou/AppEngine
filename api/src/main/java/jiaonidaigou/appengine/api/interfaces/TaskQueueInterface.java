@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
+import jiaonidaigou.appengine.api.tasks.NotifyFeedbackTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
@@ -37,12 +38,14 @@ public class TaskQueueInterface {
     public TaskQueueInterface(final SyncJiaoniCustomersTaskRunner syncJiaoniCustomersTaskRunner,
                               final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner,
                               final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
-                              final BuildProductHintsTaskRunner buildProductHintsTaskRunner) {
+                              final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
+                              final NotifyFeedbackTaskRunner notifyFeedbackTaskRunner) {
         this.consumers = buildConsumerMap(
                 syncJiaoniCustomersTaskRunner,
                 dumpJiaoniShippingOrderTaskRunner,
                 syncJiaoniShippingOrdersTaskRunner,
-                buildProductHintsTaskRunner
+                buildProductHintsTaskRunner,
+                notifyFeedbackTaskRunner
         );
         LOGGER.info("Register following Tasks: {}", consumers.keySet());
     }
