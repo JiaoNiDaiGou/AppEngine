@@ -33,8 +33,9 @@ public class NotifyFeedbackTaskRunner implements Consumer<TaskMessage> {
                     .append(feedback.getContent())
                     .append("\n\n");
         }
+        String text = stringBuilder.length() == 0 ? "No feedback :(" : stringBuilder.toString();
         for (String email : Environments.ADMIN_EMAILS) {
-            emailClient.sendText(email, "Feedback", stringBuilder.toString());
+            emailClient.sendText(email, "Feedback", text);
         }
     }
 }
