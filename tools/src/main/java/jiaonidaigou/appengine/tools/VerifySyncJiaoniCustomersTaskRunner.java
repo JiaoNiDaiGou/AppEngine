@@ -15,7 +15,10 @@ public class VerifySyncJiaoniCustomersTaskRunner {
         try (RemoteApi remoteApi = RemoteApi.login()) {
 
             SyncJiaoniCustomersTaskRunner runner = new SyncJiaoniCustomersTaskRunner(
-                    new CustomerDbClient(remoteApi.getDatastoreService(), Environments.NAMESPACE_JIAONIDAIGOU),
+                    new CustomerDbClient(
+                            remoteApi.getDatastoreService(),
+                            remoteApi.getMemcacheService(),
+                            Environments.NAMESPACE_JIAONIDAIGOU),
                     new TeddyClientImpl(TeddyAdmins.JIAONI, new MockBrowserClient("jiaoni")),
                     new PopupPageEmailClient()
             );

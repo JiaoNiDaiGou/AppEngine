@@ -2,6 +2,7 @@ package jiaonidaigou.appengine.api.access.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.common.annotations.VisibleForTesting;
 import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
 import jiaonidaigou.appengine.api.access.db.core.BaseEntityFactory;
@@ -22,16 +23,23 @@ import static jiaonidaigou.appengine.common.utils.Preconditions2.checkNotBlank;
 public class CustomerDbClient extends BaseDbClient<Customer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDbClient.class);
 
-    public CustomerDbClient(final DatastoreService service, final String serviceName) {
-        this(service, serviceName, ENV);
+    public CustomerDbClient(final DatastoreService datastoreService,
+                            final MemcacheService memcacheService,
+                            final String serviceName) {
+        this(datastoreService, memcacheService, serviceName, ENV);
     }
 
     @VisibleForTesting
-    public CustomerDbClient(final DatastoreService service, final String serviceName, final Env env) {
+    public CustomerDbClient(final DatastoreService datastoreService,
+                            final MemcacheService memcacheService,
+                            final String serviceName,
+                            final Env env) {
         super(new DbClientBuilder<Customer>()
-                .datastoreService(service)
+                .datastoreService(datastoreService)
                 .entityFactory(new EntityFactory(serviceName, env, "Customer"))
-                .useInMemoryCache()
+                .memcacheService(memcacheService)
+                .memcacheProtoTransform("JNDG.Customer", Customer.parser())
+                .memcacheAll()
                 .build());
     }
 

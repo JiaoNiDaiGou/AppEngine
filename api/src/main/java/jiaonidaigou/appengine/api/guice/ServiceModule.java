@@ -122,8 +122,9 @@ public class ServiceModule extends AbstractModule {
     @Provides
     @Singleton
     @JiaoNiDaiGou
-    CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService) {
-        return new CustomerDbClient(datastoreService, NAMESPACE_JIAONIDAIGOU);
+    CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService,
+                                                         final MemcacheService memcacheService) {
+        return new CustomerDbClient(datastoreService, memcacheService, NAMESPACE_JIAONIDAIGOU);
     }
 
     @Provides

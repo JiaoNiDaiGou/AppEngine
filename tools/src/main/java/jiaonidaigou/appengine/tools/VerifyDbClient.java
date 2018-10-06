@@ -3,25 +3,21 @@ package jiaonidaigou.appengine.tools;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
-import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DbClient;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.common.model.Env;
 import jiaonidaigou.appengine.common.utils.Environments;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 import jiaonidaigou.appengine.wiremodel.entity.Address;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
-import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.google.api.client.util.Preconditions.checkState;
@@ -39,7 +35,9 @@ public class VerifyDbClient {
                 .addAddresses(Address.newBuilder().setRegion("r2").build())
                 .build();
         try (RemoteApi remoteApi = RemoteApi.login()) {
-            CustomerDbClient dbClient = new CustomerDbClient(remoteApi.getDatastoreService(), Environments.NAMESPACE_JIAONIDAIGOU, Env.DEV);
+            CustomerDbClient dbClient = new CustomerDbClient(remoteApi.getDatastoreService(),
+                    remoteApi.getMemcacheService(),
+                    Environments.NAMESPACE_JIAONIDAIGOU, Env.DEV);
             dbClient.put(customer);
         }
     }

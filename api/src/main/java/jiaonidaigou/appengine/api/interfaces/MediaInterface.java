@@ -15,11 +15,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -130,6 +132,23 @@ public class MediaInterface {
                 .build())
                 .build();
     }
+
+    @GET
+    @Path("/directDownload")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @PermitAll
+    public Response directDownload(@QueryParam("mediaId") final String mediaId) {
+        RequestValidator.validateNotBlank(mediaId, "mediaId");
+
+        String path = toStoragePath(mediaId);
+        byte[] bytes = storageClient.read(path);
+        if (bytes == null) {
+            throw new NotFoundException();
+        }
+
+        return Response.ok(bytes).build();
+    }
+
 
     @GET
     @Path("/url/download")

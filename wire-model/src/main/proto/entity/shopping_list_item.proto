@@ -43,6 +43,8 @@ message ShoppingListItem {
 
     int64 ownership_assigned_time = 31;
 
+    string message = 35;
+
     string purchaser_name = 40;
 
     int64 purchasing_time = 41;

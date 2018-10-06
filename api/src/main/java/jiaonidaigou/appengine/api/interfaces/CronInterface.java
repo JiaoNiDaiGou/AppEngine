@@ -4,7 +4,7 @@ import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
-import jiaonidaigou.appengine.api.tasks.NotifyFeedbackTaskRunner;
+import jiaonidaigou.appengine.api.tasks.AdminReportTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
@@ -74,7 +74,7 @@ public class CronInterface {
     @Path("/notifyFeedback")
     @GET
     public Response buildNotifyFeedback() {
-        return sendEmptyTaskMessage(NotifyFeedbackTaskRunner.class);
+        return sendEmptyTaskMessage(AdminReportTaskRunner.class);
     }
 
     private Response sendEmptyTaskMessage(final Class<? extends Consumer<TaskMessage>> handleType) {

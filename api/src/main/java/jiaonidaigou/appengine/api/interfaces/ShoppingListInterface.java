@@ -94,13 +94,15 @@ public class ShoppingListInterface {
     @Path("/init")
     public Response init(final InitShoppingListItemRequest request) {
         RequestValidator.validateNotBlank(request.getCreatorName());
-        RequestValidator.validateRequest(request.getProductEntriesCount() > 0);
+        RequestValidator.validateRequest(StringUtils.isNotBlank(request.getMessage()) ||
+                request.getProductEntriesCount() > 0);
 
         ShoppingListItem toSave = ShoppingListItem.newBuilder()
                 .setStatus(ShoppingListItem.Status.INIT)
                 .setCreationTime(System.currentTimeMillis())
                 .setCreatorName(request.getCreatorName())
                 .setExpirationTime(-1)
+                .setMessage(request.getMessage())
                 .addAllProductEntries(request.getProductEntriesList())
                 .addAllMediaIds(request.getMediaIdsList())
                 .setLastUpdateTime(System.currentTimeMillis())

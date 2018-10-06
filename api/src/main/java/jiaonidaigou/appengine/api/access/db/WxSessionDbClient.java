@@ -29,7 +29,7 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
                 .datastoreService(datastoreService)
                 .memcacheService(memcacheService)
                 .entityFactory(new EntityFactory(Environments.NAMESPACE_WX, AppEnvironments.ENV, "Session"))
-                .useMemcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
+                .memcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
                 .build());
     }
 

@@ -4,6 +4,8 @@ import com.google.appengine.api.appidentity.AppIdentityService;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import com.google.cloud.storage.Storage;
@@ -54,6 +56,10 @@ public class RemoteApi implements AutoCloseable {
 
     public DatastoreService getDatastoreService() {
         return DatastoreServiceFactory.getDatastoreService();
+    }
+
+    public MemcacheService getMemcacheService() {
+        return MemcacheServiceFactory.getMemcacheService("remoteapi");
     }
 
     public AppIdentityService getAppIdentityService() {

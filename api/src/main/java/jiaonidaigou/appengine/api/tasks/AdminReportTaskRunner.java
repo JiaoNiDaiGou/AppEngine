@@ -11,13 +11,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class NotifyFeedbackTaskRunner implements Consumer<TaskMessage> {
+public class AdminReportTaskRunner implements Consumer<TaskMessage> {
     private final FeedbackDbClient dbClient;
     private final EmailClient emailClient;
 
     @Inject
-    public NotifyFeedbackTaskRunner(final FeedbackDbClient dbClient,
-                                    final EmailClient emailClient) {
+    public AdminReportTaskRunner(final FeedbackDbClient dbClient,
+                                 final EmailClient emailClient) {
         this.dbClient = dbClient;
         this.emailClient = emailClient;
     }

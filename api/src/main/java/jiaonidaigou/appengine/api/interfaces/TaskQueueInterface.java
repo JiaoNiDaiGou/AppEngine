@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
-import jiaonidaigou.appengine.api.tasks.NotifyFeedbackTaskRunner;
+import jiaonidaigou.appengine.api.tasks.AdminReportTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
@@ -39,7 +39,7 @@ public class TaskQueueInterface {
                               final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner,
                               final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
                               final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
-                              final NotifyFeedbackTaskRunner notifyFeedbackTaskRunner) {
+                              final AdminReportTaskRunner notifyFeedbackTaskRunner) {
         this.consumers = buildConsumerMap(
                 syncJiaoniCustomersTaskRunner,
                 dumpJiaoniShippingOrderTaskRunner,
