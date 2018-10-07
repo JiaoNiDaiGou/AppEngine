@@ -2,8 +2,9 @@
 
 #
 # Script to deploy prod version
-#   ./deploy-prod.sh
 #
+# Usage:
+#   SERVICE=daigou ./deploy-prod.sh
 
 set -euo pipefail
 
@@ -14,13 +15,14 @@ VERSION="prod"
 
 echo "
 
-    !! Deploy version ''$VERSION' !!
+    !! Deploy service '$SERVICE' version '$VERSION' !!
 
 "
 
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
-../gradlew :api:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+$ROOT/gradlew :${SERVICE}-service:service:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 
-open "https://$VERSION-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"
+open "https://$VERSION-dot-$SERVICE-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"
+
