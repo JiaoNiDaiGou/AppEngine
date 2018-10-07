@@ -1,10 +1,14 @@
 <FindBugsFilter>
     <Match>
-        <Class name="~jiaonidaigou.appengine.wiremodel.*"/>
-        <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
+        <Class name="~jiaoni.common.wiremodel.*"/>
+        <Bug pattern="UCF_USELESS_CONTROL_FLOW,SE_BAD_FIELD"/>
     </Match>
     <Match>
-        <Class name="~jiaonidaigou.appengine.wiremodel.*"/>
-        <Bug pattern="SE_BAD_FIELD"/>
+        <Class name="~jiaoni.daigou.wiremodel.*"/>
+        <Bug pattern="UCF_USELESS_CONTROL_FLOW,SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="~jiaoni.songfan.wiremodel.*"/>
+        <Bug pattern="UCF_USELESS_CONTROL_FLOW,SE_BAD_FIELD"/>
     </Match>
 </FindBugsFilter>

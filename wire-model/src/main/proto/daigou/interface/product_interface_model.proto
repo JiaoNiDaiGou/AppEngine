@@ -1,7 +1,7 @@
 syntax = "proto3";
-package jiaonidaigou.appengine.wiremodel.api;
+package jiaoni.daigou.wiremodel.api;
 
-option java_package = "jiaonidaigou.appengine.wiremodel.api";
+option java_package = "jiaoni.daigou.wiremodel.api";
 option java_multiple_files = true;
 
 import "daigou/entity/product.proto";
