@@ -1,6 +1,7 @@
 package jiaoni.common.appengine.filters;
 
 import jiaoni.common.appengine.auth.Authenticator;
+import jiaoni.common.appengine.guice.Authenticators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class AuthFilter implements ContainerRequestFilter {
     private HttpServletRequest servletRequest;
 
     @Inject
-    public AuthFilter(final List<Authenticator> authenticators) {
+    public AuthFilter(@Authenticators final List<Authenticator> authenticators) {
         this.authenticators = authenticators;
     }
 

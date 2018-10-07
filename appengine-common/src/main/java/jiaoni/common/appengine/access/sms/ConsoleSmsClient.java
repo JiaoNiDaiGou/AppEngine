@@ -1,7 +1,9 @@
 package jiaoni.common.appengine.access.sms;
 
 import java.util.Arrays;
+import javax.inject.Singleton;
 
+@Singleton
 public class ConsoleSmsClient implements SmsClient {
     @Override
     public boolean sendText(String countryCode, String targetPhone, String content) {

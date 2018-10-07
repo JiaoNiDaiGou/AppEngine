@@ -3,6 +3,7 @@ package jiaoni.common.appengine.access.taskqueue;
 import com.google.common.base.Preconditions;
 
 import java.util.function.Consumer;
+import javax.inject.Singleton;
 
 public class LocalStaticTaskClient implements PubSubClient {
     private static Consumer<TaskMessage> currentRunner;

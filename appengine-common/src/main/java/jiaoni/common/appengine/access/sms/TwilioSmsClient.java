@@ -8,14 +8,19 @@ import jiaoni.common.utils.Secrets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static jiaoni.common.appengine.access.sms.SmsUtils.NATION_CODE_US;
 
+@Singleton
 public class TwilioSmsClient implements SmsClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwilioSmsClient.class);
 
     private final Profile profile;
 
+    @Inject
     public TwilioSmsClient() {
         this.profile = Secrets.of("twilio.profile.json").getAsJson(Profile.class);
         Twilio.init(profile.accountSid, profile.authToken);

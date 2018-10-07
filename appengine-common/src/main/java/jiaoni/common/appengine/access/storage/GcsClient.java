@@ -16,14 +16,19 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
+@Singleton
 public class GcsClient implements StorageClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageClient.class);
     private static final String GS_SCHEME = "gs://";
 
     private final Storage storage;
 
+    @Inject
     public GcsClient(final Storage storage) {
         this.storage = storage;
     }

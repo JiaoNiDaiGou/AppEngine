@@ -10,14 +10,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static jiaoni.common.appengine.access.sms.SmsUtils.NATION_CODE_CN;
 
+@Singleton
 public class QCloudSmsClient implements SmsClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(QCloudSmsClient.class);
 
     private final SmsSingleSender sender;
 
+    @Inject
     public QCloudSmsClient() {
         Profile profile = Secrets.of("qcloud.sms.profile.json").getAsJson(Profile.class);
         this.sender = new SmsSingleSender(profile.appId, profile.appKey);

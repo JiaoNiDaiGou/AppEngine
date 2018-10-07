@@ -1,6 +1,9 @@
 package jiaoni.common.appengine.auth;
 
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import jiaoni.common.appengine.access.db.DbClient;
+import jiaoni.common.model.Env;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -11,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.container.ContainerRequestContext;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static jiaoni.common.appengine.auth.AuthUtils.WX_SESSION_TICKET_HEADER_KEY;
 
 public class WxAuthenticator implements Authenticator {
@@ -21,8 +23,12 @@ public class WxAuthenticator implements Authenticator {
 
     private final DbClient<WxSessionTicket> dbClient;
 
-    public WxAuthenticator(final DbClient<WxSessionTicket> dbClient) {
-        this.dbClient = checkNotNull(dbClient);
+    public WxAuthenticator(final String serviceName, final Env env) {
+        this.dbClient = new WxSessionDbClient(
+                serviceName,
+                env,
+                DatastoreServiceFactory.getDatastoreService(),
+                MemcacheServiceFactory.getMemcacheService("sys.wx"));
     }
 
     @Override

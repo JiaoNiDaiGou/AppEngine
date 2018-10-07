@@ -4,7 +4,7 @@
 # Script to deploy dev version
 #
 # Usage:
-#   VERSION=some_version ./deploy-dev.sh
+#   SERVICE=daigou VERSION=some_version ./deploy-dev.sh
 #
 
 set -euo pipefail
@@ -33,6 +33,6 @@ echo "
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
-$ROOT/gradlew :${SERVICE}-service/appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+$ROOT/gradlew :${SERVICE}-service:service:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 
 open "https://$VERSION-dot-$SERVICE-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"

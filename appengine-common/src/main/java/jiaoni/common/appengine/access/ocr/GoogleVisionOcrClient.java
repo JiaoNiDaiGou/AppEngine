@@ -22,9 +22,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static jiaoni.common.utils.Preconditions2.checkNotBlank;
 
+@Singleton
 public class GoogleVisionOcrClient implements OcrClient {
 
     @Override

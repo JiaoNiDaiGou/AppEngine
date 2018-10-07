@@ -11,9 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
+import javax.inject.Singleton;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Singleton
 public class TaskQueueClient implements PubSubClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskQueueClient.class);
 

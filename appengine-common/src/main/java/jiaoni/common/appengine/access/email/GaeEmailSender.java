@@ -4,6 +4,7 @@ import jiaoni.common.utils.Envs;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.Properties;
+import javax.inject.Singleton;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -17,6 +18,7 @@ import javax.mail.internet.MimeMultipart;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+@Singleton
 public class GaeEmailSender implements EmailClient {
     private static final EmailValidator emailValidator = EmailValidator.getInstance();
 

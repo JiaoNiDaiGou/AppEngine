@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import javax.inject.Singleton;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
