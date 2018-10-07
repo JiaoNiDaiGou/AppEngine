@@ -1,10 +1,10 @@
 rootProject.name = 'AppEngine'
 
-include 'api'
 include 'common'
 include 'common-test'
 include 'content-parser'
 include 'content-template'
+include 'daigou-service'
 include 'integration-test'
 include 'lib-teddy'
 include 'lib-webwx'
