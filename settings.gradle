@@ -1,5 +1,6 @@
 rootProject.name = 'AppEngine'
 
+include 'appengine-common'
 include 'common'
 include 'common-test'
 //include 'content-parser'
