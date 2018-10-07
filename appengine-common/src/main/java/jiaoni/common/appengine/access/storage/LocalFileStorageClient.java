@@ -42,7 +42,6 @@ public class LocalFileStorageClient implements StorageClient {
 
     @Override
     public byte[] read(String path) {
-        System.out.println("read: " + path);
         try (InputStream inputStream = new FileInputStream(toFile(path))) {
             return ByteStreams.toByteArray(inputStream);
         } catch (Exception e) {
@@ -52,7 +51,6 @@ public class LocalFileStorageClient implements StorageClient {
 
     @Override
     public void write(String path, String mediaType, byte[] bytes) {
-        System.out.println("write: " + path);
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(toFile(path)))) {
             outputStream.write(bytes);
         } catch (Exception e) {
@@ -87,8 +85,7 @@ public class LocalFileStorageClient implements StorageClient {
     }
 
     private File toFile(String path) {
-        return new File(Envs.LOCAL_TEMP_DIR_ENDSLASH +
-                StringUtils2.replaceNonCharTypesWith(path,
-                        new StringUtils2.CharType[]{ StringUtils2.CharType.A2Z }, "_"));
+        return new File(Envs.getLocalTmpDir() + StringUtils2.replaceNonCharTypesWith(path,
+                new StringUtils2.CharType[]{ StringUtils2.CharType.A2Z }, "_"));
     }
 }

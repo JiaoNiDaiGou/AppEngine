@@ -7,7 +7,7 @@ import jiaoni.common.utils.Envs;
 public class GoogleCloudLibFactory {
     public static Storage storage() {
         return StorageOptions.newBuilder()
-                .setProjectId(Envs.GAE_PROJECT_ID)
+                .setProjectId(Envs.getGaeProjectId())
                 .build()
                 .getService();
     }

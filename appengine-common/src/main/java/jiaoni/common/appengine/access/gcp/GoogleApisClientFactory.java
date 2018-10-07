@@ -97,7 +97,7 @@ public class GoogleApisClientFactory {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
                     .Builder(httpTransport, JACKSON_FACTORY, clientSecrets, scopes)
-                    .setDataStoreFactory(new FileDataStoreFactory(new File(Envs.LOCAL_TEMP_DIR_ENDSLASH + "gapis")))
+                    .setDataStoreFactory(new FileDataStoreFactory(new File(Envs.getLocalTmpDir() + "gapis")))
                     .setAccessType("offline")
                     .build();
 

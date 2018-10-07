@@ -5,6 +5,7 @@ import jiaoni.common.appengine.access.storage.StorageClient;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.model.InternalIOException;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.MediaObject;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jvnet.hk2.annotations.Service;
@@ -30,7 +31,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static jiaoni.common.appengine.utils.MediaUtils.determineMediaType;
-import static jiaoni.common.appengine.utils.MediaUtils.toStoragePath;
 
 @Path("/api/media")
 @Produces(MediaType.APPLICATION_JSON)
@@ -54,7 +54,7 @@ public class MediaInterface {
 
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
         String mediaType = determineMediaType(fileExtension);
-        String path = toStoragePath(mediaId);
+        String path = AppEnvs.Dir.MEDIA_ROOT + mediaId;
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 
         URL signedUrl = storageClient.getSignedUploadUrl(path, mediaType);
@@ -85,7 +85,7 @@ public class MediaInterface {
 
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
         String mediaType = determineMediaType(fileExtension);
-        String path = toStoragePath(mediaId);
+        String path = AppEnvs.Dir.MEDIA_ROOT + mediaId;
         LOGGER.info("directUpload mediaId={}, path={}, mediaType={}, bytes.length={}", mediaId, path, mediaType, body.length);
 
         storageClient.write(path, mediaType, body);
@@ -114,7 +114,7 @@ public class MediaInterface {
 
         String mediaId = UUID.randomUUID().toString() + "." + fileExtension.toLowerCase();
         String mediaType = determineMediaType(fileExtension);
-        String path = toStoragePath(mediaId);
+        String path = AppEnvs.Dir.MEDIA_ROOT + mediaId;
         LOGGER.info("directUpload mediaId={}, path={}, mediaType={}, bytes.length={}", mediaId, path, mediaType, body.length);
 
         storageClient.write(path, mediaType, body);
@@ -139,8 +139,7 @@ public class MediaInterface {
     @PermitAll
     public Response directDownload(@QueryParam("mediaId") final String mediaId) {
         RequestValidator.validateNotBlank(mediaId, "mediaId");
-
-        String path = toStoragePath(mediaId);
+        String path = AppEnvs.Dir.MEDIA_ROOT + mediaId;
         byte[] bytes = storageClient.read(path);
         if (bytes == null) {
             throw new NotFoundException();
@@ -155,7 +154,7 @@ public class MediaInterface {
     public Response getSignedDownloadUrl(@QueryParam("mediaId") final String mediaId) {
         RequestValidator.validateNotBlank(mediaId, "mediaId");
 
-        String path = toStoragePath(mediaId);
+        String path = AppEnvs.Dir.MEDIA_ROOT + mediaId;
         String mediaType = determineMediaType(path);
         LOGGER.info("upload mediaId={}, path={}, mediaType={}", mediaId, path, mediaType);
 

@@ -1,7 +1,6 @@
 package jiaoni.common.appengine.utils;
 
 import com.google.common.net.MediaType;
-import jiaoni.common.utils.Envs;
 import org.apache.commons.lang3.StringUtils;
 
 public class MediaUtils {
@@ -23,9 +22,5 @@ public class MediaUtils {
             default:
                 return MediaType.OCTET_STREAM.toString();
         }
-    }
-
-    public static String toStoragePath(final String mediaId) {
-        return Envs.Dir.MEDIA_ROOT_ENDSLASH + mediaId;
     }
 }

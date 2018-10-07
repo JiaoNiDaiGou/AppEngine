@@ -51,7 +51,7 @@ public class GaeEmailSender implements EmailClient {
         try {
             Message message = new MimeMessage(session);
             message.setSubject(subject);
-            message.setFrom(new InternetAddress(Envs.GAE_ADMIN_EMAIL));
+            message.setFrom(new InternetAddress(Envs.getGaeAdminEmail()));
             message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 
             Multipart multipart = new MimeMultipart("alternative");

@@ -10,10 +10,11 @@ import jiaoni.daigou.contentparser.Answers;
 import jiaoni.daigou.contentparser.CnAddressParser;
 import jiaoni.daigou.contentparser.Conf;
 import jiaoni.daigou.contentparser.Parser;
+import jiaoni.daigou.service.appengine.AppEnvs;
+import jiaoni.daigou.service.appengine.impls.DbEnhancedCustomerParser;
 import jiaoni.daigou.wiremodel.api.ParseRequest;
 import jiaoni.daigou.wiremodel.api.ParseResponse;
 import jiaoni.daigou.wiremodel.api.ParsedObject;
-import jiaoni.daigou.service.appengine.impls.DbEnhancedCustomerParser;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -34,7 +35,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaoni.common.appengine.utils.MediaUtils.toStoragePath;
 import static jiaoni.common.utils.LocalMeter.meterOff;
 import static jiaoni.common.utils.LocalMeter.meterOn;
 
@@ -144,7 +144,7 @@ public class ParserInterface {
     private List<Snippet> extractFromMedia(final List<String> mediaIds) {
         List<Snippet> toReturn = new ArrayList<>();
         for (String mediaId : mediaIds) {
-            String fullPath = toStoragePath(mediaId);
+            String fullPath = AppEnvs.Dir.MEDIA_ROOT + mediaId;
             List<Snippet> snippets = ocrClient.annotateFromMediaPath(fullPath);
             toReturn.addAll(filterLowConfidenceSnippets(snippets));
         }

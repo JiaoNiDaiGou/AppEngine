@@ -28,7 +28,7 @@ public class PopupPageEmailClient implements EmailClient {
     private void send(final String to,
                       final String subject,
                       final String text) {
-        String file = Envs.LOCAL_TEMP_DIR_ENDSLASH + "fake_email.html";
+        String file = Envs.getLocalTmpDir() + "fake_email.html";
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8))) {
             writer.write("[" + to + "]" + subject + "\n");
             writer.write(text);
