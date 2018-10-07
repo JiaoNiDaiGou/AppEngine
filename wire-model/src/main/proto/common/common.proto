@@ -1,0 +1,28 @@
+syntax = "proto3";
+package jiaoni.common.wiremodel;
+
+option java_package = "jiaoni.common.wiremodel";
+option java_multiple_files = true;
+
+message PhoneNumber {
+    string country_code = 1;
+    string phone = 2;
+}
+
+message Price {
+    double value = 1;
+    enum Unit {
+        USD = 0;
+        RMB = 1;
+    }
+    Unit unit = 2;
+}
+
+message Address {
+    string country_code = 1;
+    string region = 2;
+    string city = 3;
+    string zone = 4;
+    string address = 5;
+    string postal_code = 6;
+}
