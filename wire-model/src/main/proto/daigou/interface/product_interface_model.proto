@@ -4,12 +4,12 @@ package jiaonidaigou.appengine.wiremodel.api;
 option java_package = "jiaonidaigou.appengine.wiremodel.api";
 option java_multiple_files = true;
 
-import "entity/product.proto";
+import "daigou/entity/product.proto";
 
 message CreateProductRequest {
-    jiaonidaigou.appengine.wiremodel.entity.Product product = 1;
+    jiaoni.daigou.wiremodel.entity.Product product = 1;
 }
 
 message CreateProductResponse {
-    jiaonidaigou.appengine.wiremodel.entity.Product product = 1;
+    jiaoni.daigou.wiremodel.entity.Product product = 1;
 }

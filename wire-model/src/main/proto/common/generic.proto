@@ -1,7 +1,7 @@
 syntax = "proto3";
-package jiaonidaigou.appengine.wiremodel.entity;
+package jiaoni.common.wiremodel;
 
-option java_package = "jiaonidaigou.appengine.wiremodel.entity";
+option java_package = "jiaoni.common.wiremodel";
 option java_multiple_files = true;
 
 message BytesMap {

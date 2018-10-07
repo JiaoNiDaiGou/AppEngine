@@ -1,10 +1,10 @@
 syntax = "proto3";
-package jiaonidaigou.appengine.wiremodel.entity;
+package jiaoni.daigou.wiremodel.entity;
 
-option java_package = "jiaonidaigou.appengine.wiremodel.entity";
+option java_package = "jiaoni.daigou.wiremodel.entity";
 option java_multiple_files = true;
 
-import "entity/common.proto";
+import "daigou/entity/common.proto";
 
 message Product {
     string id = 1;

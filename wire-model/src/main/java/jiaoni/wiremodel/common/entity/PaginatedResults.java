@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.wiremodel.entity;
+package jiaoni.wiremodel.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
