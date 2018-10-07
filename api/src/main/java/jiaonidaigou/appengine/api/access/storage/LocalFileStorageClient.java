@@ -3,9 +3,9 @@ package jiaonidaigou.appengine.api.access.storage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import jiaonidaigou.appengine.common.model.InternalIOException;
-import jiaonidaigou.appengine.common.utils.Environments;
-import jiaonidaigou.appengine.common.utils.StringUtils2;
+import jiaoni.common.model.InternalIOException;
+import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.StringUtils2;
 import org.joda.time.DateTime;
 
 import java.io.BufferedOutputStream;

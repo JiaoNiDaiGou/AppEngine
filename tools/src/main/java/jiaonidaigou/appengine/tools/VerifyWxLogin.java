@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.tools;
 
 import com.google.common.collect.ImmutableMap;
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
 
 import java.util.Map;

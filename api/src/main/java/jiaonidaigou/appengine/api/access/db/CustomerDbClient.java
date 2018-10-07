@@ -9,8 +9,8 @@ import jiaonidaigou.appengine.api.access.db.core.BaseEntityFactory;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
-import jiaonidaigou.appengine.common.model.Env;
-import jiaonidaigou.appengine.common.utils.EncryptUtils;
+import jiaoni.common.model.Env;
+import jiaoni.common.utils.EncryptUtils;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
-import static jiaonidaigou.appengine.common.utils.Preconditions2.checkNotBlank;
+import static jiaoni.common.utils.Preconditions2.checkNotBlank;
 
 public class CustomerDbClient extends BaseDbClient<Customer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDbClient.class);

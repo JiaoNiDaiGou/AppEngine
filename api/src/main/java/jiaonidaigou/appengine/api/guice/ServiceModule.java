@@ -24,8 +24,8 @@ import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
 import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.utils.AppEnvironments;
-import jiaonidaigou.appengine.common.httpclient.InMemoryCookieStore;
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.InMemoryCookieStore;
+import jiaoni.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
 import jiaonidaigou.appengine.contentparser.CnCellPhoneParser;
 import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
@@ -38,7 +38,7 @@ import java.io.IOException;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
+import static jiaoni.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 public class ServiceModule extends AbstractModule {
     @Override

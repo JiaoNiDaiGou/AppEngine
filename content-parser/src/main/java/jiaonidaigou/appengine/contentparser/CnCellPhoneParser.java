@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.contentparser;
 
-import jiaonidaigou.appengine.common.utils.StringUtils2;
+import jiaoni.common.utils.StringUtils2;
 import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+import static jiaoni.common.utils.LocalMeter.meterOff;
+import static jiaoni.common.utils.LocalMeter.meterOn;
 
 public class CnCellPhoneParser implements Parser<PhoneNumber> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CnCellPhoneParser.class);

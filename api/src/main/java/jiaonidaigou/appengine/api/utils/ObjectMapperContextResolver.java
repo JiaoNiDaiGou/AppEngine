@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.api.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 
 import javax.ws.rs.ext.ContextResolver;
 

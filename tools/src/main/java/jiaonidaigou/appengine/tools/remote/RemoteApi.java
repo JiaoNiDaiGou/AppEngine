@@ -10,7 +10,7 @@ import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 
 import java.io.IOException;
 

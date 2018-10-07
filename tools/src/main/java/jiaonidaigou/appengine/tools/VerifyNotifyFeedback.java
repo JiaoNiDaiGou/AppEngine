@@ -4,7 +4,7 @@ import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
 import jiaonidaigou.appengine.api.access.email.PopupPageEmailClient;
 import jiaonidaigou.appengine.api.tasks.AdminReportTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 
 public class VerifyNotifyFeedback {

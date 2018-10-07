@@ -3,7 +3,7 @@ package jiaonidaigou.appengine.api.access.sms;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
-import jiaonidaigou.appengine.common.utils.Secrets;
+import jiaoni.common.utils.Secrets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

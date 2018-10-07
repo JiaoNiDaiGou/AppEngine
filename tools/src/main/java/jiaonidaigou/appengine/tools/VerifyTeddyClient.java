@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.tools;
 
 import com.google.common.base.Stopwatch;
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;

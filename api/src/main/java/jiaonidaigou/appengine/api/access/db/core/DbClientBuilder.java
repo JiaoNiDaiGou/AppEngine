@@ -3,9 +3,9 @@ package jiaonidaigou.appengine.api.access.db.core;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.protobuf.Parser;
-import jiaonidaigou.appengine.common.model.BiTransform;
-import jiaonidaigou.appengine.common.model.JsonBytesBiTransform;
-import jiaonidaigou.appengine.common.model.ProtoBytesBiTransform;
+import jiaoni.common.model.BiTransform;
+import jiaoni.common.model.JsonBytesBiTransform;
+import jiaoni.common.model.ProtoBytesBiTransform;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;

@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import jiaonidaigou.appengine.api.access.db.ShoppingListDbCilent;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.wiremodel.api.AssignOwnershipShoppingListItemRequest;
 import jiaonidaigou.appengine.wiremodel.api.ExpireShoppingListItemRequest;
 import jiaonidaigou.appengine.wiremodel.api.InitShoppingListItemRequest;

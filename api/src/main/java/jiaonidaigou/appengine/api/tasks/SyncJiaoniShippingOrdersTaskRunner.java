@@ -9,7 +9,7 @@ import jiaonidaigou.appengine.api.access.email.EmailClient;
 import jiaonidaigou.appengine.api.access.sms.SmsClient;
 import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.contenttemplate.TemplateData;
 import jiaonidaigou.appengine.contenttemplate.TemplatesFactory;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;

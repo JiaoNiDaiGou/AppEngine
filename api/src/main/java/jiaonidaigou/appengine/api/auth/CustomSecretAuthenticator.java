@@ -2,8 +2,8 @@ package jiaonidaigou.appengine.api.auth;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
-import jiaonidaigou.appengine.common.utils.EncryptUtils;
-import jiaonidaigou.appengine.common.utils.Secrets;
+import jiaoni.common.utils.EncryptUtils;
+import jiaoni.common.utils.Secrets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

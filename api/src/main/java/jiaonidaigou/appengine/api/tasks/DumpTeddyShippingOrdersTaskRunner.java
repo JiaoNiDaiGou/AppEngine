@@ -15,9 +15,9 @@ import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
 import jiaonidaigou.appengine.api.registry.Registry;
 import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.InternalIOException;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.common.model.InternalIOException;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
+import static jiaoni.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 /**
  * What other people send.

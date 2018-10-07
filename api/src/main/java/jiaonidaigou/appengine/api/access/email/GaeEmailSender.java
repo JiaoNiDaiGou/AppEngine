@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.api.access.email;
 
 import com.google.inject.Singleton;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.Properties;

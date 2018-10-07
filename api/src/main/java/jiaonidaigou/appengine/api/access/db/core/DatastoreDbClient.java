@@ -39,8 +39,8 @@ import static com.google.appengine.api.datastore.Query.FilterOperator.LESS_THAN_
 import static com.google.appengine.api.datastore.Query.FilterOperator.NOT_EQUAL;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+import static jiaoni.common.utils.LocalMeter.meterOff;
+import static jiaoni.common.utils.LocalMeter.meterOn;
 
 /**
  * Implementation of {@link DbClient} by calling Datastore.

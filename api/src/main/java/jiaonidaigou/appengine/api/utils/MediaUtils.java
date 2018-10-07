@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.api.utils;
 
 import com.google.common.net.MediaType;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import org.apache.commons.lang3.StringUtils;
 
 public class MediaUtils {

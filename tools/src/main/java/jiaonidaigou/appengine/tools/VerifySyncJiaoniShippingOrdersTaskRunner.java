@@ -5,7 +5,7 @@ import jiaonidaigou.appengine.api.access.email.PopupPageEmailClient;
 import jiaonidaigou.appengine.api.access.sms.ConsoleSmsClient;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;

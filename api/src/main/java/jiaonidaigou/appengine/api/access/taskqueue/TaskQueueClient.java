@@ -6,8 +6,8 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.RetryOptions;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import jiaonidaigou.appengine.api.tasks.TaskMessage;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.InternalIOException;
+import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.common.model.InternalIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

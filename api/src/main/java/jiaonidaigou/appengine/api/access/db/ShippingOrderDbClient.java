@@ -8,7 +8,7 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreDbClient;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery;
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static jiaonidaigou.appengine.api.utils.AppEnvironments.ENV;
-import static jiaonidaigou.appengine.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
+import static jiaoni.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
 
 @Singleton
 public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {

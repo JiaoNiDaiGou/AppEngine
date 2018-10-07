@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.api.access.db.core;
 
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.model.Env;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;

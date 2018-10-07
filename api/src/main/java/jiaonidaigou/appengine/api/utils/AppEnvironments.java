@@ -1,8 +1,8 @@
 package jiaonidaigou.appengine.api.utils;
 
 import com.google.apphosting.api.ApiProxy;
-import jiaonidaigou.appengine.common.model.Env;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.model.Env;
+import jiaoni.common.utils.Environments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

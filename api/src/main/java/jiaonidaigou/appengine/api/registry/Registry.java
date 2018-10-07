@@ -10,8 +10,8 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
 import jiaonidaigou.appengine.api.utils.AppEnvironments;
-import jiaonidaigou.appengine.common.model.Env;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.model.Env;
+import jiaoni.common.utils.Environments;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class Registry extends BaseDbClient<Pair<String, String>> {

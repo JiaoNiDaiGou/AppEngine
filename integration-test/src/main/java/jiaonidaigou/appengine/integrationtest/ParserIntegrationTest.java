@@ -3,8 +3,8 @@ package jiaonidaigou.appengine.integrationtest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.common.test.TestUtils;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
 import jiaonidaigou.appengine.wiremodel.api.ParseRequest;
@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 
 import static jiaonidaigou.appengine.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
 import static org.junit.Assert.assertEquals;

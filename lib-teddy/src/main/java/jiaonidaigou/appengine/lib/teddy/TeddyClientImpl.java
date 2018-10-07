@@ -5,10 +5,10 @@ import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.common.utils.JsoupUtils;
-import jiaonidaigou.appengine.common.utils.Secrets;
-import jiaonidaigou.appengine.common.utils.StringUtils2;
+import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.utils.JsoupUtils;
+import jiaoni.common.utils.Secrets;
+import jiaoni.common.utils.StringUtils2;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
 import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
@@ -45,9 +45,9 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static jiaonidaigou.appengine.common.utils.JsoupUtils.getChildText;
-import static jiaonidaigou.appengine.common.utils.JsoupUtils.getElementTextById;
-import static jiaonidaigou.appengine.common.utils.StringUtils2.replaceNonCharTypesWith;
+import static jiaoni.common.utils.JsoupUtils.getChildText;
+import static jiaoni.common.utils.JsoupUtils.getElementTextById;
+import static jiaoni.common.utils.StringUtils2.replaceNonCharTypesWith;
 
 public class TeddyClientImpl implements TeddyClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeddyClientImpl.class);

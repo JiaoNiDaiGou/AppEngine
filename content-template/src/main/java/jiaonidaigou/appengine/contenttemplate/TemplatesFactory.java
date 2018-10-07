@@ -5,7 +5,7 @@ import com.google.common.io.Resources;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.Version;
-import jiaonidaigou.appengine.common.model.InternalIOException;
+import jiaoni.common.model.InternalIOException;
 
 import java.io.File;
 import java.io.IOException;

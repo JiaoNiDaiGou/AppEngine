@@ -8,7 +8,7 @@ import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.Oauth2.Builder;
 import com.google.api.services.oauth2.model.Tokeninfo;
 import com.google.common.collect.Sets;
-import jiaonidaigou.appengine.common.utils.Secrets;
+import jiaoni.common.utils.Secrets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

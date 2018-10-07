@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.api.access.email;
 
 import com.google.common.base.Charsets;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;

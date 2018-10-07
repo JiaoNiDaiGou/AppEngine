@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.tools.locallauncher;
 
 import jiaonidaigou.appengine.api.ApiApplication;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;

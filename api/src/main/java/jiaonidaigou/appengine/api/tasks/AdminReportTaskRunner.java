@@ -2,7 +2,7 @@ package jiaonidaigou.appengine.api.tasks;
 
 import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
 import jiaonidaigou.appengine.api.access.email.EmailClient;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
 
 import java.util.List;

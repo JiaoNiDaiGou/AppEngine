@@ -3,7 +3,7 @@ package jiaonidaigou.appengine.contentparser;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.wiremodel.entity.Address;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;

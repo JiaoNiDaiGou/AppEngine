@@ -7,7 +7,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 import org.joda.time.DateTime;
 
 import java.io.IOException;

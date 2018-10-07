@@ -9,7 +9,7 @@ import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
 import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
 import jiaonidaigou.appengine.api.access.db.core.DbQuery;
 import jiaonidaigou.appengine.api.utils.AppEnvironments;
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.wiremodel.entity.Product;
 import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
 

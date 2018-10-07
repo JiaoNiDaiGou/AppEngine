@@ -10,7 +10,7 @@ import com.google.common.io.CharStreams;
 import jiaonidaigou.appengine.api.access.email.LocalGmailSender;
 import jiaonidaigou.appengine.api.access.gcp.GoogleApisClientFactory;
 import jiaonidaigou.appengine.api.access.sheets.SheetsUtils;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.contenttemplate.TemplateData;
 import jiaonidaigou.appengine.contenttemplate.Templates;
 import jiaonidaigou.appengine.contenttemplate.TemplatesFactory;

@@ -1,8 +1,7 @@
 package jiaonidaigou.appengine.tools;
 
 import jiaonidaigou.appengine.api.registry.Registry;
-import jiaonidaigou.appengine.common.model.Env;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.tools.remote.RemoteApi;
 import org.apache.commons.lang3.tuple.Pair;
 

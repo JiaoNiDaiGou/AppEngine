@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.lib.teddy;
 
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.MockBrowserClient;
 import jiaonidaigou.appengine.lib.teddy.model.Admin;
 import jiaonidaigou.appengine.lib.teddy.model.Order;
 import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;

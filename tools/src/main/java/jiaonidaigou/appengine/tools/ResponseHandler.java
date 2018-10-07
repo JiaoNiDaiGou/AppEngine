@@ -2,7 +2,7 @@ package jiaonidaigou.appengine.tools;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

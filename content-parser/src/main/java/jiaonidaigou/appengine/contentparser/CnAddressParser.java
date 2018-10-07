@@ -1,10 +1,10 @@
 package jiaonidaigou.appengine.contentparser;
 
 import com.google.common.collect.ImmutableSet;
-import jiaonidaigou.appengine.common.location.CnCity;
-import jiaonidaigou.appengine.common.location.CnLocations;
-import jiaonidaigou.appengine.common.location.CnZone;
-import jiaonidaigou.appengine.common.utils.StringUtils2;
+import jiaoni.common.location.CnCity;
+import jiaoni.common.location.CnLocations;
+import jiaoni.common.location.CnZone;
+import jiaoni.common.utils.StringUtils2;
 import jiaonidaigou.appengine.wiremodel.entity.Address;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,8 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+import static jiaoni.common.utils.LocalMeter.meterOff;
+import static jiaoni.common.utils.LocalMeter.meterOn;
 
 public class CnAddressParser implements Parser<Address> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CnAddressParser.class);

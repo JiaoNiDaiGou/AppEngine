@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.integrationtest;
 
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
 import jiaonidaigou.appengine.wiremodel.api.AssignOwnershipShoppingListItemRequest;
 import jiaonidaigou.appengine.wiremodel.api.ExpireShoppingListItemRequest;

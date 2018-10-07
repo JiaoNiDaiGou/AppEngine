@@ -5,7 +5,7 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import jiaonidaigou.appengine.common.model.BiTransform;
+import jiaoni.common.model.BiTransform;
 import jiaonidaigou.appengine.wiremodel.entity.BytesArray;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
 import jiaonidaigou.appengine.wiremodel.entity.StringArray;

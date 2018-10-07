@@ -7,7 +7,7 @@ import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Order;

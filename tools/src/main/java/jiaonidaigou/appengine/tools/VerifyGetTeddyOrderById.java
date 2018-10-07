@@ -1,8 +1,8 @@
 package jiaonidaigou.appengine.tools;
 
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.json.ObjectMapperProvider;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;

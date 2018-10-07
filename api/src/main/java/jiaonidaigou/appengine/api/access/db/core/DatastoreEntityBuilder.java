@@ -7,7 +7,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import jiaonidaigou.appengine.api.utils.TimestampUtils;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
+import jiaoni.common.json.ObjectMapperProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;

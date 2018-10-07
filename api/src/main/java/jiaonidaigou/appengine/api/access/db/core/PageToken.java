@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static jiaonidaigou.appengine.common.utils.Preconditions2.checkNotBlank;
+import static jiaoni.common.utils.Preconditions2.checkNotBlank;
 
 public class PageToken {
     private static final String DELIMITER = "|";

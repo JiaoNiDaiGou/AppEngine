@@ -5,7 +5,7 @@ import jiaonidaigou.appengine.api.access.db.core.PageToken;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.wiremodel.entity.Address;
 import jiaonidaigou.appengine.wiremodel.entity.Customer;
 import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;

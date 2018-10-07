@@ -3,11 +3,11 @@ package jiaonidaigou.appengine.api.tasks;
 import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
 import jiaonidaigou.appengine.api.access.email.EmailClient;
 import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
-import jiaonidaigou.appengine.common.location.CnCity;
-import jiaonidaigou.appengine.common.location.CnLocations;
-import jiaonidaigou.appengine.common.location.CnRegion;
-import jiaonidaigou.appengine.common.location.CnZone;
-import jiaonidaigou.appengine.common.utils.Environments;
+import jiaoni.common.location.CnCity;
+import jiaoni.common.location.CnLocations;
+import jiaoni.common.location.CnRegion;
+import jiaoni.common.location.CnZone;
+import jiaoni.common.utils.Environments;
 import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
 import jiaonidaigou.appengine.lib.teddy.TeddyClient;
 import jiaonidaigou.appengine.lib.teddy.model.Receiver;
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+import static jiaoni.common.utils.LocalMeter.meterOn;
 
 @Singleton
 public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {

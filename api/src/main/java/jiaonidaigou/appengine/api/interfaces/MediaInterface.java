@@ -4,7 +4,7 @@ import com.google.common.io.ByteStreams;
 import jiaonidaigou.appengine.api.access.storage.StorageClient;
 import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaonidaigou.appengine.common.model.InternalIOException;
+import jiaoni.common.model.InternalIOException;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jvnet.hk2.annotations.Service;

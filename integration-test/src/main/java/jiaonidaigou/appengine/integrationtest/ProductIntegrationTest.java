@@ -1,20 +1,16 @@
 package jiaonidaigou.appengine.integrationtest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Table;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.Env;
+import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.common.model.Env;
 import jiaonidaigou.appengine.tools.remote.ApiClient;
 import jiaonidaigou.appengine.wiremodel.entity.Product;
 import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
-import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 
 import static org.junit.Assert.assertTrue;
 

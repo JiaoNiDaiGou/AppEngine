@@ -1,7 +1,7 @@
 package jiaonidaigou.appengine.contentparser;
 
-import jiaonidaigou.appengine.common.people.CnPeopleNames;
-import jiaonidaigou.appengine.common.utils.StringUtils2;
+import jiaoni.common.people.CnPeopleNames;
+import jiaoni.common.utils.StringUtils2;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+import static jiaoni.common.utils.LocalMeter.meterOff;
+import static jiaoni.common.utils.LocalMeter.meterOn;
 
 public class CnPeopleNameParser implements Parser<String> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CnPeopleNameParser.class);

@@ -14,8 +14,8 @@ import com.google.cloud.vision.v1.Symbol;
 import com.google.cloud.vision.v1.TextAnnotation;
 import com.google.cloud.vision.v1.Word;
 import com.google.protobuf.ByteString;
-import jiaonidaigou.appengine.common.model.InternalIOException;
-import jiaonidaigou.appengine.common.model.Snippet;
+import jiaoni.common.model.InternalIOException;
+import jiaoni.common.model.Snippet;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 
 import java.io.IOException;

@@ -5,8 +5,8 @@ import jiaonidaigou.appengine.api.auth.Roles;
 import jiaonidaigou.appengine.api.impls.DbEnhancedCustomerParser;
 import jiaonidaigou.appengine.api.utils.MediaUtils;
 import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.common.model.Snippet;
+import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.common.model.Snippet;
 import jiaonidaigou.appengine.contentparser.Answer;
 import jiaonidaigou.appengine.contentparser.Answers;
 import jiaonidaigou.appengine.contentparser.CnAddressParser;
@@ -36,8 +36,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOff;
-import static jiaonidaigou.appengine.common.utils.LocalMeter.meterOn;
+import static jiaoni.common.utils.LocalMeter.meterOff;
+import static jiaoni.common.utils.LocalMeter.meterOn;
 
 @Path("/api/parse")
 @Produces(MediaType.APPLICATION_JSON)

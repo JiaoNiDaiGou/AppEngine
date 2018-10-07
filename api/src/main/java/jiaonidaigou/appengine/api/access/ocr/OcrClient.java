@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.api.access.ocr;
 
-import jiaonidaigou.appengine.common.model.Snippet;
+import jiaoni.common.model.Snippet;
 import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
 
 import java.util.List;

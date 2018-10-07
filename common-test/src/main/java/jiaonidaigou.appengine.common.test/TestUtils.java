@@ -4,8 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
-import jiaonidaigou.appengine.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.common.model.InternalIOException;
+import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.model.InternalIOException;
 import org.mockito.stubbing.Stubber;
 
 import java.io.File;
