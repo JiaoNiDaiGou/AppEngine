@@ -1,7 +1,6 @@
-package jiaonidaigou.appengine.api.utils;
+package jiaoni.common.appengine.utils;
 
 import com.google.common.collect.Sets;
-import jiaoni.common.utils.Environments;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
@@ -86,9 +85,5 @@ public class RequestValidator {
             }
             return message;
         };
-    }
-
-    public static void validateAppName(final String appName) {
-        RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
     }
 }

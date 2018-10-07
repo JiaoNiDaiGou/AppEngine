@@ -1,7 +1,7 @@
-package jiaonidaigou.appengine.api.utils;
+package jiaoni.common.appengine.utils;
 
 import com.google.common.net.MediaType;
-import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.Envs;
 import org.apache.commons.lang3.StringUtils;
 
 public class MediaUtils {
@@ -26,6 +26,6 @@ public class MediaUtils {
     }
 
     public static String toStoragePath(final String mediaId) {
-        return Environments.Dir.MEDIA_ROOT_ENDSLASH + mediaId;
+        return Envs.Dir.MEDIA_ROOT_ENDSLASH + mediaId;
     }
 }

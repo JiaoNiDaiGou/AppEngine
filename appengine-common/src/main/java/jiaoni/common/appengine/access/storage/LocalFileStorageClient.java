@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.Envs;
 import jiaoni.common.utils.StringUtils2;
 import org.joda.time.DateTime;
 
@@ -87,7 +87,7 @@ public class LocalFileStorageClient implements StorageClient {
     }
 
     private File toFile(String path) {
-        return new File(Environments.LOCAL_TEMP_DIR_ENDSLASH +
+        return new File(Envs.LOCAL_TEMP_DIR_ENDSLASH +
                 StringUtils2.replaceNonCharTypesWith(path,
                         new StringUtils2.CharType[]{ StringUtils2.CharType.A2Z }, "_"));
     }

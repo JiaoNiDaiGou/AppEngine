@@ -1,7 +1,7 @@
 package jiaoni.common.appengine.access.email;
 
 import com.google.common.base.Charsets;
-import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.Envs;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
@@ -28,7 +28,7 @@ public class PopupPageEmailClient implements EmailClient {
     private void send(final String to,
                       final String subject,
                       final String text) {
-        String file = Environments.LOCAL_TEMP_DIR_ENDSLASH + "fake_email.html";
+        String file = Envs.LOCAL_TEMP_DIR_ENDSLASH + "fake_email.html";
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8))) {
             writer.write("[" + to + "]" + subject + "\n");
             writer.write(text);

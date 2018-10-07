@@ -2,13 +2,12 @@ package jiaonidaigou.appengine.api.interfaces;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.io.Resources;
-import jiaonidaigou.appengine.api.access.db.ProductDbClient;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
-import jiaonidaigou.appengine.wiremodel.entity.Product;
+import jiaoni.daigou.wiremodel.entity.Product;
+import jiaonidaigou.appengine.api.impls.ProductDbClient;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/api/{app}/products")
+@Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
@@ -40,14 +39,13 @@ public class ProductInterface {
     private final ProductDbClient dbClient;
 
     @Inject
-    public ProductInterface(@JiaoNiDaiGou final ProductDbClient dbClient) {
+    public ProductInterface(final ProductDbClient dbClient) {
         this.dbClient = dbClient;
     }
 
     @GET
     @Path("/getAll")
     public Response getAll(@PathParam("app") final String appName) {
-        LOGGER.info("appName:" + appName);
         List<Product> products = dbClient.scan().collect(Collectors.toList());
         return Response.ok(products).build();
     }

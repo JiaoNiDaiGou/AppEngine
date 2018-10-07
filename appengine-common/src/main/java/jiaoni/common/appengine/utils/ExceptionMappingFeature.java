@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.utils;
+package jiaoni.common.appengine.utils;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;

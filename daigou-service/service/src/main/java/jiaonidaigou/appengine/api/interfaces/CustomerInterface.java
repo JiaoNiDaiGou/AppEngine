@@ -1,14 +1,12 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
-import jiaonidaigou.appengine.api.access.db.core.PageToken;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaoni.common.utils.Environments;
-import jiaonidaigou.appengine.wiremodel.entity.Address;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
-import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
+import jiaoni.common.appengine.access.db.PageToken;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
+import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.wiremodel.common.entity.PaginatedResults;
+import jiaonidaigou.appengine.api.impls.CustomerDbClient;
 import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
@@ -27,7 +25,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/api/{app}/customers")
+@Path("/api/customers")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
@@ -39,17 +37,14 @@ public class CustomerInterface {
 
 
     @Inject
-    public CustomerInterface(@JiaoNiDaiGou final CustomerDbClient customerDbClient) {
+    public CustomerInterface(final CustomerDbClient customerDbClient) {
         this.customerDbClient = customerDbClient;
     }
 
     @GET
     @Path("/all")
-    public Response getAllCustomer(@PathParam("app") final String appName,
-                                   @QueryParam("nextToken") final String nextToken,
+    public Response getAllCustomer(@QueryParam("nextToken") final String nextToken,
                                    @QueryParam("limit") final int limit) {
-        RequestValidator.validateAppName(appName);
-
         PaginatedResults<Customer> results = customerDbClient.queryInPagination(
                 limit <= 0 ? DEFAULT_PAGE_LIMIT : limit,
                 PageToken.fromPageToken(nextToken));
@@ -58,11 +53,8 @@ public class CustomerInterface {
 
     @GET
     @Path("/{id}")
-    public Response getAllCustomer(@PathParam("app") final String appName,
-                                   @PathParam("id") final String id) {
-        RequestValidator.validateNotBlank(appName);
+    public Response getAllCustomer(@PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id);
-        RequestValidator.validateAppName(appName);
 
         Customer customer = customerDbClient.getById(id);
         if (customer == null) {
@@ -74,10 +66,7 @@ public class CustomerInterface {
 
     @POST
     @Path("/create")
-    public Response createCustomer(@PathParam("app") final String appName,
-                                   final Customer customer) {
-        RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
-        RequestValidator.validateNotBlank(appName);
+    public Response createCustomer(final Customer customer) {
         RequestValidator.validateNotNull(customer);
 
         String key = CustomerDbClient.computeKey(customer.getPhone(), customer.getName());
@@ -101,10 +90,7 @@ public class CustomerInterface {
 
     @POST
     @Path("/update")
-    public Response updateCustomer(@PathParam("app") final String appName,
-                                   final Customer customer) {
-        RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
-        RequestValidator.validateNotBlank(appName);
+    public Response updateCustomer(final Customer customer) {
         RequestValidator.validateNotNull(customer);
         RequestValidator.validateNotBlank(customer.getId());
 
@@ -114,12 +100,9 @@ public class CustomerInterface {
 
     @POST
     @Path("/{id}/setDefaultAddress")
-    public Response setDefaultAddress(@PathParam("app") final String appName,
-                                      @PathParam("id") final String id,
+    public Response setDefaultAddress(@PathParam("id") final String id,
                                       final Address address) {
-        RequestValidator.validateNotBlank(appName);
         RequestValidator.validateNotBlank(id);
-        RequestValidator.validateAppName(appName);
 
         Customer customer = customerDbClient.getById(id);
         if (customer == null) {
@@ -147,10 +130,8 @@ public class CustomerInterface {
 
     @DELETE
     @Path("/{id}/delete")
-    public Response deleteCustomer(@PathParam("app") final String appName,
-                                   @PathParam("id") final String id) {
+    public Response deleteCustomer(@PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id);
-        RequestValidator.validateValueInSet(appName, Environments.ALL_OPEN_NAMESPACES, appName);
 
         customerDbClient.delete(id);
         return Response.ok().build();

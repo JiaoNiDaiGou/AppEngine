@@ -23,7 +23,7 @@ public class LocalFileOpener {
     }
 
     public static void openFileContent(final String fileNameOnly, final byte[] bytes) {
-        File file = new File(Environments.LOCAL_TEMP_DIR_ENDSLASH + fileNameOnly);
+        File file = new File(Envs.LOCAL_TEMP_DIR_ENDSLASH + fileNameOnly);
         try {
             Files.write(file.toPath(), bytes);
         } catch (IOException e) {

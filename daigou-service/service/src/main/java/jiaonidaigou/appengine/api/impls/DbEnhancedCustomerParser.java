@@ -1,13 +1,11 @@
 package jiaonidaigou.appengine.api.impls;
 
-import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
-import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
-import jiaonidaigou.appengine.contentparser.Answer;
-import jiaonidaigou.appengine.contentparser.Answers;
-import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
-import jiaonidaigou.appengine.contentparser.Conf;
-import jiaonidaigou.appengine.contentparser.Parser;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
+import jiaoni.daigou.contentparser.Answer;
+import jiaoni.daigou.contentparser.Answers;
+import jiaoni.daigou.contentparser.CnCustomerContactParser;
+import jiaoni.daigou.contentparser.Conf;
+import jiaoni.daigou.contentparser.Parser;
+import jiaoni.daigou.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class DbEnhancedCustomerParser implements Parser<Customer> {
 
     @Inject
     public DbEnhancedCustomerParser(final CnCustomerContactParser customerContactParser,
-                                    @JiaoNiDaiGou final CustomerDbClient dbClient) {
+                                    final CustomerDbClient dbClient) {
         this.parser = checkNotNull(customerContactParser);
         this.dbClient = checkNotNull(dbClient);
     }

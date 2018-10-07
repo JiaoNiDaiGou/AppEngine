@@ -1,13 +1,13 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
-import jiaonidaigou.appengine.api.auth.Roles;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
+import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
+import jiaoni.common.appengine.auth.Roles;
+import jiaonidaigou.appengine.api.tasks.AdminReportTaskRunner;
 import jiaonidaigou.appengine.api.tasks.BuildProductHintsTaskRunner;
 import jiaonidaigou.appengine.api.tasks.DumpTeddyShippingOrdersTaskRunner;
-import jiaonidaigou.appengine.api.tasks.AdminReportTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaonidaigou.appengine.api.tasks.SyncJiaoniShippingOrdersTaskRunner;
-import jiaonidaigou.appengine.api.tasks.TaskMessage;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.api.access.taskqueue.PubSubClient.QueueName.HIGH_FREQUENCY;
+import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.HIGH_FREQUENCY;
 
 @Path("/cron")
 @Produces(MediaType.APPLICATION_JSON)

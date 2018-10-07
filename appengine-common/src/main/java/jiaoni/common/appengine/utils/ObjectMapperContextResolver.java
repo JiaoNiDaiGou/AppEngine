@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.api.utils;
+package jiaoni.common.appengine.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jiaoni.common.json.ObjectMapperProvider;

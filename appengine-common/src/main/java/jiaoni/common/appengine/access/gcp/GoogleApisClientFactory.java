@@ -14,7 +14,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.Envs;
 import jiaoni.common.utils.Secrets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class GoogleApisClientFactory {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
                     .Builder(httpTransport, JACKSON_FACTORY, clientSecrets, scopes)
-                    .setDataStoreFactory(new FileDataStoreFactory(new File(Environments.LOCAL_TEMP_DIR_ENDSLASH + "gapis")))
+                    .setDataStoreFactory(new FileDataStoreFactory(new File(Envs.LOCAL_TEMP_DIR_ENDSLASH + "gapis")))
                     .setAccessType("offline")
                     .build();
 

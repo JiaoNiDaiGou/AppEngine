@@ -1,22 +1,21 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
-import jiaonidaigou.appengine.api.access.db.ShippingOrderDbClient;
-import jiaonidaigou.appengine.api.access.db.core.PageToken;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaonidaigou.appengine.api.utils.TeddyUtils;
+import jiaoni.common.appengine.access.db.PageToken;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
-import jiaonidaigou.appengine.lib.teddy.TeddyClient;
-import jiaonidaigou.appengine.lib.teddy.model.Order;
-import jiaonidaigou.appengine.wiremodel.api.ExternalCreateShippingOrderRequest;
-import jiaonidaigou.appengine.wiremodel.api.InitShippingOrderRequest;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
-import jiaonidaigou.appengine.wiremodel.entity.PaginatedResults;
-import jiaonidaigou.appengine.wiremodel.entity.Price;
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.lib.teddy.TeddyAdmins;
+import jiaoni.daigou.lib.teddy.TeddyClient;
+import jiaoni.daigou.lib.teddy.model.Order;
+import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
+import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
+import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.wiremodel.entity.Price;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import jiaoni.wiremodel.common.entity.PaginatedResults;
+import jiaonidaigou.appengine.api.impls.CustomerDbClient;
+import jiaonidaigou.appengine.api.impls.ShippingOrderDbClient;
+import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -55,7 +54,7 @@ public class ShippingOrderInterface {
     @Inject
     public ShippingOrderInterface(@Named(TeddyAdmins.BY_ENV) final TeddyClient teddyClient,
                                   final ShippingOrderDbClient shippingOrderDbClient,
-                                  @JiaoNiDaiGou final CustomerDbClient customerDbClient) {
+                                  final CustomerDbClient customerDbClient) {
         this.teddyClient = teddyClient;
         this.shippingOrderDbClient = shippingOrderDbClient;
         this.customerDbClient = customerDbClient;

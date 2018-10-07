@@ -30,13 +30,11 @@ import jiaoni.daigou.contentparser.CnPeopleNameParser;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
-import jiaonidaigou.appengine.api.utils.AppEnvironments;
+import jiaonidaigou.appengine.api.AppEnvs;
 
 import java.io.IOException;
 import javax.inject.Named;
 import javax.inject.Singleton;
-
-import static jiaoni.common.model.Env.PROD;
 
 public class ServiceModule extends AbstractModule {
     @Override
@@ -91,7 +89,7 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     @Named(TeddyAdmins.BY_ENV)
     TeddyClient provideTeddyClientByEnv() {
-        switch (AppEnvironments.ENV) {
+        switch (AppEnvs.getEnv()) {
             case PROD:
                 return new TeddyClientImpl(TeddyAdmins.JIAONI,
                         new MockBrowserClient("teddyclient." + TeddyAdmins.JIAONI, new InMemoryCookieStore()));

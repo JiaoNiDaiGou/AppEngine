@@ -1,21 +1,19 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import jiaonidaigou.appengine.api.access.ocr.OcrClient;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.impls.DbEnhancedCustomerParser;
-import jiaonidaigou.appengine.api.utils.MediaUtils;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaoni.common.appengine.access.ocr.OcrClient;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Snippet;
-import jiaonidaigou.appengine.contentparser.Answer;
-import jiaonidaigou.appengine.contentparser.Answers;
-import jiaonidaigou.appengine.contentparser.CnAddressParser;
-import jiaonidaigou.appengine.contentparser.Conf;
-import jiaonidaigou.appengine.contentparser.Parser;
-import jiaonidaigou.appengine.wiremodel.api.ParseRequest;
-import jiaonidaigou.appengine.wiremodel.api.ParseResponse;
-import jiaonidaigou.appengine.wiremodel.api.ParsedObject;
-import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
+import jiaoni.daigou.contentparser.Answer;
+import jiaoni.daigou.contentparser.Answers;
+import jiaoni.daigou.contentparser.CnAddressParser;
+import jiaoni.daigou.contentparser.Conf;
+import jiaoni.daigou.contentparser.Parser;
+import jiaoni.daigou.wiremodel.api.ParseRequest;
+import jiaoni.daigou.wiremodel.api.ParseResponse;
+import jiaoni.daigou.wiremodel.api.ParsedObject;
+import jiaonidaigou.appengine.api.impls.DbEnhancedCustomerParser;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -36,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static jiaoni.common.appengine.utils.MediaUtils.toStoragePath;
 import static jiaoni.common.utils.LocalMeter.meterOff;
 import static jiaoni.common.utils.LocalMeter.meterOn;
 
@@ -145,12 +144,8 @@ public class ParserInterface {
     private List<Snippet> extractFromMedia(final List<String> mediaIds) {
         List<Snippet> toReturn = new ArrayList<>();
         for (String mediaId : mediaIds) {
-            String fullPath = MediaUtils.toStoragePath(mediaId);
-            MediaObject object = MediaObject.newBuilder()
-                    .setId(mediaId)
-                    .setFullPath(fullPath)
-                    .build();
-            List<Snippet> snippets = ocrClient.annotateFromMediaObject(object);
+            String fullPath = toStoragePath(mediaId);
+            List<Snippet> snippets = ocrClient.annotateFromMediaPath(fullPath);
             toReturn.addAll(filterLowConfidenceSnippets(snippets));
         }
         return toReturn;

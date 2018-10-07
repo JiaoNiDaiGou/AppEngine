@@ -3,16 +3,16 @@ package jiaonidaigou.appengine.api.interfaces;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import jiaonidaigou.appengine.api.access.db.ShoppingListDbCilent;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
-import jiaonidaigou.appengine.wiremodel.api.AssignOwnershipShoppingListItemRequest;
-import jiaonidaigou.appengine.wiremodel.api.ExpireShoppingListItemRequest;
-import jiaonidaigou.appengine.wiremodel.api.InitShoppingListItemRequest;
-import jiaonidaigou.appengine.wiremodel.api.PurchaseShoppingListItemRequest;
-import jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem;
-import jiaonidaigou.appengine.wiremodel.entity.ShoppingListItemOrBuilder;
+import jiaoni.daigou.wiremodel.api.AssignOwnershipShoppingListItemRequest;
+import jiaoni.daigou.wiremodel.api.ExpireShoppingListItemRequest;
+import jiaoni.daigou.wiremodel.api.InitShoppingListItemRequest;
+import jiaoni.daigou.wiremodel.api.PurchaseShoppingListItemRequest;
+import jiaoni.daigou.wiremodel.entity.ShoppingListItem;
+import jiaoni.daigou.wiremodel.entity.ShoppingListItemOrBuilder;
+import jiaonidaigou.appengine.api.impls.ShoppingListDbCilent;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -39,12 +39,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.Status.EXPIRED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.Status.INIT;
-import static jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.Status.IN_HOUSE;
-import static jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.Status.OWNERSHIP_ASSIGNED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.Status.PURCHASED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShoppingListItem.Status.UNKNOWN;
+import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.EXPIRED;
+import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.INIT;
+import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.IN_HOUSE;
+import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.OWNERSHIP_ASSIGNED;
+import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.PURCHASED;
+import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.UNKNOWN;
 
 @Path("/api/shoppingLists")
 @Produces(MediaType.APPLICATION_JSON)
@@ -80,7 +80,7 @@ public class ShoppingListInterface {
     }
 
     @GET
-    @Path("/get/{id}")
+    @Path("/{id}")
     public Response getById(@PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id);
         ShoppingListItem item = dbCilent.getById(id);
@@ -98,7 +98,7 @@ public class ShoppingListInterface {
                 request.getProductEntriesCount() > 0);
 
         ShoppingListItem toSave = ShoppingListItem.newBuilder()
-                .setStatus(ShoppingListItem.Status.INIT)
+                .setStatus(INIT)
                 .setCreationTime(System.currentTimeMillis())
                 .setCreatorName(request.getCreatorName())
                 .setExpirationTime(-1)

@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.api.interfaces;
 
-import jiaonidaigou.appengine.api.auth.Roles;
+import jiaoni.common.appengine.auth.Roles;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.annotation.security.PermitAll;

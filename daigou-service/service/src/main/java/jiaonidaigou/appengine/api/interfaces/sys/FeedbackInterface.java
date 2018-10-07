@@ -1,9 +1,9 @@
 package jiaonidaigou.appengine.api.interfaces.sys;
 
-import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
-import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
+import jiaoni.daigou.wiremodel.entity.sys.Feedback;
+import jiaonidaigou.appengine.api.impls.FeedbackDbClient;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 

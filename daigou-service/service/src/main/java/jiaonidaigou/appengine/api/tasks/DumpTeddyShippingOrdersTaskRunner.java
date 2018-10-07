@@ -8,20 +8,21 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
 import com.google.common.util.concurrent.Uninterruptibles;
-import jiaonidaigou.appengine.api.access.email.EmailClient;
-import jiaonidaigou.appengine.api.access.storage.StorageClient;
-import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
-import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
-import jiaonidaigou.appengine.api.registry.Registry;
-import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
-import jiaonidaigou.appengine.api.utils.TeddyUtils;
+import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.storage.StorageClient;
+import jiaoni.common.appengine.access.taskqueue.PubSubClient;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
+import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.common.utils.Environments;
-import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
-import jiaonidaigou.appengine.lib.teddy.TeddyClient;
-import jiaonidaigou.appengine.lib.teddy.model.Order;
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.lib.teddy.TeddyAdmins;
+import jiaoni.daigou.lib.teddy.TeddyClient;
+import jiaoni.daigou.lib.teddy.model.Order;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import jiaonidaigou.appengine.api.AppEnvs;
+import jiaonidaigou.appengine.api.utils.RegistryFactory;
+import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
+import jiaonidaigou.appengine.api.utils.TeddyUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -37,14 +38,12 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import static jiaoni.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
-
 /**
  * What other people send.
  */
 public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> {
-    private static final String DUMP_DIR = Environments.Dir.SHIPPING_ORDERS_DUMP_ENDSLASH;
-    private static final String ARCHIEVE_DIR = Environments.Dir.SHIPPING_ORDERS_ARCHIVE_ENDSLASH;
+    private static final String DUMP_DIR = AppEnvs.Dir.SHIPPING_ORDERS_DUMP;
+    private static final String ARCHIEVE_DIR = AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE;
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpTeddyShippingOrdersTaskRunner.class);
     private static final long KNOWN_START_ID = 134009;
     /**
@@ -192,7 +191,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             archiveShippingOrders();
 
             LOGGER.info("No more next task. end ticket {}.", message);
-            for (String adminEmal : Environments.ADMIN_EMAILS) {
+            for (String adminEmal : AppEnvs.getAdminEmails()) {
                 emailClient.sendText(adminEmal,
                         "Teddy OrderDump " + taskMessage.getReachCount(),
                         String.format("End RID %s.", message.id));
@@ -257,13 +256,13 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
     }
 
     private void saveLastDumpId(final String key, final long id) {
-        Registry.instance().setRegistry(NAMESPACE_JIAONIDAIGOU, key, String.valueOf(id));
+        RegistryFactory.get().setRegistry(AppEnvs.getServiceName(), key, String.valueOf(id));
     }
 
     private long determineStartId(final Message message, final String key) {
         long id = message.id;
         if (id == 0) {
-            id = Long.parseLong(Registry.instance().getRegistry(NAMESPACE_JIAONIDAIGOU, key));
+            id = Long.parseLong(RegistryFactory.get().getRegistry(AppEnvs.getServiceName(), key));
         }
         LOGGER.info("determine start ID {}", id);
         return id;

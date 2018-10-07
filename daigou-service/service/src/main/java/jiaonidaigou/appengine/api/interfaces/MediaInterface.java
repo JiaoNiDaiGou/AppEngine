@@ -1,11 +1,11 @@
 package jiaonidaigou.appengine.api.interfaces;
 
 import com.google.common.io.ByteStreams;
-import jiaonidaigou.appengine.api.access.storage.StorageClient;
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaoni.common.appengine.access.storage.StorageClient;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.model.InternalIOException;
-import jiaonidaigou.appengine.wiremodel.entity.MediaObject;
+import jiaoni.daigou.wiremodel.entity.MediaObject;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -29,8 +29,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.api.utils.MediaUtils.determineMediaType;
-import static jiaonidaigou.appengine.api.utils.MediaUtils.toStoragePath;
+import static jiaoni.common.appengine.utils.MediaUtils.determineMediaType;
+import static jiaoni.common.appengine.utils.MediaUtils.toStoragePath;
 
 @Path("/api/media")
 @Produces(MediaType.APPLICATION_JSON)

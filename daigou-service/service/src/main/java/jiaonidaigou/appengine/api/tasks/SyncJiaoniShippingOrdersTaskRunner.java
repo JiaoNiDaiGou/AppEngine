@@ -4,19 +4,20 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
-import jiaonidaigou.appengine.api.access.db.ShippingOrderDbClient;
-import jiaonidaigou.appengine.api.access.email.EmailClient;
-import jiaonidaigou.appengine.api.access.sms.SmsClient;
+import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.sms.SmsClient;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
+import jiaoni.contenttemplate.TemplateData;
+import jiaoni.contenttemplate.TemplatesFactory;
+import jiaoni.daigou.lib.teddy.TeddyAdmins;
+import jiaoni.daigou.lib.teddy.TeddyClient;
+import jiaoni.daigou.wiremodel.entity.Price;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder.Status;
+import jiaonidaigou.appengine.api.AppEnvs;
+import jiaonidaigou.appengine.api.impls.ShippingOrderDbClient;
 import jiaonidaigou.appengine.api.utils.ShippingOrderUtils;
 import jiaonidaigou.appengine.api.utils.TeddyUtils;
-import jiaoni.common.utils.Environments;
-import jiaonidaigou.appengine.contenttemplate.TemplateData;
-import jiaonidaigou.appengine.contenttemplate.TemplatesFactory;
-import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
-import jiaonidaigou.appengine.lib.teddy.TeddyClient;
-import jiaonidaigou.appengine.wiremodel.entity.Price;
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -35,14 +36,14 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.CN_POSTMAN_ASSIGNED;
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.CN_TRACKING_NUMBER_ASSIGNED;
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.DELIVERED;
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED;
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHPPING_PENDING;
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.INIT;
+import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.PACKED;
 import static jiaonidaigou.appengine.api.utils.TeddyUtils.getKnownShippingCarriers;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.CN_POSTMAN_ASSIGNED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.CN_TRACKING_NUMBER_ASSIGNED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.DELIVERED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHPPING_PENDING;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.INIT;
-import static jiaonidaigou.appengine.wiremodel.entity.ShippingOrder.Status.PACKED;
 
 @Singleton
 public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage> {
@@ -311,7 +312,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
                 .toContent(templateData.build());
 
         if (StringUtils.isNotBlank(subject) && StringUtils.isNotBlank(html)) {
-            emailClient.sendHtml(String.join(",", Environments.ADMIN_EMAILS), subject, html);
+            emailClient.sendHtml(String.join(",", AppEnvs.getAdminEmails()), subject, html);
         }
     }
 

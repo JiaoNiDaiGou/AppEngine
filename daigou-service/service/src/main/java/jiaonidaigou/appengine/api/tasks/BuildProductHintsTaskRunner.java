@@ -4,13 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.net.MediaType;
-import jiaonidaigou.appengine.api.access.storage.StorageClient;
+import jiaoni.common.appengine.access.storage.StorageClient;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.json.ObjectMapperProvider;
-import jiaoni.common.utils.Environments;
 import jiaoni.common.utils.StringUtils2;
-import jiaonidaigou.appengine.wiremodel.entity.Product;
-import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.wiremodel.entity.Product;
+import jiaoni.daigou.wiremodel.entity.ProductCategory;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import jiaonidaigou.appengine.api.AppEnvs;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
@@ -31,7 +32,6 @@ import javax.inject.Singleton;
 
 @Singleton
 public class BuildProductHintsTaskRunner implements Consumer<TaskMessage> {
-    private static final String ARCHIEVE_DIR = Environments.GCS_ROOT_ENDSLASH + "teddy_orders_archive/";
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildProductHintsTaskRunner.class);
 
 
@@ -98,7 +98,7 @@ public class BuildProductHintsTaskRunner implements Consumer<TaskMessage> {
     private void writeProductsHints(List<Triple<ProductCategory, String, Set<String>>> hints) {
         try {
             byte[] bytes = ObjectMapperProvider.get().writeValueAsBytes(hints);
-            String path = ARCHIEVE_DIR + "latest.json";
+            String path = AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE + "latest.json";
             LOGGER.info("Write hints to {}", path);
             storageClient.write(path, MediaType.JSON_UTF_8.toString(), bytes);
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class BuildProductHintsTaskRunner implements Consumer<TaskMessage> {
 
     private List<ShippingOrder> loadAllShippingOrders() {
         List<ShippingOrder> toReturn = new ArrayList<>();
-        List<String> paths = storageClient.listAll(ARCHIEVE_DIR);
+        List<String> paths = storageClient.listAll(AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE);
         for (String path : paths) {
             LOGGER.info("Load {}", path);
             List<ShippingOrder> shippingOrders = new ArrayList<>();

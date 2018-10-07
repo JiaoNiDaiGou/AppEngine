@@ -1,19 +1,19 @@
 package jiaonidaigou.appengine.api.tasks;
 
-import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
-import jiaonidaigou.appengine.api.access.email.EmailClient;
-import jiaonidaigou.appengine.api.guice.JiaoNiDaiGou;
+import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.location.CnCity;
 import jiaoni.common.location.CnLocations;
 import jiaoni.common.location.CnRegion;
 import jiaoni.common.location.CnZone;
-import jiaoni.common.utils.Environments;
-import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
-import jiaonidaigou.appengine.lib.teddy.TeddyClient;
-import jiaonidaigou.appengine.lib.teddy.model.Receiver;
-import jiaonidaigou.appengine.wiremodel.entity.Address;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
-import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
+import jiaoni.daigou.lib.teddy.TeddyAdmins;
+import jiaoni.daigou.lib.teddy.TeddyClient;
+import jiaoni.daigou.lib.teddy.model.Receiver;
+import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaonidaigou.appengine.api.AppEnvs;
+import jiaonidaigou.appengine.api.impls.CustomerDbClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
@@ -42,7 +42,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
     private final EmailClient emailClient;
 
     @Inject
-    public SyncJiaoniCustomersTaskRunner(@JiaoNiDaiGou final CustomerDbClient customerDbClient,
+    public SyncJiaoniCustomersTaskRunner(final CustomerDbClient customerDbClient,
                                          @Named(TeddyAdmins.JIAONI) final TeddyClient teddyClient,
                                          EmailClient emailClient) {
         this.customerDbClient = customerDbClient;
@@ -101,7 +101,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
                 .append(toUpdate.size())
                 .append(" new customers.");
 
-        for (String adminEmail : Environments.ADMIN_EMAILS) {
+        for (String adminEmail : AppEnvs.getAdminEmails()) {
             emailClient.sendText(adminEmail, "SyncReceiver report", logger.toString());
         }
     }

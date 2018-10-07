@@ -1,18 +1,18 @@
 package jiaonidaigou.appengine.api.utils;
 
 import com.google.common.collect.ImmutableSet;
-import jiaonidaigou.appengine.lib.teddy.model.Order;
-import jiaonidaigou.appengine.lib.teddy.model.OrderPreview;
-import jiaonidaigou.appengine.lib.teddy.model.Receiver;
-import jiaonidaigou.appengine.lib.teddy.model.ShippingHistoryEntry;
-import jiaonidaigou.appengine.wiremodel.entity.Address;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
-import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
-import jiaonidaigou.appengine.wiremodel.entity.Postman;
-import jiaonidaigou.appengine.wiremodel.entity.Price;
-import jiaonidaigou.appengine.wiremodel.entity.Product;
-import jiaonidaigou.appengine.wiremodel.entity.ProductCategory;
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.lib.teddy.model.Order;
+import jiaoni.daigou.lib.teddy.model.OrderPreview;
+import jiaoni.daigou.lib.teddy.model.Receiver;
+import jiaoni.daigou.lib.teddy.model.ShippingHistoryEntry;
+import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.daigou.wiremodel.entity.Postman;
+import jiaoni.daigou.wiremodel.entity.Price;
+import jiaoni.daigou.wiremodel.entity.Product;
+import jiaoni.daigou.wiremodel.entity.ProductCategory;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -91,7 +91,7 @@ public class TeddyUtils {
     }
 
     private static ShippingOrder.ProductEntry convertToShippingOrderProductEntry(
-            final jiaonidaigou.appengine.lib.teddy.model.Product product) {
+            final jiaoni.daigou.lib.teddy.model.Product product) {
         Product.Builder productBuilder = Product.newBuilder();
         boolean hasBrand = setIfNotBlank(product.getBrand(), productBuilder::setBrand);
         boolean hasCategory = setIfNotNull(convertProductCategory(product.getCategory()), productBuilder::setCategory);
@@ -153,7 +153,7 @@ public class TeddyUtils {
         }
     }
 
-    private static ProductCategory convertProductCategory(final jiaonidaigou.appengine.lib.teddy.model.Product.Category category) {
+    private static ProductCategory convertProductCategory(final jiaoni.daigou.lib.teddy.model.Product.Category category) {
         if (category == null) {
             return ProductCategory.UNKNOWN;
         }
@@ -209,7 +209,7 @@ public class TeddyUtils {
         }
     }
 
-    public static List<jiaonidaigou.appengine.lib.teddy.model.Product> convertToTeddyProducts(
+    public static List<jiaoni.daigou.lib.teddy.model.Product> convertToTeddyProducts(
             final List<ShippingOrder.ProductEntry> productEntries) {
         return productEntries
                 .stream()
@@ -217,9 +217,9 @@ public class TeddyUtils {
                 .collect(Collectors.toList());
     }
 
-    public static jiaonidaigou.appengine.lib.teddy.model.Product convertToTeddyProduct(
+    public static jiaoni.daigou.lib.teddy.model.Product convertToTeddyProduct(
             final ShippingOrder.ProductEntry productEntry) {
-        return jiaonidaigou.appengine.lib.teddy.model.Product.builder()
+        return jiaoni.daigou.lib.teddy.model.Product.builder()
                 .withBrand(productEntry.getProduct().getBrand())
                 .withCategory(convertToTeddyProductCategory(productEntry.getProduct().getCategory()))
                 .withName(productEntry.getProduct().getName())
@@ -228,36 +228,36 @@ public class TeddyUtils {
                 .build();
     }
 
-    public static jiaonidaigou.appengine.lib.teddy.model.Product.Category convertToTeddyProductCategory(
+    public static jiaoni.daigou.lib.teddy.model.Product.Category convertToTeddyProductCategory(
             final ProductCategory category) {
         switch (category) {
             case BAGS:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.BAGS;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.BAGS;
             case FOOD:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.FOOD;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.FOOD;
             case TOYS:
             case DAILY_NECESSITIES:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.TOYS_AND_DAILY_NECESSITIES;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.TOYS_AND_DAILY_NECESSITIES;
             case SHOES:
             case CLOTHES:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.CLOTHES_AND_SHOES;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.CLOTHES_AND_SHOES;
             case MAKE_UP:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.MAKE_UP;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.MAKE_UP;
             case WATCHES:
             case ACCESSORIES:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.WATCH_AND_ACCESSORIES;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.WATCH_AND_ACCESSORIES;
             case LARGE_ITEMS:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.LARGE_ITEMS;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.LARGE_ITEMS;
             case MILK_POWDER:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.MILK_POWDER;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.MILK_POWDER;
             case BABY_PRODUCTS:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.BABY_PRODUCTS;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.BABY_PRODUCTS;
             case SMALL_APPLIANCES:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.SMALL_APPLIANCES;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.SMALL_APPLIANCES;
             case HEALTH_SUPPLEMENTS:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.HEALTH_SUPPLEMENTS;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.HEALTH_SUPPLEMENTS;
             case LARGE_COMMERCIAL_GOODS:
-                return jiaonidaigou.appengine.lib.teddy.model.Product.Category.LARGE_COMMERCIAL_GOODS;
+                return jiaoni.daigou.lib.teddy.model.Product.Category.LARGE_COMMERCIAL_GOODS;
             case UNKNOWN:
             case UNRECOGNIZED:
             default:

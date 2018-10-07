@@ -1,9 +1,10 @@
 package jiaonidaigou.appengine.api.tasks;
 
-import jiaonidaigou.appengine.api.access.db.FeedbackDbClient;
-import jiaonidaigou.appengine.api.access.email.EmailClient;
-import jiaoni.common.utils.Environments;
-import jiaonidaigou.appengine.wiremodel.entity.sys.Feedback;
+import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
+import jiaoni.daigou.wiremodel.entity.sys.Feedback;
+import jiaonidaigou.appengine.api.AppEnvs;
+import jiaonidaigou.appengine.api.impls.FeedbackDbClient;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -34,7 +35,7 @@ public class AdminReportTaskRunner implements Consumer<TaskMessage> {
                     .append("\n\n");
         }
         String text = stringBuilder.length() == 0 ? "No feedback :(" : stringBuilder.toString();
-        for (String email : Environments.ADMIN_EMAILS) {
+        for (String email : AppEnvs.getAdminEmails()) {
             emailClient.sendText(email, "Feedback", text);
         }
     }

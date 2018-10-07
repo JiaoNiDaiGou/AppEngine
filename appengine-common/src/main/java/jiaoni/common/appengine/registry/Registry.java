@@ -1,36 +1,25 @@
-package jiaonidaigou.appengine.api.registry;
+package jiaoni.common.appengine.registry;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.common.annotations.VisibleForTesting;
-import jiaonidaigou.appengine.api.access.db.core.BaseDbClient;
-import jiaonidaigou.appengine.api.access.db.core.BaseEntityFactory;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityBuilder;
-import jiaonidaigou.appengine.api.access.db.core.DatastoreEntityExtractor;
-import jiaonidaigou.appengine.api.access.db.core.DbClientBuilder;
-import jiaonidaigou.appengine.api.utils.AppEnvironments;
+import jiaoni.common.appengine.access.db.BaseDbClient;
+import jiaoni.common.appengine.access.db.BaseEntityFactory;
+import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
+import jiaoni.common.appengine.access.db.DatastoreEntityExtractor;
+import jiaoni.common.appengine.access.db.DbClientBuilder;
 import jiaoni.common.model.Env;
-import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.Envs;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class Registry extends BaseDbClient<Pair<String, String>> {
     private static final String TABLE_NAME = "Registry";
     private static final String FIELD_VAL = "val";
 
-    /**
-     * Use {@link #instance()}.
-     */
-    @VisibleForTesting
     public Registry(final DatastoreService service, final Env env) {
         super(new DbClientBuilder<Pair<String, String>>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(Environments.NAMESPACE_SYS, env, TABLE_NAME))
+                .entityFactory(new EntityFactory(Envs.NAMESPACE_SYS, env, TABLE_NAME))
                 .build());
-    }
-
-    public static Registry instance() {
-        return LazyHolder.instance;
     }
 
     private static String key(final String serviceName, final String key) {
@@ -48,10 +37,6 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
 
     public void deleteRegistry(final String serviceName, final String key) {
         delete(key(serviceName, key));
-    }
-
-    private static class LazyHolder {
-        private static Registry instance = new Registry(DatastoreServiceFactory.getDatastoreService(), AppEnvironments.ENV);
     }
 
     private static class EntityFactory extends BaseEntityFactory<Pair<String, String>> {

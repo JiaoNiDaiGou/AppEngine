@@ -1,8 +1,8 @@
 package jiaonidaigou.appengine.api.interfaces.sys;
 
-import jiaonidaigou.appengine.api.auth.Roles;
-import jiaonidaigou.appengine.api.registry.Registry;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaoni.common.appengine.auth.Roles;
+import jiaoni.common.appengine.utils.RequestValidator;
+import jiaonidaigou.appengine.api.utils.RegistryFactory;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,7 +29,7 @@ public class RegistryInterface {
         RequestValidator.validateNotBlank(serviceName);
         RequestValidator.validateNotBlank(keyName);
 
-        Registry.instance().setRegistry(serviceName, keyName, value);
+        RegistryFactory.get().setRegistry(serviceName, keyName, value);
 
         return Response.ok(value).build();
     }
@@ -41,7 +41,7 @@ public class RegistryInterface {
         RequestValidator.validateNotBlank(serviceName);
         RequestValidator.validateNotBlank(keyName);
 
-        String value = Registry.instance().getRegistry(serviceName, keyName);
+        String value = RegistryFactory.get().getRegistry(serviceName, keyName);
 
         return Response.ok(value != null ? value : "").build();
     }

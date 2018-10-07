@@ -3,13 +3,14 @@ package jiaonidaigou.appengine.api.interfaces;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import jiaonidaigou.appengine.api.access.db.WxSessionDbClient;
-import jiaonidaigou.appengine.api.auth.WxSessionTicket;
-import jiaonidaigou.appengine.api.utils.RequestValidator;
+import jiaoni.common.appengine.auth.WxSessionDbClient;
+import jiaoni.common.appengine.auth.WxSessionTicket;
+import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.utils.Secrets;
-import jiaonidaigou.appengine.wiremodel.api.WxLoginRequest;
-import jiaonidaigou.appengine.wiremodel.api.WxLoginResponse;
+import jiaoni.daigou.wiremodel.api.WxLoginRequest;
+import jiaoni.daigou.wiremodel.api.WxLoginResponse;
+import jiaonidaigou.appengine.api.AppEnvs;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -27,13 +28,12 @@ import javax.inject.Singleton;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaonidaigou.appengine.api.auth.WxSessionTicket.DEFAULT_EXPIRATION_MILLIS;
+import static jiaoni.common.appengine.auth.WxSessionTicket.DEFAULT_EXPIRATION_MILLIS;
 
 @Path("/api/wx")
 @Produces(MediaType.APPLICATION_JSON)
@@ -63,14 +63,12 @@ public class WxLoginInterface {
     }
 
     @POST
-    @Path("/{app}/login")
-    public Response login(@PathParam("app") final String appName,
-                          final WxLoginRequest loginRequest) {
-        RequestValidator.validateAppName(appName);
+    @Path("/login")
+    public Response login(final WxLoginRequest loginRequest) {
         RequestValidator.validateNotNull(loginRequest);
         RequestValidator.validateNotBlank(loginRequest.getCode(), "code");
 
-        WxAppInfo appInfo = wxAppInfos.get(appName);
+        WxAppInfo appInfo = wxAppInfos.get(AppEnvs.getServiceName());
         if (appInfo == null) {
             throw new NotFoundException();
         }

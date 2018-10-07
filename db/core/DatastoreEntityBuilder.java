@@ -1,4 +1,4 @@
-package jiaoni.common.appengine.access.db;
+package jiaonidaigou.appengine.api.access.db.core;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Entity;
@@ -6,8 +6,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
-import jiaoni.common.appengine.utils.TimestampUtils;
-import jiaoni.common.json.ObjectMapperProvider;
+import jiaonidaigou.appengine.api.utils.TimestampUtils;
+import jiaonidaigou.appengine.common.json.ObjectMapperProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;

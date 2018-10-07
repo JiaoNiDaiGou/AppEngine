@@ -1,6 +1,6 @@
 package jiaonidaigou.appengine.api.utils;
 
-import jiaonidaigou.appengine.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 
 import java.util.Comparator;
 

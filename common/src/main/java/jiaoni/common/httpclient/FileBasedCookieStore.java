@@ -3,7 +3,7 @@ package jiaoni.common.httpclient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.common.utils.Environments;
+import jiaoni.common.utils.Envs;
 import jiaoni.common.json.ObjectMapperProvider;
 import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class FileBasedCookieStore implements CookieDao {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperProvider.get();
 
     private static String cookieFile(final String appName) {
-        return Environments.LOCAL_TEMP_DIR_ENDSLASH + appName + ".cookie.json";
+        return Envs.LOCAL_TEMP_DIR_ENDSLASH + appName + ".cookie.json";
     }
 
     @Override
