@@ -1,0 +1,28 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity;
+
+option java_package = "jiaoni.daigou.wiremodel.entity";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+import "daigou/entity/media_object.proto";
+
+message Customer {
+    message SocialContacts {
+        string wechat_id = 1;
+        string teddy_user_id = 2;
+    }
+
+    string id = 1;
+    string name = 2;
+    PhoneNumber phone = 3;
+    repeated Address addresses = 4;
+    string id_card = 5;
+    repeated string emails = 8;
+    int32 default_address_index = 9;
+    SocialContacts social_contacts = 30;
+
+    int64 lastUpdatedTime = 40;
+}
+
+

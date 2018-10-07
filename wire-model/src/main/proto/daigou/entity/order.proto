@@ -1,0 +1,30 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity;
+
+option java_package = "jiaoni.daigou.wiremodel.entity";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+import "daigou/entity/customer.proto";
+import "daigou/entity/delivery.proto";
+import "daigou/entity/product.proto";
+
+message Order {
+    string id = 1;
+    string order_group_tag = 5;
+    Customer customer = 10;
+    repeated OrderEntry entires = 20;
+    int64 creation_time = 30;
+    Delivery delivery = 40;
+}
+
+message OrderEntry {
+    Product product = 10;
+    Price unit_selling_price = 20;
+    int32 quantity = 30;
+}
+
+message OrderGroup {
+    string tag = 10;
+    repeated Order orders = 20;
+}

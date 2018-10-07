@@ -12,4 +12,4 @@ export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 echo "Fetching secrets ..."
 $ROOT/scripts/fetch_secrets.sh
 
-./gradlew cleanIdea clean idea build
+$ROOT/gradlew cleanIdea idea clean build

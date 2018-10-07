@@ -1,0 +1,15 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.api;
+
+option java_package = "jiaoni.daigou.wiremodel.api";
+option java_multiple_files = true;
+
+import "daigou/entity/product.proto";
+
+message CreateProductRequest {
+    jiaoni.daigou.wiremodel.entity.Product product = 1;
+}
+
+message CreateProductResponse {
+    jiaoni.daigou.wiremodel.entity.Product product = 1;
+}

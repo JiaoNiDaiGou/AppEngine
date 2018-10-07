@@ -4,7 +4,7 @@
 # Script to deploy dev version
 #
 # Usage:
-#   VERSION=some_version ./deploy-dev.sh
+#   SERVICE=daigou VERSION=some_version ./deploy-dev.sh
 #
 
 set -euo pipefail
@@ -14,6 +14,11 @@ export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 
 VERSION="${VERSION:-dev}"
 
+if [ -z ${SERVICE} ]; then
+    echo "ERROR: Service name is required. E.g. daigou, songfan"
+    exit 1
+fi
+
 if [[ ${VERSION} =~ ^(prod.*)$ ]]; then
     echo "ERROR: Cannot deploy a version starts with ${VERSION}. That is reserved!"
     exit 1
@@ -21,13 +26,13 @@ fi
 
 echo "
 
-    !! Deploy version ''$VERSION' !!
+    !! Deploy service '$SERVICE' version '$VERSION' !!
 
 "
 
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
-./gradlew :api:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+$ROOT/gradlew :${SERVICE}-service:service:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 
-open "https://$VERSION-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"
+open "https://$VERSION-dot-$SERVICE-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"

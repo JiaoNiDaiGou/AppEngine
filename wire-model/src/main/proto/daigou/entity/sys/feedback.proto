@@ -1,0 +1,14 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity.sys;
+
+option java_package = "jiaoni.daigou.wiremodel.entity.sys";
+option java_multiple_files = true;
+
+message Feedback {
+    string id = 1;
+    string requester_name = 2;
+    int64 timestamp = 3;
+    bool open = 4;
+    string content = 5;
+    repeated string media_ids = 6;
+}

@@ -1,0 +1,71 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity;
+
+option java_package = "jiaoni.daigou.wiremodel.entity";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+import "daigou/entity/product.proto";
+
+message ShoppingListItem {
+    enum Status {
+        UNKNOWN = 0;
+
+        // When it is initialized at the first place.
+        INIT = 1;
+
+        // When somebody take the ownership
+        OWNERSHIP_ASSIGNED = 2;
+
+        // When it is purchased, but it doesn't mean it is shipped in hourse.
+        PURCHASED = 3;
+
+        // When it is shipped in house, this shopping list item is completed.
+        IN_HOUSE = 4;
+
+        // It is expired. Will be clean up some time later.
+        // Can be triaged to INIT state.
+        EXPIRED = 6;
+    }
+
+    string id = 1;
+
+    Status status = 20;
+
+    int64 creation_time = 21;
+
+    // -1 means never expire
+    int64 expiration_time = 22;
+
+    string creator_name = 23;
+
+    string owner_name = 30;
+
+    int64 ownership_assigned_time = 31;
+
+    string message = 35;
+
+    string purchaser_name = 40;
+
+    int64 purchasing_time = 41;
+
+    string purchasing_source = 42;
+
+    message ProductEntry {
+        Product product = 1;
+        int32 quantity = 2;
+        Price unit_purchase_price = 3;
+    }
+
+    repeated ProductEntry product_entries = 45;
+
+    Price total_purchase_price = 50;
+
+    repeated string media_ids = 60;
+
+    string expire_name = 61;
+
+    int64 in_house_time = 70;
+
+    int64 last_update_time = 80;
+}

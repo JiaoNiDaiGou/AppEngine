@@ -1,0 +1,46 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.api;
+
+option java_package = "jiaoni.daigou.wiremodel.api";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+import "daigou/entity/customer.proto";
+import "daigou/entity/product.proto";
+
+message ParseRequest {
+
+    enum Domain {
+        ALL = 0;
+        ADDRESS = 1;
+        CUSTOMER = 2;
+        PRODUCT = 3;
+    }
+
+    Domain domain = 1;
+    repeated string texts = 2;
+    repeated string media_ids = 3;
+    repeated DirectUploadImage direct_upload_images = 4;
+
+    int32 limit = 10; // How many result to return at most
+
+    message DirectUploadImage {
+        string ext = 1;
+        bytes bytes = 2;
+    }
+}
+
+message ParseResponse {
+    repeated ParsedObject results = 1;
+}
+
+message ParsedObject {
+    // Range from 0 to 100
+    int32 confidence = 1;
+
+    oneof content {
+        jiaoni.daigou.wiremodel.entity.Address address = 50;
+        jiaoni.daigou.wiremodel.entity.Customer customer = 51;
+        jiaoni.daigou.wiremodel.entity.Product product = 52;
+    }
+}

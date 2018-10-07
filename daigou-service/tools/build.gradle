@@ -1,0 +1,17 @@
+apply from: "$rootDir/standard-java.gradle"
+apply plugin: 'application'
+
+mainClassName = 'LocalLauncher'
+
+dependencies {
+    compile project(":content-template")
+    compile project(":common")
+
+    compile project(":daigou-service:service")
+
+    compile "com.google.cloud:google-cloud-vision:$google_cloud_ver"
+
+    compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
+    compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey_ver"
+    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
+}

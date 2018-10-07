@@ -13,4 +13,4 @@ export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 
 VERSION="${VERSION:-dev}"
 
-./gradlew :api:appengineRollback -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+../gradlew :api:appengineRollback -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION

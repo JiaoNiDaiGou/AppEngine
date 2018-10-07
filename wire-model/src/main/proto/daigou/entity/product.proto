@@ -1,0 +1,42 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity;
+
+option java_package = "jiaoni.daigou.wiremodel.entity";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+
+message Product {
+    string id = 1;
+    ProductCategory category = 2;
+    string name = 3;
+    string brand = 4;
+    string description = 5;
+
+    string main_media_id = 20;
+    repeated string other_media_ids = 21;
+
+    Price suggested_unit_price = 30;
+
+    // For search use
+    repeated string tags = 40;
+}
+
+enum ProductCategory {
+    UNKNOWN = 0;
+    ACCESSORIES = 1;
+    BABY_PRODUCTS = 2;
+    BAGS = 3;
+    CLOTHES = 4;
+    DAILY_NECESSITIES = 5;
+    FOOD = 6;
+    HEALTH_SUPPLEMENTS = 7;
+    LARGE_COMMERCIAL_GOODS = 8;
+    LARGE_ITEMS = 9;
+    MAKE_UP = 10;
+    MILK_POWDER = 11;
+    SHOES = 12;
+    SMALL_APPLIANCES = 13;
+    TOYS = 14;
+    WATCHES = 15;
+}

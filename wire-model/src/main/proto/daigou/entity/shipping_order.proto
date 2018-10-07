@@ -1,0 +1,86 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity;
+
+option java_package = "jiaoni.daigou.wiremodel.entity";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+import "daigou/entity/customer.proto";
+import "daigou/entity/product.proto";
+
+message ShippingOrder {
+    enum Status {
+        // Initalized.
+        // Receiver name, phone, address assigned. And products information assigned.
+        INIT = 0;
+
+        // This shipping order has been packed.
+        // totoal weight assigned.
+        PACKED = 1;
+
+        // We have create a shipping order on some external service. E.g. Teddy.
+        EXTERNAL_SHIPPING_CREATED = 2;
+
+        // External shipping service is processing the shipping order.
+        EXTERNAL_SHPPING_PENDING = 3;
+
+        // We have a China package tracking number.
+        CN_TRACKING_NUMBER_ASSIGNED = 4;
+
+        // We know the postman information for the shipping number in China.
+        CN_POSTMAN_ASSIGNED = 5;
+
+        // The package got delivered.
+        // See ShippingEnding.
+        DELIVERED = 6;
+    }
+
+    enum ShippingEnding {
+        UNKNOWN = 0;
+        PICK_UP_BOX = 1;
+        SELF_SIGNED = 2;
+        OTHERS_SIGNED = 3;
+        UNKNOWN_SIGNED = 4;
+    }
+
+    message ProductEntry {
+        Product product = 1;
+        int32 quantity = 2;
+        Price sell_price = 3;
+    }
+
+    message ShippingHistoryEntry {
+        int64 timestamp = 1;
+        string status = 2;
+    }
+
+    string id = 1;
+    Status status = 2;
+    Customer receiver = 3;
+
+    // When the order is created.
+    int64 creation_time = 4;
+
+    repeated ProductEntry product_entries = 5;
+    string product_summary = 6;
+
+    double total_weight_lb = 7;
+
+    Postman postman = 30;
+    string tracking_number = 32;
+    string shipping_carrier = 33;
+    ShippingEnding shipping_ending = 34;
+    repeated ShippingHistoryEntry shipping_history = 40;
+
+    string teddy_order_id = 100;
+    string teddy_formatted_id = 101;
+    string sender_name = 110;
+
+    Price total_price = 130;
+
+    Price shipping_fee = 135;
+
+    bool customer_notified = 140;
+
+    repeated string media_ids = 150;
+}

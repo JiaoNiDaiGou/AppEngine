@@ -1,0 +1,19 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.api;
+
+option java_package = "jiaoni.daigou.wiremodel.api";
+option java_multiple_files = true;
+
+import "daigou/entity/common.proto";
+import "daigou/entity/shipping_order.proto";
+
+message InitShippingOrderRequest {
+    string receiver_customer_id = 1;
+    jiaoni.daigou.wiremodel.entity.Address address = 2;
+    repeated jiaoni.daigou.wiremodel.entity.ShippingOrder.ProductEntry product_entries = 3;
+    double total_weight_lb = 4;
+}
+
+message ExternalCreateShippingOrderRequest {
+    double total_weight_lb = 1;
+}
