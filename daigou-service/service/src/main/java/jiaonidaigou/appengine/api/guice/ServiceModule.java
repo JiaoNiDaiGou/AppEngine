@@ -10,35 +10,33 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import jiaonidaigou.appengine.api.access.db.CustomerDbClient;
-import jiaonidaigou.appengine.api.access.db.ProductDbClient;
-import jiaonidaigou.appengine.api.access.email.EmailClient;
-import jiaonidaigou.appengine.api.access.email.GaeEmailSender;
-import jiaonidaigou.appengine.api.access.gcp.GoogleCloudLibFactory;
-import jiaonidaigou.appengine.api.access.ocr.GoogleVisionOcrClient;
-import jiaonidaigou.appengine.api.access.ocr.OcrClient;
-import jiaonidaigou.appengine.api.access.sms.ConsoleSmsClient;
-import jiaonidaigou.appengine.api.access.sms.SmsClient;
-import jiaonidaigou.appengine.api.access.storage.GcsClient;
-import jiaonidaigou.appengine.api.access.storage.StorageClient;
-import jiaonidaigou.appengine.api.access.taskqueue.PubSubClient;
-import jiaonidaigou.appengine.api.access.taskqueue.TaskQueueClient;
-import jiaonidaigou.appengine.api.utils.AppEnvironments;
+import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.email.GaeEmailSender;
+import jiaoni.common.appengine.access.gcp.GoogleCloudLibFactory;
+import jiaoni.common.appengine.access.ocr.GoogleVisionOcrClient;
+import jiaoni.common.appengine.access.ocr.OcrClient;
+import jiaoni.common.appengine.access.sms.ConsoleSmsClient;
+import jiaoni.common.appengine.access.sms.SmsClient;
+import jiaoni.common.appengine.access.storage.GcsClient;
+import jiaoni.common.appengine.access.storage.StorageClient;
+import jiaoni.common.appengine.access.taskqueue.PubSubClient;
+import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
 import jiaoni.common.httpclient.InMemoryCookieStore;
 import jiaoni.common.httpclient.MockBrowserClient;
-import jiaonidaigou.appengine.contentparser.CnAddressParser;
-import jiaonidaigou.appengine.contentparser.CnCellPhoneParser;
-import jiaonidaigou.appengine.contentparser.CnCustomerContactParser;
-import jiaonidaigou.appengine.contentparser.CnPeopleNameParser;
-import jiaonidaigou.appengine.lib.teddy.TeddyAdmins;
-import jiaonidaigou.appengine.lib.teddy.TeddyClient;
-import jiaonidaigou.appengine.lib.teddy.TeddyClientImpl;
+import jiaoni.daigou.contentparser.CnAddressParser;
+import jiaoni.daigou.contentparser.CnCellPhoneParser;
+import jiaoni.daigou.contentparser.CnCustomerContactParser;
+import jiaoni.daigou.contentparser.CnPeopleNameParser;
+import jiaoni.daigou.lib.teddy.TeddyAdmins;
+import jiaoni.daigou.lib.teddy.TeddyClient;
+import jiaoni.daigou.lib.teddy.TeddyClientImpl;
+import jiaonidaigou.appengine.api.utils.AppEnvironments;
 
 import java.io.IOException;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static jiaoni.common.utils.Environments.NAMESPACE_JIAONIDAIGOU;
+import static jiaoni.common.model.Env.PROD;
 
 public class ServiceModule extends AbstractModule {
     @Override
@@ -117,20 +115,5 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     Storage provideStorage() {
         return GoogleCloudLibFactory.storage();
-    }
-
-    @Provides
-    @Singleton
-    @JiaoNiDaiGou
-    CustomerDbClient provideJiaoNiDaiGouCustomerDbClient(final DatastoreService datastoreService,
-                                                         final MemcacheService memcacheService) {
-        return new CustomerDbClient(datastoreService, memcacheService, NAMESPACE_JIAONIDAIGOU);
-    }
-
-    @Provides
-    @Singleton
-    @JiaoNiDaiGou
-    ProductDbClient provideJiaoNiDaiGouProductDbClient(final DatastoreService datastoreService) {
-        return new ProductDbClient(datastoreService, NAMESPACE_JIAONIDAIGOU);
     }
 }

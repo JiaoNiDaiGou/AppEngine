@@ -5,14 +5,14 @@ include 'appengine-common'
 include 'common'
 include 'common-test'
 include 'content-template'
-include 'lib-teddy'
 
 // Wire model
 include 'wire-model'
 
 // DaiGou
 include 'daigou-service:content-parser'
-//include 'daigou-service'
+include 'daigou-service:service'
+include 'daigou-service:lib-teddy'
 //include 'integration-test'
 //include 'tools'
 
