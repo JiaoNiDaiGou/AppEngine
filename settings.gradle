@@ -13,7 +13,7 @@ include 'wire-model'
 include 'daigou-service:content-parser'
 include 'daigou-service:service'
 include 'daigou-service:lib-teddy'
-//include 'integration-test'
-//include 'tools'
+include 'daigou-service:integration-test'
+include 'daigou-service:tools'
 
 // SongFan

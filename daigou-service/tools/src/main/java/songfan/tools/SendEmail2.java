@@ -7,20 +7,20 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharStreams;
-import jiaonidaigou.appengine.api.access.email.LocalGmailSender;
-import jiaonidaigou.appengine.api.access.gcp.GoogleApisClientFactory;
-import jiaonidaigou.appengine.api.access.sheets.SheetsUtils;
-import jiaoni.common.utils.Environments;
-import jiaonidaigou.appengine.contenttemplate.TemplateData;
-import jiaonidaigou.appengine.contenttemplate.Templates;
-import jiaonidaigou.appengine.contenttemplate.TemplatesFactory;
-import jiaonidaigou.appengine.wiremodel.entity.Customer;
-import jiaonidaigou.appengine.wiremodel.entity.Delivery;
-import jiaonidaigou.appengine.wiremodel.entity.Order;
-import jiaonidaigou.appengine.wiremodel.entity.OrderEntry;
-import jiaonidaigou.appengine.wiremodel.entity.PhoneNumber;
-import jiaonidaigou.appengine.wiremodel.entity.Price;
-import jiaonidaigou.appengine.wiremodel.entity.Product;
+import jiaoni.common.appengine.access.email.LocalGmailSender;
+import jiaoni.common.appengine.access.gcp.GoogleApisClientFactory;
+import jiaoni.common.appengine.access.sheets.SheetsUtils;
+import jiaoni.common.utils.Envs;
+import jiaoni.contenttemplate.TemplateData;
+import jiaoni.contenttemplate.Templates;
+import jiaoni.contenttemplate.TemplatesFactory;
+import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.wiremodel.entity.Delivery;
+import jiaoni.daigou.wiremodel.entity.Order;
+import jiaoni.daigou.wiremodel.entity.OrderEntry;
+import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.daigou.wiremodel.entity.Price;
+import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
@@ -336,7 +336,7 @@ public class SendEmail2 {
                                                final LocalGmailSender sender,
                                                final boolean track)
             throws Exception {
-        File localTrackFile = new File(Environments.LOCAL_TEMP_DIR_ENDSLASH
+        File localTrackFile = new File(Envs.getLocalTmpDir()
                 + "send_email_2_" + spreadsheet.getSpreadsheetId() + "_" + sheetId + ".log");
         Set<String> emailSent;
         if (!track || !localTrackFile.exists()) {

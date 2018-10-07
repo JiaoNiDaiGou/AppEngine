@@ -1,12 +1,13 @@
 apply from: "$rootDir/standard-java.gradle"
 apply plugin: 'application'
 
-mainClassName = 'jiaonidaigou.appengine.tools.locallauncher.LocalLauncher'
+mainClassName = 'LocalLauncher'
 
 dependencies {
-    compile project(":api")
     compile project(":content-template")
     compile project(":common")
+
+    compile project(":daigou-service:service")
 
     compile "com.google.cloud:google-cloud-vision:$google_cloud_ver"
 
