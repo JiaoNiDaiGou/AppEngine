@@ -1,12 +1,19 @@
 rootProject.name = 'AppEngine'
 
+// Common
 include 'appengine-common'
 include 'common'
 include 'common-test'
-//include 'content-parser'
-//include 'content-template'
+include 'content-template'
+include 'lib-teddy'
+
+// Wire model
+include 'wire-model'
+
+// DaiGou
+include 'daigou-service:content-parser'
 //include 'daigou-service'
 //include 'integration-test'
-//include 'lib-teddy'
 //include 'tools'
-include 'wire-model'
+
+// SongFan

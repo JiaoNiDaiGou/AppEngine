@@ -28,7 +28,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ProtobufJsonModule extends SimpleModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtobufJsonModule.class);
     private static final String[] KNOWN_PROTO_PACKAGES = {
-            "jiaonidaigou.appengine.wiremodel"
+            "jiaoni.common.wiremodel",
+            "jiaoni.daigou.wiremodel",
+            "jiaoni.songfan.wiremodel"
     };
 
     @SuppressWarnings("unchecked")
