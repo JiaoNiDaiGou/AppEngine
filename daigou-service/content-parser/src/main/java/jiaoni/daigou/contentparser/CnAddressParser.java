@@ -5,7 +5,7 @@ import jiaoni.common.location.CnCity;
 import jiaoni.common.location.CnLocations;
 import jiaoni.common.location.CnZone;
 import jiaoni.common.utils.StringUtils2;
-import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.common.wiremodel.Address;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;

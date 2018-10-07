@@ -4,7 +4,7 @@ package jiaoni.daigou.wiremodel.entity;
 option java_package = "jiaoni.daigou.wiremodel.entity";
 option java_multiple_files = true;
 
-import "daigou/entity/common.proto";
+import "common/common.proto";
 import "daigou/entity/product.proto";
 
 message ShoppingListItem {
@@ -54,12 +54,12 @@ message ShoppingListItem {
     message ProductEntry {
         Product product = 1;
         int32 quantity = 2;
-        Price unit_purchase_price = 3;
+        jiaoni.common.wiremodel.Price unit_purchase_price = 3;
     }
 
     repeated ProductEntry product_entries = 45;
 
-    Price total_purchase_price = 50;
+    jiaoni.common.wiremodel.Price total_purchase_price = 50;
 
     repeated string media_ids = 60;
 

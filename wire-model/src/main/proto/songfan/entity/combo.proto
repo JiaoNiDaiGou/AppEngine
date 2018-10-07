@@ -1,0 +1,20 @@
+syntax = "proto3";
+package jiaoni.songfan.wiremodel.entity;
+
+option java_package = "jiaoni.songfan.wiremodel.entity";
+option java_multiple_files = true;
+
+import "songfan/entity/dish.proto";
+
+message Combo {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string media_ids = 10;
+    
+    message ComboEntry {
+        Dish dish = 1;
+        int32 amoutn = 2;
+    }
+    repeated ComboEntry combo_entries = 20;
+}

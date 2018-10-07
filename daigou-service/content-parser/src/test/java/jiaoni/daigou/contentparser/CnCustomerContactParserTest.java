@@ -1,8 +1,8 @@
 package jiaoni.daigou.contentparser;
 
-import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.common.wiremodel.PhoneNumber;
 import org.junit.Assert;
 import org.junit.Test;
 

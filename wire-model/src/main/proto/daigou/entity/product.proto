@@ -4,7 +4,7 @@ package jiaoni.daigou.wiremodel.entity;
 option java_package = "jiaoni.daigou.wiremodel.entity";
 option java_multiple_files = true;
 
-import "daigou/entity/common.proto";
+import "common/common.proto";
 
 message Product {
     string id = 1;
@@ -16,7 +16,7 @@ message Product {
     string main_media_id = 20;
     repeated string other_media_ids = 21;
 
-    Price suggested_unit_price = 30;
+    jiaoni.common.wiremodel.Price suggested_unit_price = 30;
 
     // For search use
     repeated string tags = 40;

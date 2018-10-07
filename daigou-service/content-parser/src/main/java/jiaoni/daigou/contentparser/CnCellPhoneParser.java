@@ -1,7 +1,7 @@
 package jiaoni.daigou.contentparser;
 
 import jiaoni.common.utils.StringUtils2;
-import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.common.wiremodel.PhoneNumber;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

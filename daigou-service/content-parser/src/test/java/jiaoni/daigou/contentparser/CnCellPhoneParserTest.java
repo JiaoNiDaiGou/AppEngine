@@ -1,6 +1,6 @@
 package jiaoni.daigou.contentparser;
 
-import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.common.wiremodel.PhoneNumber;
 import org.junit.Test;
 
 import static jiaoni.daigou.contentparser.AnswerMatchers.hasAnswers;

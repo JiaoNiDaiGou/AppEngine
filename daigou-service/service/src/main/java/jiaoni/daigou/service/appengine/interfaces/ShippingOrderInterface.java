@@ -10,7 +10,7 @@ import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
 import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.daigou.wiremodel.entity.Price;
+import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;

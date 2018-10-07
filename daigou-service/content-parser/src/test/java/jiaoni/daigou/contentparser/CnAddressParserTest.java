@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import jiaoni.common.json.ObjectMapperProvider;
-import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.common.wiremodel.Address;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
