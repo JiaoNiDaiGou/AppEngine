@@ -22,8 +22,8 @@ public class AppEnvs extends Envs {
         ENV = determineEnv();
         HOSTNAMES_BY_ENV = ImmutableMap.of(
                 Env.LOCAL, "http://127.0.0.1:33256",
-                Env.DEV, "dev-dot-" + Envs.getGaeProjectId() + ".appspot.com",
-                Env.PROD, "prod-dot-" + Envs.getGaeProjectId() + ".appspot.com"
+                Env.DEV, "https://dev-dot-daigou-dot-" + Envs.getGaeProjectId() + ".appspot.com",
+                Env.PROD, "https://prod-dot-daigou-dot-" + Envs.getGaeProjectId() + ".appspot.com"
         );
     }
 
@@ -61,7 +61,7 @@ public class AppEnvs extends Envs {
     }
 
     public interface Dir {
-        String MEDIA_ROOT = GCS_ROOT + "/media/";
+        String MEDIA_ROOT = GCS_ROOT + "media/";
         String SHIPPING_ORDERS_DUMP = GCS_ROOT + "teddy_orders_dump/";
         String SHIPPING_ORDERS_ARCHIVE = GCS_ROOT + "teddy_orders_archive/";
         String PRODUCTS_HINTS = GCS_ROOT + "products_hints/";

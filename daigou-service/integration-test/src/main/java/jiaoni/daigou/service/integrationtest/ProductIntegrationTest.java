@@ -26,7 +26,7 @@ public class ProductIntegrationTest {
                 .build();
 
         product = apiClient.newTarget()
-                .path("/api/JiaoNiDaiGou/products/create")
+                .path("/api/products/create")
                 .request()
                 .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(product))
@@ -38,7 +38,7 @@ public class ProductIntegrationTest {
     @Test
     public void testGetProductsHints() {
         List<MyTriple> hints = apiClient.newTarget()
-                .path("/api/JiaoNiDaiGou/products/hints")
+                .path("/api/products/hints")
                 .request()
                 .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()

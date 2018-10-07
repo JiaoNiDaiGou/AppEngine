@@ -52,7 +52,7 @@ public class ShoppingListIntegrationTest {
         assertEquals(INIT, afterInit.getStatus());
 
         ShoppingListItem item = client.newTarget()
-                .path("/api/shoppingLists/get/" + afterInit.getId())
+                .path("/api/shoppingLists/" + afterInit.getId())
                 .request()
                 .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
                 .get()
@@ -130,7 +130,7 @@ public class ShoppingListIntegrationTest {
                 .post(Entity.json(request));
 
         ShoppingListItem item = client.newTarget()
-                .path("/api/shoppingLists/get/" + id)
+                .path("/api/shoppingLists/" + id)
                 .request()
                 .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
                 .get()

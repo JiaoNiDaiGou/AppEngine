@@ -1,23 +1,19 @@
 package jiaoni.daigou.service.integrationtest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Message;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.TestUtils;
 import jiaoni.daigou.tools.remote.ApiClient;
 import jiaoni.daigou.wiremodel.api.ParseRequest;
 import jiaoni.daigou.wiremodel.api.ParseResponse;
-import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.wiremodel.common.entity.PaginatedResults;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericType;
 
 import static jiaoni.daigou.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ParserIntegrationTest {
@@ -40,7 +36,6 @@ public class ParserIntegrationTest {
                 .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
         assertTrue(parseResponse.getResultsCount() > 0);
-        print(parseResponse);
     }
 
     @Test
@@ -59,7 +54,6 @@ public class ParserIntegrationTest {
                 .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
         assertEquals(1, parseResponse.getResultsCount());
-        print(parseResponse);
     }
 
     @Test
@@ -77,7 +71,6 @@ public class ParserIntegrationTest {
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
-
         System.out.println(ObjectMapperProvider.prettyToJson(parseResponse));
     }
 
@@ -99,26 +92,16 @@ public class ParserIntegrationTest {
                 .post(Entity.json(parseRequest))
                 .readEntity(ParseResponse.class);
         assertTrue(parseResponse.getResultsCount() > 0);
-        print(parseResponse);
     }
 
     @Test
     public void parseCustomerByKnownCustomer() {
-        Customer customer = apiClient.newTarget()
-                .path("/api/JiaoNiDaiGou/customers/getAll")
-                .queryParam("limit", 1)
-                .request()
-                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .get(new GenericType<PaginatedResults<Customer>>() {
-                })
-                .getResults()
-                .get(0);
-
+        String customerName = "闫海侠";
         ParseRequest parseRequest = ParseRequest
                 .newBuilder()
                 .setLimit(1)
                 .setDomain(ParseRequest.Domain.CUSTOMER)
-                .addTexts(customer.getName())
+                .addTexts(customerName)
                 .build();
         ParseResponse parseResponse = apiClient.newTarget()
                 .path("/api/parse")
@@ -128,16 +111,6 @@ public class ParserIntegrationTest {
                 .readEntity(ParseResponse.class);
 
         assertEquals(1, parseResponse.getResultsCount());
-        assertEquals(customer, parseResponse.getResultsList().get(0).getCustomer());
-        print(parseResponse);
-    }
-
-    private static <T extends Message> void print(T response) {
-        try {
-            System.out.println(ObjectMapperProvider.get()
-                    .writerWithDefaultPrettyPrinter().writeValueAsString(response));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        assertEquals(customerName, parseResponse.getResultsList().get(0).getCustomer().getName());
     }
 }

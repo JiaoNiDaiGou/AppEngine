@@ -29,7 +29,7 @@ public class CustomerIntegrationTest {
         int pageSize = 2;
 
         PaginatedResults<Customer> firstPage = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/all")
+                .path("api/customers/all")
                 .queryParam("limit", pageSize)
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
@@ -39,7 +39,7 @@ public class CustomerIntegrationTest {
         assertEquals(pageSize, firstPage.getResults().size());
 
         PaginatedResults<Customer> secondPage = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/all")
+                .path("api/customers/all")
                 .queryParam("limit", pageSize)
                 .queryParam("nextToken", firstPage.getPageToken())
                 .request()
@@ -54,7 +54,7 @@ public class CustomerIntegrationTest {
     public void testSetDefaultAddress() {
         // Add
         Customer afterCreate = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/create")
+                .path("api/customers/create")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(Customer.newBuilder()
@@ -69,7 +69,7 @@ public class CustomerIntegrationTest {
         assertEquals(0, afterCreate.getDefaultAddressIndex());
 
         Customer fetched = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + id)
+                .path("api/customers/" + id)
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
@@ -77,7 +77,7 @@ public class CustomerIntegrationTest {
         assertEquals(0, fetched.getDefaultAddressIndex());
 
         Customer afterSetDefaultAddress = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + id + "/setDefaultAddress")
+                .path("api/customers/" + id + "/setDefaultAddress")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(afterCreate.getAddresses(1)))
@@ -85,7 +85,7 @@ public class CustomerIntegrationTest {
         assertEquals(1, afterSetDefaultAddress.getDefaultAddressIndex());
 
         Customer fetchedAgain = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + id)
+                .path("api/customers/" + id)
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
@@ -106,7 +106,7 @@ public class CustomerIntegrationTest {
                 .build();
 
         Customer afterCreate = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/create")
+                .path("api/customers/create")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(toCreate))
@@ -122,7 +122,7 @@ public class CustomerIntegrationTest {
                 .build();
 
         Customer afterCreateAgain = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/create")
+                .path("api/customers/create")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(toCreateAgain))
@@ -133,7 +133,7 @@ public class CustomerIntegrationTest {
 
         // Get
         Customer fetchedCustomer = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + id)
+                .path("api/customers/" + id)
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
@@ -150,7 +150,7 @@ public class CustomerIntegrationTest {
                 .build();
 
         Customer afterCreate = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/create")
+                .path("api/customers/create")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(toCreate))
@@ -160,7 +160,7 @@ public class CustomerIntegrationTest {
 
         // Get
         Customer fetched = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + afterCreate.getId())
+                .path("api/customers/" + afterCreate.getId())
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
@@ -172,7 +172,7 @@ public class CustomerIntegrationTest {
                 .setIdCard("idcard")
                 .build();
         Customer afterUpdate = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/update")
+                .path("api/customers/update")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(toUpdate))
@@ -182,13 +182,13 @@ public class CustomerIntegrationTest {
 
         // Delete
         apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + id + "/delete")
+                .path("api/customers/" + id + "/delete")
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .delete();
 
         Response response = apiClient.newTarget()
-                .path("api/JiaoNiDaiGou/customers/" + afterCreate.getId())
+                .path("api/customers/" + afterCreate.getId())
                 .request()
                 .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get();

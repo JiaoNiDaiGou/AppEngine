@@ -35,9 +35,9 @@ public class GcsClient implements StorageClient {
 
     /**
      * Path is in format of
-     * gcs://bucket_a/bucket_b/file.ext
-     * bucket is 'bucket_a/bucket_b'
-     * object is 'file.ext'
+     * gcs://bucket/dir/file.ext
+     * bucket is 'bucket'
+     * object is 'dir/file.ext'
      */
     private static BlobId blobId(final String path) {
         checkArgument(StringUtils.startsWithIgnoreCase(path, GS_SCHEME));
