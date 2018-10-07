@@ -1,0 +1,41 @@
+syntax = "proto3";
+package jiaoni.songfan.wiremodel.entity;
+
+option java_package = "jiaoni.songfan.wiremodel.entity";
+option java_multiple_files = true;
+
+import "common/common.proto";
+import "songfan/entity/combo.proto";
+import "songfan/entity/customer.proto";
+import "songfan/entity/dish.proto";
+
+message Order {
+    enum Status {
+        UNKNOWN = 0;
+        INIT = 1;
+        PAID = 2;
+        COOKED = 3;
+        DELIVERED = 4;
+        DELETED = 10;
+    }
+    Customer customer = 1;
+    Status status = 2;
+    jiaoni.common.wiremodel.Address delivery_address = 5;
+
+    message OrderEntry {
+        oneof entry {
+            Dish dish = 1;
+            Combo combo = 2;
+        }
+        int32 amount = 10;
+        jiaoni.common.wiremodel.Price unit_price = 20;
+    }
+    repeated OrderEntry order_entries = 10;
+
+    jiaoni.common.wiremodel.Price total_price_before_tax = 20;
+    jiaoni.common.wiremodel.Price tax = 21;
+    jiaoni.common.wiremodel.Price total_price = 22; // total_price_before_tax + tax
+
+    int64 creation_time = 50;
+    int64 last_updated_time = 51;
+}

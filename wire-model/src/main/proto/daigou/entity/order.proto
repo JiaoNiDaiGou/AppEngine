@@ -4,7 +4,7 @@ package jiaoni.daigou.wiremodel.entity;
 option java_package = "jiaoni.daigou.wiremodel.entity";
 option java_multiple_files = true;
 
-import "daigou/entity/common.proto";
+import "common/common.proto";
 import "daigou/entity/customer.proto";
 import "daigou/entity/delivery.proto";
 import "daigou/entity/product.proto";
@@ -20,7 +20,7 @@ message Order {
 
 message OrderEntry {
     Product product = 10;
-    Price unit_selling_price = 20;
+    jiaoni.common.wiremodel.Price unit_selling_price = 20;
     int32 quantity = 30;
 }
 

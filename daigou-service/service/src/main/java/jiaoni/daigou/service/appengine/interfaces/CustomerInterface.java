@@ -3,7 +3,7 @@ package jiaoni.daigou.service.appengine.interfaces;
 import jiaoni.common.appengine.access.db.PageToken;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
-import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;

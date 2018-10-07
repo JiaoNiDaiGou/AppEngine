@@ -1,8 +1,8 @@
 package jiaoni.daigou.contentparser;
 
-import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.common.wiremodel.PhoneNumber;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;

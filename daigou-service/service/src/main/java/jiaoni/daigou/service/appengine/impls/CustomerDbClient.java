@@ -13,7 +13,7 @@ import jiaoni.common.model.Env;
 import jiaoni.common.utils.EncryptUtils;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.common.wiremodel.PhoneNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

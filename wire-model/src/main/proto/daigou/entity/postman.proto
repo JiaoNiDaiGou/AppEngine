@@ -1,0 +1,12 @@
+syntax = "proto3";
+package jiaoni.daigou.wiremodel.entity;
+
+option java_package = "jiaoni.daigou.wiremodel.entity";
+option java_multiple_files = true;
+
+import "common/common.proto";
+
+message Postman {
+    string name = 2;
+    jiaoni.common.wiremodel.PhoneNumber phone = 3;
+}

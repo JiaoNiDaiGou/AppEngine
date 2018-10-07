@@ -1,0 +1,12 @@
+syntax = "proto3";
+package jiaoni.songfan.wiremodel.entity;
+
+option java_package = "jiaoni.songfan.wiremodel.entity";
+option java_multiple_files = true;
+
+message Dish {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string media_ids = 10;
+}

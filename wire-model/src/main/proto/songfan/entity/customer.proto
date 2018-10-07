@@ -1,0 +1,19 @@
+syntax = "proto3";
+package jiaoni.songfan.wiremodel.entity;
+
+option java_package = "jiaoni.songfan.wiremodel.entity";
+option java_multiple_files = true;
+
+import "common/common.proto";
+
+message Customer {
+    string id = 1;
+    string name = 2;
+    jiaoni.common.wiremodel.PhoneNumber phone = 3;
+    repeated jiaoni.common.wiremodel.Address addresses = 4; // The first one is the default address
+
+    int64 creation_time = 40;
+    int64 last_updated_time = 41;
+
+    string wechat_nickname = 100;
+}

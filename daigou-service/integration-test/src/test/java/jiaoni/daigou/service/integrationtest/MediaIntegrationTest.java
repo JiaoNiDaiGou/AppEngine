@@ -3,7 +3,7 @@ package jiaoni.daigou.service.integrationtest;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.TestUtils;
 import jiaoni.daigou.tools.remote.ApiClient;
-import jiaoni.daigou.wiremodel.entity.MediaObject;
+import jiaoni.common.wiremodel.MediaObject;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;

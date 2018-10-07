@@ -6,7 +6,7 @@ import jiaoni.daigou.wiremodel.api.AssignOwnershipShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.ExpireShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.InitShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.PurchaseShoppingListItemRequest;
-import jiaoni.daigou.wiremodel.entity.Price;
+import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ProductCategory;
 import jiaoni.daigou.wiremodel.entity.ShoppingListItem;

@@ -6,7 +6,7 @@ import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.model.InternalIOException;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.wiremodel.entity.MediaObject;
+import jiaoni.common.wiremodel.MediaObject;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;

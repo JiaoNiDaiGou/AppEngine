@@ -4,8 +4,9 @@ package jiaoni.daigou.wiremodel.entity;
 option java_package = "jiaoni.daigou.wiremodel.entity";
 option java_multiple_files = true;
 
-import "daigou/entity/common.proto";
+import "common/common.proto";
 import "daigou/entity/customer.proto";
+import "daigou/entity/postman.proto";
 import "daigou/entity/product.proto";
 
 message ShippingOrder {
@@ -46,7 +47,7 @@ message ShippingOrder {
     message ProductEntry {
         Product product = 1;
         int32 quantity = 2;
-        Price sell_price = 3;
+        jiaoni.common.wiremodel.Price sell_price = 3;
     }
 
     message ShippingHistoryEntry {
@@ -76,9 +77,9 @@ message ShippingOrder {
     string teddy_formatted_id = 101;
     string sender_name = 110;
 
-    Price total_price = 130;
+    jiaoni.common.wiremodel.Price total_price = 130;
 
-    Price shipping_fee = 135;
+    jiaoni.common.wiremodel.Price shipping_fee = 135;
 
     bool customer_notified = 140;
 

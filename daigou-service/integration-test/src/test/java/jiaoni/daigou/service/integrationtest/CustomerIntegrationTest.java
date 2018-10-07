@@ -2,9 +2,9 @@ package jiaoni.daigou.service.integrationtest;
 
 import jiaoni.common.model.Env;
 import jiaoni.daigou.tools.remote.ApiClient;
-import jiaoni.daigou.wiremodel.entity.Address;
+import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.daigou.wiremodel.entity.PhoneNumber;
+import jiaoni.common.wiremodel.PhoneNumber;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
