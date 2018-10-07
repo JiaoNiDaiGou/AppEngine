@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.common.test;
+package jiaoni.common.test;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
