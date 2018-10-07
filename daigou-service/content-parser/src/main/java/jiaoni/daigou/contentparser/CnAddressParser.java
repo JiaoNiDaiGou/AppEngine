@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.contentparser;
+package jiaoni.daigou.contentparser;
 
 import com.google.common.collect.ImmutableSet;
 import jiaoni.common.location.CnCity;

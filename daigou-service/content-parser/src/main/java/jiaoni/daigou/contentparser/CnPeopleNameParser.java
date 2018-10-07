@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.contentparser;
+package jiaoni.daigou.contentparser;
 
 import jiaoni.common.people.CnPeopleNames;
 import jiaoni.common.utils.StringUtils2;

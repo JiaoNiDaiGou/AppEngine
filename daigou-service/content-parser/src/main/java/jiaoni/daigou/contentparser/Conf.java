@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.contentparser;
+package jiaoni.daigou.contentparser;
 
 public interface Conf {
     int CONFIRMED = 100;

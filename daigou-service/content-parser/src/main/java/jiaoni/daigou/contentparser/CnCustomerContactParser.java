@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.contentparser;
+package jiaoni.daigou.contentparser;
 
 import jiaoni.daigou.wiremodel.entity.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
@@ -13,9 +13,9 @@ import java.util.List;
 
 import static jiaoni.common.utils.LocalMeter.meterOff;
 import static jiaoni.common.utils.LocalMeter.meterOn;
-import static jiaonidaigou.appengine.contentparser.Answers.noAnswer;
-import static jiaonidaigou.appengine.contentparser.Answers.useInputIfNoAnswer;
-import static jiaonidaigou.appengine.contentparser.Answers.weightedAverage;
+import static jiaoni.daigou.contentparser.Answers.noAnswer;
+import static jiaoni.daigou.contentparser.Answers.useInputIfNoAnswer;
+import static jiaoni.daigou.contentparser.Answers.weightedAverage;
 
 public class CnCustomerContactParser implements Parser<Customer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CnCustomerContactParser.class);

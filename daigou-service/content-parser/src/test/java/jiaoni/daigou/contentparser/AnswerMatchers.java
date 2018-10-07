@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.contentparser;
+package jiaoni.daigou.contentparser;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;

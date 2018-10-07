@@ -1,4 +1,4 @@
-package jiaonidaigou.appengine.contentparser;
+package jiaoni.daigou.contentparser;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
