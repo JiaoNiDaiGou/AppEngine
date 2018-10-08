@@ -3,6 +3,7 @@ package jiaoni.daigou.tools;
 import jiaoni.common.appengine.access.email.PopupPageEmailClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.model.Env;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
@@ -15,6 +16,7 @@ public class VerifySyncJiaoniCustomersTaskRunner {
 
             SyncJiaoniCustomersTaskRunner runner = new SyncJiaoniCustomersTaskRunner(
                     new CustomerDbClient(
+                            Env.DEV,
                             remoteApi.getDatastoreService(),
                             remoteApi.getMemcacheService()),
                     new TeddyClientImpl(TeddyAdmins.JIAONI, new MockBrowserClient("jiaoni")),

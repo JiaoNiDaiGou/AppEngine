@@ -1,0 +1,8 @@
+<queue-entries>
+    <queue>
+        <name>high-frequency</name>
+        <rate>10/s</rate>
+        <target>prod</target>
+        <bucket-size>100</bucket-size>
+    </queue>
+</queue-entries>

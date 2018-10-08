@@ -1,0 +1,23 @@
+syntax = "proto3";
+package jiaoni.songfan.wiremodel.api;
+
+option java_package = "jiaoni.songfan.wiremodel.api";
+option java_multiple_files = true;
+
+import "common/common.proto";
+import "songfan/entity/customer.proto";
+
+message InitOrderRequest {
+    oneof customer {
+        string customer_id = 1;
+        jiaoni.songfan.wiremodel.entity.Customer customer_obj = 2; // only check name, phone, wechat nicknames, etc
+    }
+    string menu_id = 10;
+
+    int32 delivery_address_index = 11;
+
+    // map[dish.id - amount]
+    map<string, int32> dishes = 12;
+    // map[combo.id - amount]
+    map<string, int32> combos = 13;
+}

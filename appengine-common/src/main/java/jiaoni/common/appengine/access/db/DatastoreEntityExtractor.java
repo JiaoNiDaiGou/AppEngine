@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Text;
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
@@ -12,6 +13,7 @@ import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static jiaoni.common.appengine.access.db.DatastoreEntityBuilder.COMMON_PROP_LAST_UPDATE;
@@ -48,6 +50,13 @@ public class DatastoreEntityExtractor {
             return false;
         }
         return (Boolean) entity.getProperty(prop);
+    }
+
+    public List<String> getAsStringList(final String prop) {
+        if (!entity.hasProperty(prop)) {
+            return ImmutableList.of();
+        }
+        return (List<String>) entity.getProperty(prop);
     }
 
     public Long getAsLong(final String prop) {

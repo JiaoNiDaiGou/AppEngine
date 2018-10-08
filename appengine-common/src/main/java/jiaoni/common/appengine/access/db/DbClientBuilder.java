@@ -37,8 +37,8 @@ public class DbClientBuilder<T> {
         return this;
     }
 
-    public DbClientBuilder<T> useMemcache(final String memcacheNamespace,
-                                          final BiTransform<T, byte[]> memcacheTransform) {
+    public DbClientBuilder<T> memcache(final String memcacheNamespace,
+                                       final BiTransform<T, byte[]> memcacheTransform) {
         this.memcacheNamespace = memcacheNamespace;
         this.memcacheTransform = memcacheTransform;
         this.useMemcache = true;
@@ -46,12 +46,12 @@ public class DbClientBuilder<T> {
     }
 
     public DbClientBuilder<T> memcacheJsonTransform(final String memcacheNamespace, final Class<T> type) {
-        return useMemcache(memcacheNamespace, new JsonBytesBiTransform<>(type));
+        return memcache(memcacheNamespace, new JsonBytesBiTransform<>(type));
     }
 
     @SuppressWarnings("unchecked")
     public DbClientBuilder<T> memcacheProtoTransform(final String memcacheNamespace, final Parser<T> parser) {
-        return useMemcache(memcacheNamespace, new ProtoBytesBiTransform(parser));
+        return memcache(memcacheNamespace, new ProtoBytesBiTransform(parser));
     }
 
     /**

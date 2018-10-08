@@ -18,7 +18,7 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
     public Registry(final DatastoreService service, final Env env) {
         super(new DbClientBuilder<Pair<String, String>>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(Envs.NAMESPACE_SYS, env, TABLE_NAME))
+                .entityFactory(new EntityFactory(env))
                 .build());
     }
 
@@ -40,8 +40,8 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
     }
 
     private static class EntityFactory extends BaseEntityFactory<Pair<String, String>> {
-        protected EntityFactory(String serviceName, Env env, String tableName) {
-            super(serviceName, env, tableName);
+        protected EntityFactory(Env env) {
+            super(env);
         }
 
         @Override
@@ -68,6 +68,16 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
         @Override
         public String getId(Pair<String, String> obj) {
             return obj.getLeft();
+        }
+
+        @Override
+        protected String getServiceName() {
+            return Envs.NAMESPACE_SYS;
+        }
+
+        @Override
+        protected String getTableName() {
+            return TABLE_NAME;
         }
     }
 }

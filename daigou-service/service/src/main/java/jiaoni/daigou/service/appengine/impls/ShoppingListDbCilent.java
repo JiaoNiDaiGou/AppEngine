@@ -2,12 +2,12 @@ package jiaoni.daigou.service.appengine.impls;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.common.annotations.VisibleForTesting;
 import jiaoni.common.appengine.access.db.BaseEntityFactory;
 import jiaoni.common.appengine.access.db.DatastoreDbClient;
 import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
 import jiaoni.common.appengine.access.db.DatastoreEntityExtractor;
 import jiaoni.common.appengine.access.db.DbQuery;
+import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.model.Env;
 import jiaoni.daigou.wiremodel.entity.ShoppingListItem;
 import jiaoni.daigou.service.appengine.AppEnvs;
@@ -25,13 +25,9 @@ public class ShoppingListDbCilent extends DatastoreDbClient<ShoppingListItem> {
     private static final String FIELD_STATUS = "status";
 
     @Inject
-    public ShoppingListDbCilent(final DatastoreService datastoreService) {
-        this(datastoreService, AppEnvs.getEnv());
-    }
-
-    @VisibleForTesting
-    public ShoppingListDbCilent(final DatastoreService datastoreService, final Env env) {
-        super(datastoreService, new EntityFactory(env, TABLE_NAME));
+    public ShoppingListDbCilent(@ENV final Env env,
+                                final DatastoreService datastoreService) {
+        super(datastoreService, new EntityFactory(env));
     }
 
     public Stream<ShoppingListItem> queryByStatus(final ShoppingListItem.Status status) {
@@ -49,8 +45,8 @@ public class ShoppingListDbCilent extends DatastoreDbClient<ShoppingListItem> {
     }
 
     private static class EntityFactory extends BaseEntityFactory<ShoppingListItem> {
-        protected EntityFactory(Env env, String tableName) {
-            super(AppEnvs.getServiceName(), env, tableName);
+        EntityFactory(Env env) {
+            super(env);
         }
 
         @Override
@@ -81,6 +77,16 @@ public class ShoppingListDbCilent extends DatastoreDbClient<ShoppingListItem> {
         @Override
         public String getId(ShoppingListItem obj) {
             return obj.getId();
+        }
+
+        @Override
+        protected String getServiceName() {
+            return AppEnvs.getServiceName();
+        }
+
+        @Override
+        protected String getTableName() {
+            return TABLE_NAME;
         }
     }
 }

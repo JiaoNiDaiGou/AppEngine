@@ -12,7 +12,7 @@ public class VerifyNotifyFeedback {
         try (RemoteApi remoteApi = RemoteApi.login()) {
 
             AdminReportTaskRunner runner = new AdminReportTaskRunner(
-                    new FeedbackDbClient(remoteApi.getDatastoreService(), Env.DEV),
+                    new FeedbackDbClient(Env.DEV, remoteApi.getDatastoreService()),
                     new PopupPageEmailClient()
             );
 

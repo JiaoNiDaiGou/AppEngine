@@ -22,6 +22,8 @@ message Menu {
         jiaoni.common.wiremodel.Price price = 10;
     }
     repeated MenuEntry menu_entries = 10;
+
+    repeated jiaoni.common.wiremodel.Address delivery_addresses = 5;
 }
 
 

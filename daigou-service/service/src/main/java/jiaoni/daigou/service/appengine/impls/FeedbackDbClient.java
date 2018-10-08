@@ -2,7 +2,6 @@ package jiaoni.daigou.service.appengine.impls;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.common.annotations.VisibleForTesting;
 import jiaoni.common.appengine.access.db.BaseDbClient;
 import jiaoni.common.appengine.access.db.BaseEntityFactory;
 import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
@@ -10,6 +9,7 @@ import jiaoni.common.appengine.access.db.DatastoreEntityExtractor;
 import jiaoni.common.appengine.access.db.DatastoreEntityFactory;
 import jiaoni.common.appengine.access.db.DbClientBuilder;
 import jiaoni.common.appengine.access.db.DbQuery;
+import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.model.Env;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.sys.Feedback;
@@ -26,15 +26,11 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
     private static final String FIELD_OPEN = "open";
 
     @Inject
-    public FeedbackDbClient(final DatastoreService service) {
-        this(service, AppEnvs.getEnv());
-    }
-
-    @VisibleForTesting
-    public FeedbackDbClient(final DatastoreService service, final Env env) {
+    public FeedbackDbClient(@ENV final Env env,
+                            final DatastoreService service) {
         super(new DbClientBuilder<Feedback>()
                 .datastoreService(service)
-                .entityFactory(new EntityFactory(env, TABLE_NAME))
+                .entityFactory(new EntityFactory(env))
                 .build());
     }
 
@@ -46,9 +42,8 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
     }
 
     private static class EntityFactory extends BaseEntityFactory<Feedback> {
-
-        protected EntityFactory(Env env, String tableName) {
-            super(AppEnvs.getServiceName(), env, tableName);
+        EntityFactory(Env env) {
+            super(env);
         }
 
         @Override
@@ -77,6 +72,16 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
         @Override
         public String getId(Feedback obj) {
             return obj.getId();
+        }
+
+        @Override
+        protected String getServiceName() {
+            return AppEnvs.getServiceName();
+        }
+
+        @Override
+        protected String getTableName() {
+            return TABLE_NAME;
         }
     }
 }
