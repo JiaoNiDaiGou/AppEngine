@@ -3,23 +3,23 @@ package jiaoni.daigou.service.integrationtest;
 import com.google.protobuf.ByteString;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Env;
+import jiaoni.common.test.ApiClient;
 import jiaoni.common.test.TestUtils;
-import jiaoni.daigou.tools.remote.ApiClient;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.api.ParseRequest;
 import jiaoni.daigou.wiremodel.api.ParseResponse;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 
-import static jiaoni.daigou.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
+import static jiaoni.common.test.ApiClient.CUSTOM_SECRET_HEADER;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ParserIntegrationTest {
     private static final String KNOWN_MEDIA_ID_CUSTOMER_ONLY = "f3233a4f-1bdf-4245-b4c4-9f1d9c684edb.jpg";//"0a9982e3-fa1a-4aaa-9bd1-958649492bb5.jpg";
 
-    private final ApiClient apiClient = new ApiClient(Env.DEV);
+    private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
     public void parseCustomerByText() {

@@ -3,7 +3,8 @@ package jiaoni.daigou.service.integrationtest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Env;
-import jiaoni.daigou.tools.remote.ApiClient;
+import jiaoni.common.test.ApiClient;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ProductCategory;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import javax.ws.rs.core.GenericType;
 import static org.junit.Assert.assertTrue;
 
 public class ProductIntegrationTest {
-    private final ApiClient apiClient = new ApiClient(Env.DEV);
+    private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
     public void test_put_get() {

@@ -17,4 +17,4 @@ include 'daigou-service:service'
 include 'daigou-service:tools'
 
 // SongFan
-//include 'songfan-service:service'
+include 'songfan-service:service'

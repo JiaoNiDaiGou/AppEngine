@@ -1,10 +1,11 @@
 package jiaoni.daigou.service.integrationtest;
 
 import jiaoni.common.model.Env;
-import jiaoni.daigou.tools.remote.ApiClient;
+import jiaoni.common.test.ApiClient;
 import jiaoni.common.wiremodel.Address;
-import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.common.wiremodel.PhoneNumber;
+import jiaoni.daigou.service.appengine.AppEnvs;
+import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -16,13 +17,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
-import static jiaoni.daigou.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
+import static jiaoni.common.test.ApiClient.CUSTOM_SECRET_HEADER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class CustomerIntegrationTest {
-    private final ApiClient apiClient = new ApiClient(Env.DEV);
+    private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
     public void testGetCustomers() {

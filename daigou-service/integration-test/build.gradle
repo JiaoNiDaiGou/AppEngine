@@ -5,7 +5,6 @@ dependencies {
     compile project(":common-test")
 
     compile project(":daigou-service:service")
-    compile project(":daigou-service:tools")
 
     compile "junit:junit:$junit_ver"
     compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"

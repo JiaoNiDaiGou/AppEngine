@@ -1,12 +1,13 @@
 package jiaoni.daigou.service.integrationtest;
 
 import jiaoni.common.model.Env;
-import jiaoni.daigou.tools.remote.ApiClient;
+import jiaoni.common.test.ApiClient;
+import jiaoni.common.wiremodel.Price;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.api.AssignOwnershipShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.ExpireShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.InitShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.PurchaseShoppingListItemRequest;
-import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ProductCategory;
 import jiaoni.daigou.wiremodel.entity.ShoppingListItem;
@@ -16,7 +17,7 @@ import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 
-import static jiaoni.daigou.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
+import static jiaoni.common.test.ApiClient.CUSTOM_SECRET_HEADER;
 import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.EXPIRED;
 import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.INIT;
 import static jiaoni.daigou.wiremodel.entity.ShoppingListItem.Status.IN_HOUSE;
@@ -26,8 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ShoppingListIntegrationTest {
-
-    private final ApiClient client = new ApiClient(Env.DEV);
+    private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
     public void testInit_GetById() {
@@ -42,19 +42,19 @@ public class ShoppingListIntegrationTest {
                         .build())
                 .build();
 
-        ShoppingListItem afterInit = client.newTarget()
+        ShoppingListItem afterInit = apiClient.newTarget()
                 .path("/api/shoppingLists/init")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(initRequest))
                 .readEntity(ShoppingListItem.class);
         assertEquals("creator", afterInit.getCreatorName());
         assertEquals(INIT, afterInit.getStatus());
 
-        ShoppingListItem item = client.newTarget()
+        ShoppingListItem item = apiClient.newTarget()
                 .path("/api/shoppingLists/" + afterInit.getId())
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
                 .readEntity(ShoppingListItem.class);
         assertEquals(INIT, item.getStatus());
@@ -73,20 +73,20 @@ public class ShoppingListIntegrationTest {
                         .build())
                 .build();
 
-        ShoppingListItem afterInit = client.newTarget()
+        ShoppingListItem afterInit = apiClient.newTarget()
                 .path("/api/shoppingLists/init")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(initRequest))
                 .readEntity(ShoppingListItem.class);
         assertEquals("creator", afterInit.getCreatorName());
         assertEquals(INIT, afterInit.getStatus());
 
-        List<ShoppingListItem> items = client.newTarget()
+        List<ShoppingListItem> items = apiClient.newTarget()
                 .path("/api/shoppingLists/query")
                 .queryParam("status", INIT.name())
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
                 .readEntity(new GenericType<List<ShoppingListItem>>() {
                 });
@@ -109,10 +109,10 @@ public class ShoppingListIntegrationTest {
                         .build())
                 .build();
 
-        ShoppingListItem afterInit = client.newTarget()
+        ShoppingListItem afterInit = apiClient.newTarget()
                 .path("/api/shoppingLists/init")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(initRequest))
                 .readEntity(ShoppingListItem.class);
         assertEquals("creator", afterInit.getCreatorName());
@@ -123,16 +123,16 @@ public class ShoppingListIntegrationTest {
         ExpireShoppingListItemRequest request = ExpireShoppingListItemRequest.newBuilder()
                 .setExpireName("expire_name")
                 .build();
-        client.newTarget()
+        apiClient.newTarget()
                 .path("/api/shoppingLists/" + id + "/expire")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(request));
 
-        ShoppingListItem item = client.newTarget()
+        ShoppingListItem item = apiClient.newTarget()
                 .path("/api/shoppingLists/" + id)
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
                 .readEntity(ShoppingListItem.class);
         assertEquals(EXPIRED, item.getStatus());
@@ -155,10 +155,10 @@ public class ShoppingListIntegrationTest {
                         .build())
                 .build();
 
-        ShoppingListItem afterInit = client.newTarget()
+        ShoppingListItem afterInit = apiClient.newTarget()
                 .path("/api/shoppingLists/init")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(initRequest))
                 .readEntity(ShoppingListItem.class);
         assertEquals("creator", afterInit.getCreatorName());
@@ -172,10 +172,10 @@ public class ShoppingListIntegrationTest {
                 .newBuilder()
                 .setOwnerName("buyer")
                 .build();
-        ShoppingListItem afterAssignOwnership = client.newTarget()
+        ShoppingListItem afterAssignOwnership = apiClient.newTarget()
                 .path("/api/shoppingLists/" + id + "/assign")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(assignOwnershipRequest))
                 .readEntity(ShoppingListItem.class);
         assertEquals(OWNERSHIP_ASSIGNED, afterAssignOwnership.getStatus());
@@ -187,20 +187,20 @@ public class ShoppingListIntegrationTest {
                 .setPurchaserName("buyer")
                 .setTotalPurchasePrice(Price.newBuilder().setUnit(Price.Unit.USD).setValue(12).build())
                 .build();
-        ShoppingListItem afterPurchase = client.newTarget()
+        ShoppingListItem afterPurchase = apiClient.newTarget()
                 .path("/api/shoppingLists/" + id + "/purchase")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json(purchaseRequest))
                 .readEntity(ShoppingListItem.class);
         assertEquals("buyer", afterPurchase.getPurchaserName());
         assertEquals(PURCHASED, afterPurchase.getStatus());
 
         // In house
-        ShoppingListItem afterInHouse = client.newTarget()
+        ShoppingListItem afterInHouse = apiClient.newTarget()
                 .path("/api/shoppingLists/" + id + "/inHouse")
                 .request()
-                .header(CUSTOM_SECRET_HEADER, client.getCustomSecretHeader())
+                .header(CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .post(Entity.json("anything_works"))
                 .readEntity(ShoppingListItem.class);
         assertEquals(IN_HOUSE, afterInHouse.getStatus());

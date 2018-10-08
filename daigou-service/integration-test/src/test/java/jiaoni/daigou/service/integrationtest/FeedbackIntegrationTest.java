@@ -1,7 +1,8 @@
 package jiaoni.daigou.service.integrationtest;
 
 import jiaoni.common.model.Env;
-import jiaoni.daigou.tools.remote.ApiClient;
+import jiaoni.common.test.ApiClient;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.sys.Feedback;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class FeedbackIntegrationTest {
-    private final ApiClient apiClient = new ApiClient(Env.DEV);
+    private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
     public void test_post_get_close() {

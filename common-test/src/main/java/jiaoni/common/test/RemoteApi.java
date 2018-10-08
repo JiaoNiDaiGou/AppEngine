@@ -1,4 +1,4 @@
-package jiaoni.daigou.tools.remote;
+package jiaoni.common.test;
 
 import com.google.appengine.api.appidentity.AppIdentityService;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
@@ -10,8 +10,6 @@ import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import jiaoni.common.model.Env;
-import jiaoni.daigou.service.appengine.AppEnvs;
 
 import java.io.IOException;
 
@@ -51,8 +49,8 @@ public class RemoteApi implements AutoCloseable {
         }
     }
 
-    public static RemoteApi login() {
-        return new RemoteApi(AppEnvs.getHostname(Env.DEV));
+    public static RemoteApi login(final String hostname) {
+        return new RemoteApi(hostname);
     }
 
     public DatastoreService getDatastoreService() {
