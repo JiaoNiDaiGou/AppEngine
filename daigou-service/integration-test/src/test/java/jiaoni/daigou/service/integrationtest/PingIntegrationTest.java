@@ -1,17 +1,18 @@
 package jiaoni.daigou.service.integrationtest;
 
 import jiaoni.common.model.Env;
-import jiaoni.daigou.tools.remote.ApiClient;
+import jiaoni.common.test.ApiClient;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static jiaoni.daigou.tools.remote.ApiClient.CUSTOM_SECRET_HEADER;
+import static jiaoni.common.test.ApiClient.CUSTOM_SECRET_HEADER;
 import static org.junit.Assert.assertEquals;
 
 public class PingIntegrationTest {
-    private final ApiClient apiClient = new ApiClient(Env.DEV);
+    private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
     public void pingUnsecure() {

@@ -1,4 +1,4 @@
-package jiaoni.daigou.tools.remote;
+package jiaoni.common.test;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.base.Charsets;
@@ -7,10 +7,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.io.CharStreams;
 import jiaoni.common.json.ObjectMapperProvider;
-import jiaoni.common.model.Env;
 import jiaoni.common.utils.EncryptUtils;
 import jiaoni.common.utils.Secrets;
-import jiaoni.daigou.service.appengine.AppEnvs;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -66,11 +64,7 @@ public class ApiClient implements Closeable {
                 }
             });
 
-    public ApiClient(final Env env) {
-        this(AppEnvs.getHostname(protectProd(env)));
-    }
-
-    private ApiClient(final String hostname) {
+    public ApiClient(final String hostname) {
         this.hostname = hostname;
         client = ClientBuilder.newBuilder()
                 .register(JacksonFeature.class)
@@ -134,12 +128,5 @@ public class ApiClient implements Closeable {
         public void filter(final ClientRequestContext requestContext) {
             requestContext.getHeaders().putSingle(API_CLIENT_OP_NAME_HEADER, testName);
         }
-    }
-
-    private static Env protectProd(final Env env) {
-        if (env == Env.PROD) {
-            throw new IllegalStateException("cannot hit prod");
-        }
-        return env;
     }
 }

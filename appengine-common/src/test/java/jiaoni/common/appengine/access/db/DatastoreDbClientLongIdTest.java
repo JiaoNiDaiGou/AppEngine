@@ -2,9 +2,11 @@ package jiaoni.common.appengine.access.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.Streams;
 import jiaoni.common.appengine.access.LocalServiceRule;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -12,6 +14,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class DatastoreDbClientLongIdTest {
 
@@ -164,6 +168,27 @@ public class DatastoreDbClientLongIdTest {
         assertEquals(Collections.singletonList(a), items);
     }
 
+    @Test
+    public void testStringListIndexQuery() {
+        Item a = new Item("namea");
+        a.stringListField = Lists.newArrayList("1", "2", "3");
+        Item b = new Item("nameb");
+        b.stringListField = Lists.newArrayList("2", "3", "4");
+        Item c = new Item("namec");
+        c.stringListField = Lists.newArrayList("4", "5");
+
+        underTest.put(a, b, c);
+
+        DbQuery query = DbQuery.eq(ItemFactory.FIELD_STRING_LIST, "2");
+        List<Item> items = underTest.queryInStream(query).collect(Collectors.toList());
+        assertTrue(CollectionUtils.isEqualCollection(Arrays.asList(a, b), items));
+        assertEquals(Arrays.asList(a, b), items);
+
+        query = DbQuery.eq(ItemFactory.FIELD_STRING_LIST, "4");
+        items = underTest.queryInStream(query).collect(Collectors.toList());
+        assertTrue(CollectionUtils.isEqualCollection(Arrays.asList(b, c), items));
+    }
+
     private static class ItemDbClient extends DatastoreDbClient<Item> {
         ItemDbClient(DatastoreService service) {
             super(service, new ItemFactory());
@@ -174,6 +199,7 @@ public class DatastoreDbClientLongIdTest {
         private String id;
         private String name;
         private boolean booleanField;
+        private List<String> stringListField = new ArrayList<>();
 
         Item(String name) {
             this.name = name;
@@ -203,6 +229,7 @@ public class DatastoreDbClientLongIdTest {
     private static class ItemFactory implements DatastoreEntityFactory<Item> {
         private static final String FIELD_NAME = "item";
         private static final String FIELD_BOOLEAN = "field_boolean";
+        private static final String FIELD_STRING_LIST = "field_string_list";
 
         @Override
         public KeyType getKeyType() {
@@ -219,6 +246,7 @@ public class DatastoreDbClientLongIdTest {
             Item item = new Item(entity.getAsString(FIELD_NAME));
             item.id = entity.getKeyLongId();
             item.booleanField = entity.getAsBoolean(FIELD_BOOLEAN);
+            item.stringListField = entity.getAsStringList(FIELD_STRING_LIST);
             return item;
         }
 
@@ -238,6 +266,7 @@ public class DatastoreDbClientLongIdTest {
             return partialBuilder
                     .indexedString(FIELD_NAME, obj.name)
                     .indexedBoolean(FIELD_BOOLEAN, obj.booleanField)
+                    .indexedStringList(FIELD_STRING_LIST, obj.stringListField)
                     .build();
         }
     }

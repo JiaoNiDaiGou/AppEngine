@@ -1,7 +1,9 @@
 package jiaoni.daigou.tools;
 
 import jiaoni.common.appengine.registry.Registry;
-import jiaoni.daigou.tools.remote.RemoteApi;
+import jiaoni.common.model.Env;
+import jiaoni.common.test.RemoteApi;
+import jiaoni.daigou.service.appengine.AppEnvs;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -9,8 +11,8 @@ import java.util.stream.Collectors;
 
 public class RegistryTool {
     public static void main(String[] args) throws Exception {
-
-        try (RemoteApi remoteApi = RemoteApi.login()) {
+        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
+            listRegistries(new Registry(remoteApi.getDatastoreService(), Env.DEV));
         }
     }
 

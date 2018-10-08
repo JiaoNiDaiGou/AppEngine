@@ -2,6 +2,8 @@ package jiaoni.common.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -39,7 +41,7 @@ public class ObjectMapperProvider {
             return "null";
         }
         try {
-            return get().writer().writeValueAsString(object);
+            return get().setDefaultPrettyPrinter(new DefaultPrettyPrinter()).writer().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             return "<error>: " + e.getMessage();
         }

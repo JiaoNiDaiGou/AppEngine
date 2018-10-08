@@ -8,6 +8,7 @@ import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
 import jiaoni.common.appengine.access.db.DatastoreEntityExtractor;
 import jiaoni.common.appengine.access.db.DbClientBuilder;
 import jiaoni.common.appengine.access.db.DbQuery;
+import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.model.Env;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.Product;
@@ -23,18 +24,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ProductDbClient extends BaseDbClient<Product> {
+    private static final String TABLE_NAME = "Product";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CATEGORY = "category";
 
     @Inject
-    public ProductDbClient(final DatastoreService datastoreService) {
-        this(datastoreService, AppEnvs.getEnv());
-    }
-
-    public ProductDbClient(final DatastoreService datastoreService, final Env env) {
+    public ProductDbClient(@ENV final Env env,
+                           final DatastoreService datastoreService) {
         super(new DbClientBuilder<Product>()
                 .datastoreService(datastoreService)
-                .entityFactory(new EntityFactory(env, "Product"))
+                .entityFactory(new EntityFactory(env))
                 .build());
     }
 
@@ -46,9 +45,8 @@ public class ProductDbClient extends BaseDbClient<Product> {
     }
 
     private static class EntityFactory extends BaseEntityFactory<Product> {
-
-        protected EntityFactory(Env env, String tableName) {
-            super(AppEnvs.getServiceName(), env, tableName);
+        EntityFactory(Env env) {
+            super(env);
         }
 
         @Override
@@ -80,6 +78,16 @@ public class ProductDbClient extends BaseDbClient<Product> {
         @Override
         public Product mergeId(Product obj, String id) {
             return obj.toBuilder().setId(id).build();
+        }
+
+        @Override
+        protected String getServiceName() {
+            return AppEnvs.getServiceName();
+        }
+
+        @Override
+        protected String getTableName() {
+            return TABLE_NAME;
         }
     }
 }

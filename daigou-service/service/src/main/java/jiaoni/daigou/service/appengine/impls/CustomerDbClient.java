@@ -3,17 +3,17 @@ package jiaoni.daigou.service.appengine.impls;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.memcache.MemcacheService;
-import com.google.common.annotations.VisibleForTesting;
 import jiaoni.common.appengine.access.db.BaseDbClient;
 import jiaoni.common.appengine.access.db.BaseEntityFactory;
 import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
 import jiaoni.common.appengine.access.db.DatastoreEntityExtractor;
 import jiaoni.common.appengine.access.db.DbClientBuilder;
+import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.model.Env;
 import jiaoni.common.utils.EncryptUtils;
+import jiaoni.common.wiremodel.PhoneNumber;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.common.wiremodel.PhoneNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,20 +30,14 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
     private static final String TABLE_NAME = "Customer";
 
     @Inject
-    public CustomerDbClient(final DatastoreService datastoreService,
+    public CustomerDbClient(@ENV final Env env,
+                            final DatastoreService datastoreService,
                             final MemcacheService memcacheService) {
-        this(datastoreService, memcacheService, AppEnvs.getEnv());
-    }
-
-    @VisibleForTesting
-    public CustomerDbClient(final DatastoreService datastoreService,
-                            final MemcacheService memcacheService,
-                            final Env env) {
         super(new DbClientBuilder<Customer>()
                 .datastoreService(datastoreService)
-                .entityFactory(new EntityFactory(env, TABLE_NAME))
+                .entityFactory(new EntityFactory(env))
                 .memcacheService(memcacheService)
-                .memcacheProtoTransform("JNDG.Customer", Customer.parser())
+                .memcacheProtoTransform(TABLE_NAME, Customer.parser())
                 .memcacheAll()
                 .build());
     }
@@ -66,8 +60,8 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
     private static class EntityFactory extends BaseEntityFactory<Customer> {
         private static final String FIELD_DATA = "data";
 
-        protected EntityFactory(Env env, String tableName) {
-            super(AppEnvs.getServiceName(), env, tableName);
+        EntityFactory(Env env) {
+            super(env);
         }
 
         @Override
@@ -95,6 +89,16 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
         @Override
         public Customer mergeId(Customer obj, String id) {
             return obj.toBuilder().setId(id).build();
+        }
+
+        @Override
+        protected String getServiceName() {
+            return AppEnvs.getServiceName();
+        }
+
+        @Override
+        protected String getTableName() {
+            return TABLE_NAME;
         }
     }
 }

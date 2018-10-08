@@ -8,11 +8,13 @@ import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import jiaoni.common.appengine.utils.TimestampUtils;
 import jiaoni.common.json.ObjectMapperProvider;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
 public class DatastoreEntityBuilder {
@@ -36,6 +38,13 @@ public class DatastoreEntityBuilder {
 
     public DatastoreEntityBuilder indexedString(final String prop, final String str) {
         return setProp(prop, StringUtils.trimToNull(str), true);
+    }
+
+    public DatastoreEntityBuilder indexedStringList(final String prop, final List<String> strings) {
+        if (CollectionUtils.isNotEmpty(strings)) {
+            return setProp(prop, strings, true);
+        }
+        return this;
     }
 
     public DatastoreEntityBuilder indexedBoolean(final String prop, final Boolean bool) {

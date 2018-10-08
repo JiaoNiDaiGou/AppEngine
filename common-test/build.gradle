@@ -2,7 +2,9 @@ apply from: "$rootDir/standard-java.gradle"
 
 dependencies {
     compile project(':common')
+    compile project(':appengine-common')
 
+    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
     compile "com.google.guava:guava:$guava_ver"
     compile "junit:junit:$junit_ver"
     compile "org.apache.commons:commons-collections4:$commons_collections4_ver"

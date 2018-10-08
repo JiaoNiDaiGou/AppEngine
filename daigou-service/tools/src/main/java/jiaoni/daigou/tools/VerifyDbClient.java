@@ -8,11 +8,12 @@ import jiaoni.common.appengine.access.db.DatastoreEntityExtractor;
 import jiaoni.common.appengine.access.db.DatastoreEntityFactory;
 import jiaoni.common.appengine.access.db.DbClient;
 import jiaoni.common.model.Env;
-import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
-import jiaoni.daigou.tools.remote.RemoteApi;
+import jiaoni.common.test.RemoteApi;
 import jiaoni.common.wiremodel.Address;
-import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.common.wiremodel.PhoneNumber;
+import jiaoni.daigou.service.appengine.AppEnvs;
+import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
+import jiaoni.daigou.wiremodel.entity.Customer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -33,17 +34,17 @@ public class VerifyDbClient {
                 .addAddresses(Address.newBuilder().setRegion("r1").build())
                 .addAddresses(Address.newBuilder().setRegion("r2").build())
                 .build();
-        try (RemoteApi remoteApi = RemoteApi.login()) {
+        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
             CustomerDbClient dbClient = new CustomerDbClient(
+                    Env.DEV,
                     remoteApi.getDatastoreService(),
-                    remoteApi.getMemcacheService(),
-                    Env.DEV);
+                    remoteApi.getMemcacheService());
             dbClient.put(customer);
         }
     }
 
     private static void testDummp() throws Exception {
-        try (RemoteApi remoteApi = RemoteApi.login()) {
+        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
             ItemDbClient client = new ItemDbClient(remoteApi.getDatastoreService());
 
             String name = UUID.randomUUID().toString();

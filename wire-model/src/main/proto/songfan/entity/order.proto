@@ -18,8 +18,9 @@ message Order {
         DELIVERED = 4;
         DELETED = 10;
     }
-    Customer customer = 1;
+    string id = 1;
     Status status = 2;
+    Customer customer = 3;
     jiaoni.common.wiremodel.Address delivery_address = 5;
 
     message OrderEntry {
@@ -38,4 +39,8 @@ message Order {
 
     int64 creation_time = 50;
     int64 last_updated_time = 51;
+
+    repeated string tags = 60;
+
+    string menu_id = 70;
 }

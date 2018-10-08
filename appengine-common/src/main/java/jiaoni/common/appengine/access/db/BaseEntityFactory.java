@@ -1,10 +1,9 @@
 package jiaoni.common.appengine.access.db;
 
 import jiaoni.common.model.Env;
-import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static jiaoni.common.utils.Preconditions2.checkNotBlank;
 
 /**
  * A factory converts business logic object to Datastore entity, and vice versa.
@@ -15,12 +14,17 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class BaseEntityFactory<T> implements DatastoreEntityFactory<T> {
     private final String kind;
 
-    protected BaseEntityFactory(final String serviceName, final Env env, final String tableName) {
-        checkState(StringUtils.isNotBlank(serviceName));
-        checkNotNull(env);
-        checkState(StringUtils.isNotBlank(tableName));
-        this.kind = serviceName + "." + env + "." + tableName;
+    protected BaseEntityFactory(final Env env) {
+        this.kind = checkNotBlank(getServiceName()) + "." + checkNotNull(env) + "." + checkNotBlank(getTableName());
     }
+
+    protected BaseEntityFactory(final String serviceName, final Env env) {
+        this.kind = checkNotBlank(serviceName) + "." + checkNotNull(env) + "." + checkNotBlank(getTableName());
+    }
+
+    protected abstract String getServiceName();
+
+    protected abstract String getTableName();
 
     @Override
     public final String getKind() {

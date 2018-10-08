@@ -11,6 +11,7 @@ import jiaoni.common.appengine.access.db.DbClientBuilder;
 import jiaoni.common.model.Env;
 
 public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
+    private static final String TABLE_NAME = "WxSession";
     private static final String FIELD_OPEN_ID = "openId";
     private static final String FIELD_SESSION_KEY = "sessionId";
     private static final String FIELD_UNION_ID = "unionId";
@@ -22,14 +23,14 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
         super(new DbClientBuilder<WxSessionTicket>()
                 .datastoreService(datastoreService)
                 .memcacheService(memcacheService)
-                .entityFactory(new EntityFactory(serviceName, env, "WxSession"))
+                .entityFactory(new EntityFactory(serviceName, env))
                 .memcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
                 .build());
     }
 
     private static final class EntityFactory extends BaseEntityFactory<WxSessionTicket> {
-        EntityFactory(String serviceName, Env env, String tableName) {
-            super(serviceName, env, tableName);
+        protected EntityFactory(String serviceName, Env env) {
+            super(env);
         }
 
         @Override
@@ -65,6 +66,16 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
         @Override
         public String getId(WxSessionTicket obj) {
             return obj.getTicketId();
+        }
+
+        @Override
+        protected String getServiceName() {
+            throw new IllegalStateException("shouldn't called");
+        }
+
+        @Override
+        protected String getTableName() {
+            return TABLE_NAME;
         }
     }
 }
