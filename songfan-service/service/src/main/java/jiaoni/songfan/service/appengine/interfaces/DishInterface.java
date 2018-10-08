@@ -8,6 +8,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,7 +25,6 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
-@RolesAllowed({ Roles.ADMIN })
 public class DishInterface {
     private final DishDbClient dbClient;
 
@@ -34,6 +34,7 @@ public class DishInterface {
     }
 
     @POST
+    @RolesAllowed({ Roles.ADMIN })
     public Response create(final Dish dish) {
         RequestValidator.validateNotNull(dish);
         RequestValidator.validateEmpty(dish.getId());
@@ -44,6 +45,7 @@ public class DishInterface {
 
     @GET
     @Path("/{id}")
+    @PermitAll
     public Response getById(@PathParam("id") final String id) {
         Dish dish = dbClient.getById(id);
         if (dish == null) {
@@ -53,6 +55,7 @@ public class DishInterface {
     }
 
     @GET
+    @PermitAll
     public Response getAll() {
         List<Dish> combos = dbClient.scan().collect(Collectors.toList());
         return Response.ok(combos).build();

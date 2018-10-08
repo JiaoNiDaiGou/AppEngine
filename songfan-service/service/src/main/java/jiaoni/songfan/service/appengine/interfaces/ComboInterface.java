@@ -8,6 +8,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,7 +25,6 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
-@RolesAllowed({ Roles.ADMIN })
 public class ComboInterface {
     private final ComboDbClient dbClient;
 
@@ -34,6 +34,7 @@ public class ComboInterface {
     }
 
     @POST
+    @RolesAllowed({ Roles.ADMIN })
     public Response create(final Combo combo) {
         RequestValidator.validateNotNull(combo);
         RequestValidator.validateEmpty(combo.getId());
@@ -44,6 +45,7 @@ public class ComboInterface {
 
     @GET
     @Path("/{id}")
+    @PermitAll
     public Response getById(@PathParam("id") final String id) {
         Combo combo = dbClient.getById(id);
         if (combo == null) {
@@ -53,6 +55,7 @@ public class ComboInterface {
     }
 
     @GET
+    @PermitAll
     public Response getAll() {
         List<Combo> combos = dbClient.scan().collect(Collectors.toList());
         return Response.ok(combos).build();

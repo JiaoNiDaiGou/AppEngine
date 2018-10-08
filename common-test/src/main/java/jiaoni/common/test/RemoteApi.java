@@ -10,6 +10,7 @@ import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import jiaoni.common.utils.Envs;
 
 import java.io.IOException;
 
@@ -49,7 +50,13 @@ public class RemoteApi implements AutoCloseable {
         }
     }
 
+    @Deprecated
     public static RemoteApi login(final String hostname) {
+        return new RemoteApi(hostname);
+    }
+
+    public static RemoteApi login() {
+        String hostname = Envs.getGaeProjectId() + ".appspot.com";
         return new RemoteApi(hostname);
     }
 

@@ -38,5 +38,6 @@ public class AuthFilter implements ContainerRequestFilter {
                 return;
             }
         }
+        LOGGER.info("Not fit any authenticator. Continue request as anonymous");
     }
 }

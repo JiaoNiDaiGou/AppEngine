@@ -11,13 +11,13 @@
         <!-- Register JAX-RS Application. -->
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>ApiApplication</param-value>
+            <param-value>jiaoni.songfan.service.appengine.ApiApplication</param-value>
         </init-param>
 
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>JiaoNiDaiGouAPI</servlet-name>
+        <servlet-name>SongFanAPI</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 

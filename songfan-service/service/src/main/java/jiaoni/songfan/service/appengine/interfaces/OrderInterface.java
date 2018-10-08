@@ -1,6 +1,5 @@
 package jiaoni.songfan.service.appengine.interfaces;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.wiremodel.Address;
 import jiaoni.common.wiremodel.Price;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -41,6 +41,7 @@ import static jiaoni.songfan.wiremodel.entity.Order.Status.INIT;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
+@PermitAll
 public class OrderInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderInterface.class);
 
@@ -103,7 +104,7 @@ public class OrderInterface {
                     comboPricesById.put(entry.getCombo().getId(), entry.getPrice());
                     break;
                 default:
-                    throw new InternalRuntimeError("bad menu");
+                    throw new IllegalStateException("bad menu");
             }
         }
 
@@ -133,7 +134,7 @@ public class OrderInterface {
             RequestValidator.validateNotNull(dish);
             RequestValidator.validateRequest(entry.getValue() > 0);
             Price price = dishPricesById.get(entry.getKey());
-            totalPriceBeforeTax += price.getValue();
+            totalPriceBeforeTax += price.getValue() * entry.getValue();
             orderEntries.add(Order.OrderEntry.newBuilder()
                     .setDish(dish)
                     .setAmount(entry.getValue())
@@ -145,7 +146,7 @@ public class OrderInterface {
             RequestValidator.validateNotNull(combo);
             RequestValidator.validateRequest(entry.getValue() > 0);
             Price price = comboPricesById.get(entry.getKey());
-            totalPriceBeforeTax += price.getValue();
+            totalPriceBeforeTax += price.getValue() * entry.getValue();
             orderEntries.add(Order.OrderEntry.newBuilder()
                     .setCombo(combo)
                     .setAmount(entry.getValue())

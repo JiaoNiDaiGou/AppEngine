@@ -9,7 +9,6 @@ import jiaoni.common.appengine.auth.BypassAuthenticator;
 import jiaoni.common.appengine.auth.CustomSecretAuthenticator;
 import jiaoni.common.appengine.auth.GoogleOAuth2Authenticator;
 import jiaoni.common.appengine.auth.SysTaskQueueAuthenticator;
-import jiaoni.common.appengine.auth.WxAuthenticator;
 import jiaoni.common.appengine.filters.AuthFilter;
 import jiaoni.common.appengine.filters.CorsFilter;
 import jiaoni.common.appengine.filters.WireLogFilter;
@@ -65,7 +64,6 @@ public class ApiApplication extends ResourceConfig {
             } else {
                 authenticators = Lists.newArrayList(
                         new SysTaskQueueAuthenticator(),
-                        new WxAuthenticator(AppEnvs.getServiceName(), AppEnvs.getEnv()),
                         new CustomSecretAuthenticator(),
                         new GoogleOAuth2Authenticator());
             }
