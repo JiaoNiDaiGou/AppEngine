@@ -15,6 +15,7 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
     private static final String FIELD_OPEN_ID = "openId";
     private static final String FIELD_SESSION_KEY = "sessionId";
     private static final String FIELD_UNION_ID = "unionId";
+    private static final String FIELD_EXPIRATION_TIME = "expirationTime";
 
     public WxSessionDbClient(final String serviceName,
                              final Env env,
@@ -30,7 +31,7 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
 
     private static final class EntityFactory extends BaseEntityFactory<WxSessionTicket> {
         protected EntityFactory(String serviceName, Env env) {
-            super(env);
+            super(serviceName, env);
         }
 
         @Override
@@ -45,6 +46,7 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
                     .withOpenId(entity.getAsString(FIELD_OPEN_ID))
                     .withSessionKey(entity.getAsString(FIELD_SESSION_KEY))
                     .withUnionId(entity.getAsString(FIELD_UNION_ID))
+                    .withExpirationTime(entity.getAsDateTime(FIELD_EXPIRATION_TIME))
                     .build();
         }
 
@@ -54,6 +56,7 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
                     .unindexedString(FIELD_OPEN_ID, obj.getOpenId())
                     .unindexedString(FIELD_SESSION_KEY, obj.getSessionKey())
                     .unindexedString(FIELD_UNION_ID, obj.getUnionId())
+                    .unindexedTimestamp(FIELD_EXPIRATION_TIME, obj.getExpirationTime())
                     .unindexedLastUpdatedTimestampAsNow()
                     .build();
         }

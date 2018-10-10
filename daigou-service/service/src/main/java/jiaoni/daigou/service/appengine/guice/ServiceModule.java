@@ -21,6 +21,8 @@ import jiaoni.common.appengine.access.storage.GcsClient;
 import jiaoni.common.appengine.access.storage.StorageClient;
 import jiaoni.common.appengine.access.taskqueue.PubSubClient;
 import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
+import jiaoni.common.appengine.auth.WxSessionDbClient;
+import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.httpclient.InMemoryCookieStore;
 import jiaoni.common.httpclient.MockBrowserClient;
 import jiaoni.daigou.contentparser.CnAddressParser;
@@ -39,6 +41,8 @@ import javax.inject.Singleton;
 public class ServiceModule extends AbstractModule {
     @Override
     protected void configure() {
+        bindConstant().annotatedWith(ENV.class).to(AppEnvs.getEnv());
+
         bind(StorageClient.class).to(GcsClient.class);
         bind(EmailClient.class).to(GaeEmailSender.class);
         bind(PubSubClient.class).to(TaskQueueClient.class);
@@ -49,6 +53,17 @@ public class ServiceModule extends AbstractModule {
         bind(CnAddressParser.class).toInstance(new CnAddressParser());
         bind(CnPeopleNameParser.class).toInstance(new CnPeopleNameParser());
         bind(CnCellPhoneParser.class).toInstance(new CnCellPhoneParser());
+    }
+
+    @Provides
+    @Singleton
+    WxSessionDbClient provideWxSessionDbClient(final DatastoreService datastoreService,
+                                               final MemcacheService memcacheService) {
+        return new WxSessionDbClient(
+                AppEnvs.getServiceName(),
+                AppEnvs.getEnv(),
+                datastoreService,
+                memcacheService);
     }
 
     @Provides

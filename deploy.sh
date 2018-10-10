@@ -12,16 +12,28 @@ set -euo pipefail
 export ROOT="${ROOT:-$(git rev-parse --show-toplevel)}"
 . $ROOT/scripts/exports.sh
 
-VERSION="${VERSION:-dev}"
-
-if [ -z ${SERVICE} ]; then
-    echo "ERROR: Service name is required. E.g. daigou, songfan"
-    exit 1
+if [ -z "${SERVICE:-}" ]; then
+    SERVICE_LIST=("daigou" "songfan")
+    for (( c=0; c<${#SERVICE_LIST[@]}; c++ ))
+    do
+        echo "[$c] ${SERVICE_LIST[c]}"
+    done
+    echo "Select SERVICE, and press [ENTER]"
+    read service_selection
+    SERVICE=${SERVICE_LIST[service_selection]}
+    echo "SERVICE: $SERVICE"
 fi
 
-if [[ ${VERSION} =~ ^(prod.*)$ ]]; then
-    echo "ERROR: Cannot deploy a version starts with ${VERSION}. That is reserved!"
-    exit 1
+if [ -z "${VERSION:-}" ]; then
+    VERSION_LIST=("dev" "prod")
+    for (( c=0; c<${#VERSION_LIST[@]}; c++ ))
+    do
+        echo "[$c] ${VERSION_LIST[c]}"
+    done
+    echo "Select VERSION, and press [ENTER]"
+    read version_selection
+    VERSION=${VERSION_LIST[version_selection]}
+    echo "VERSION: $VERSION"
 fi
 
 echo "
