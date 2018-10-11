@@ -12,6 +12,7 @@ include 'wire-model'
 // DaiGou
 include 'daigou-service:content-parser'
 include 'daigou-service:integration-test'
+include 'daigou-service:lib-douyin'
 include 'daigou-service:lib-teddy'
 include 'daigou-service:service'
 include 'daigou-service:tools'

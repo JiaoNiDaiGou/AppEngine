@@ -187,10 +187,13 @@ public class MemcacheDbClient<T> implements DbClient<T> {
         // Load all cache keys
         List<T> fromMemcache = loadAllCache();
         if (CollectionUtils.isNotEmpty(fromMemcache)) {
+            LOGGER.info("Scan results from memcache");
             return fromMemcache.stream();
         }
 
+        LOGGER.info("Scan results from DB");
         List<T> fromDb = dbClient.scan().collect(Collectors.toList());
+
         saveAllCache(fromDb);
 
         return fromDb.stream();
@@ -216,6 +219,8 @@ public class MemcacheDbClient<T> implements DbClient<T> {
             partitionKeys.add(partitionKey);
             toPut.put(partitionKey, bytesArray.toByteArray());
         }
+
+        LOGGER.info("Refresh memcache. totalItems: {}. partitionCount: {}.", items.size(), partitionKeys.size());
         memcache.putAll(toPut, DEFAULT_EXPIRATION);
         memcache.put(allCacheKey, StringArray.newBuilder().addAllValue(partitionKeys).build().toByteArray(), DEFAULT_EXPIRATION);
     }
@@ -263,16 +268,19 @@ public class MemcacheDbClient<T> implements DbClient<T> {
     //
     @Override
     public Stream<T> queryInStream(DbQuery query) {
+        LOGGER.error("You'd bettern not using it");
         return dbClient.queryInStream(query);
     }
 
     @Override
     public PaginatedResults<T> queryInPagination(int limit, PageToken pageToken) {
+        LOGGER.error("You'd bettern not using it");
         return dbClient.queryInPagination(limit, pageToken);
     }
 
     @Override
     public PaginatedResults<T> queryInPagination(DbQuery query, int limit, PageToken pageToken) {
+        LOGGER.error("You'd bettern not using it");
         return dbClient.queryInPagination(query, limit, pageToken);
     }
 }

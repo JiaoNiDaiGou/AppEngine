@@ -1,12 +1,10 @@
 package jiaoni.daigou.service.appengine.interfaces;
 
-import jiaoni.common.appengine.access.db.PageToken;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.wiremodel.Address;
-import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.wiremodel.common.entity.PaginatedResults;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
+import jiaoni.daigou.wiremodel.entity.Customer;
 import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
@@ -31,10 +29,7 @@ import javax.ws.rs.core.Response;
 @Singleton
 @RolesAllowed({ Roles.ADMIN })
 public class CustomerInterface {
-    private static final int DEFAULT_PAGE_LIMIT = 100;
-
     private final CustomerDbClient customerDbClient;
-
 
     @Inject
     public CustomerInterface(final CustomerDbClient customerDbClient) {
@@ -43,12 +38,10 @@ public class CustomerInterface {
 
     @GET
     @Path("/all")
-    public Response getAllCustomer(@QueryParam("nextToken") final String nextToken,
-                                   @QueryParam("limit") final int limit) {
-        PaginatedResults<Customer> results = customerDbClient.queryInPagination(
-                limit <= 0 ? DEFAULT_PAGE_LIMIT : limit,
-                PageToken.fromPageToken(nextToken));
-        return Response.ok(results).build();
+    public Response getAllCustomer(@Deprecated @QueryParam("nextToken") final String nextToken,
+                                   @Deprecated @QueryParam("limit") final int limit) {
+        List<Customer> customers = customerDbClient.scan().collect(Collectors.toList());
+        return Response.ok(customers).build();
     }
 
     @GET

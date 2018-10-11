@@ -21,6 +21,10 @@ target/
 !/common/src/main/resources/secrets/do_not_commit_anything_here
 
 # Ignore api/ generated xml from template
-api/**/WEB-INF/appengine-web.xml
-api/**/WEB-INF/cron.xml
-api/**/WEB-INF/queue.xml
+daigou-service/**/WEB-INF/appengine-web.xml
+daigou-service/**/WEB-INF/cron.xml
+daigou-service/**/WEB-INF/queue.xml
+
+songfan-service/**/WEB-INF/appengine-web.xml
+songfan-service/**/WEB-INF/cron.xml
+songfan-service/**/WEB-INF/queue.xml
