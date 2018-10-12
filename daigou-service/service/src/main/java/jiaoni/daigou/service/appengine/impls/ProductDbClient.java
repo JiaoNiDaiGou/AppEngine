@@ -2,6 +2,7 @@ package jiaoni.daigou.service.appengine.impls;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.memcache.MemcacheService;
 import jiaoni.common.appengine.access.db.BaseDbClient;
 import jiaoni.common.appengine.access.db.BaseEntityFactory;
 import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
@@ -30,10 +31,14 @@ public class ProductDbClient extends BaseDbClient<Product> {
 
     @Inject
     public ProductDbClient(@ENV final Env env,
-                           final DatastoreService datastoreService) {
+                           final DatastoreService datastoreService,
+                           final MemcacheService memcacheService) {
         super(new DbClientBuilder<Product>()
                 .datastoreService(datastoreService)
                 .entityFactory(new EntityFactory(env))
+                .memcacheService(memcacheService)
+                .memcacheProtoTransform(TABLE_NAME, Product.parser())
+                .memcacheAll()
                 .build());
     }
 

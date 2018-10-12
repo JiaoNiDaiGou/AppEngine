@@ -6,8 +6,8 @@ import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.service.appengine.impls.ProductDbClient;
+import jiaoni.daigou.wiremodel.entity.Product;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,8 +43,8 @@ public class ProductInterface {
     }
 
     @GET
-    @Path("/getAll")
-    public Response getAll(@PathParam("app") final String appName) {
+    @Path("/all")
+    public Response getAll() {
         List<Product> products = dbClient.scan().collect(Collectors.toList());
         return Response.ok(products).build();
     }

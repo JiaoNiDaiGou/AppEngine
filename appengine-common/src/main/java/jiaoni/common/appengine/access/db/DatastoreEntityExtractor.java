@@ -66,6 +66,13 @@ public class DatastoreEntityExtractor {
         return (Long) entity.getProperty(prop);
     }
 
+    public Integer getAsInteger(final String prop) {
+        if (!entity.hasProperty(prop)) {
+            return null;
+        }
+        return (Integer) entity.getProperty(prop);
+    }
+
     public DateTime getAsTimestamp(final String prop) {
         if (!entity.hasProperty(prop)) {
             return null;

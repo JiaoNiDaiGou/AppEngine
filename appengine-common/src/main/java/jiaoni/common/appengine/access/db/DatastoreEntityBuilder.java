@@ -90,6 +90,14 @@ public class DatastoreEntityBuilder {
         return setProp(prop, value, true);
     }
 
+    public DatastoreEntityBuilder indexedInteger(final String prop, final int value) {
+        return setProp(prop, value, true);
+    }
+
+    public DatastoreEntityBuilder unindexedInteger(final String prop, final int value) {
+        return setProp(prop, value, false);
+    }
+
     public DatastoreEntityBuilder indexedTimestamp(final String prop, final Timestamp timestamp) {
         return indexedTimestamp(prop, TimestampUtils.toJodaTime(timestamp));
     }
