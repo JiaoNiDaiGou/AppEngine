@@ -25,4 +25,6 @@ message Address {
     string zone = 4;
     string address = 5;
     string postal_code = 6;
+
+    string name = 20;
 }

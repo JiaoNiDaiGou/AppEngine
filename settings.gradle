@@ -10,13 +10,14 @@ include 'content-template'
 include 'wire-model'
 
 // DaiGou
-include 'daigou-service:content-parser'
-include 'daigou-service:integration-test'
-include 'daigou-service:lib-douyin'
-include 'daigou-service:lib-teddy'
-include 'daigou-service:service'
-include 'daigou-service:tools'
+//include 'daigou-service:content-parser'
+//include 'daigou-service:daigou-appengine'
+//include 'daigou-service:daigou-integration-test'
+//include 'daigou-service:daigou-tools'
+//include 'daigou-service:lib-douyin'
+//include 'daigou-service:lib-teddy'
 
 // SongFan
-include 'songfan-service:integration-test'
-include 'songfan-service:service'
+include 'songfan-service:songfan-appengine'
+include 'songfan-service:songfan-integration-test'
+include 'songfan-service:songfan-tools'

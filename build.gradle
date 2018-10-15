@@ -47,6 +47,7 @@ allprojects {
             force "io.opencensus:opencensus-api:0.15.0"
             force "javax.ws.rs:javax.ws.rs-api:$javax_ws_rs_ver"
             force "joda-time:joda-time:$jodatime_ver"
+            force "org.apache.commons:commons-csv:$commons_csv_ver"
             force "org.apache.httpcomponents:httpclient:$httpcomponents_httpclient_ver"
             force "org.apache.httpcomponents:httpcore:$httpcomponents_httpcore_ver"
             force "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"

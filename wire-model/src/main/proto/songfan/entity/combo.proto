@@ -10,7 +10,7 @@ message Combo {
     string id = 1;
     string name = 2;
     string description = 3;
-    string media_ids = 10;
+    repeated string media_ids = 10;
     
     message ComboEntry {
         Dish dish = 1;

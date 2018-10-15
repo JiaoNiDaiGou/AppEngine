@@ -3,6 +3,7 @@ package jiaoni.common.appengine.access.db;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public interface DbClient<T> {
@@ -13,6 +14,8 @@ public interface DbClient<T> {
     List<T> put(final List<T> objs);
 
     T getById(final String id);
+
+    Map<String, T> getByIds(final List<String> ids);
 
     void delete(final String id);
 

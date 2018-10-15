@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -57,6 +58,13 @@ public class InMemoryDbClient<T> implements DbClient<T> {
     @Override
     public T getById(String id) {
         return map.get(id);
+    }
+
+    @Override
+    public Map<String, T> getByIds(List<String> ids) {
+        return ids.stream().map(map::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(idGetter::getId, t -> t));
     }
 
     @Override

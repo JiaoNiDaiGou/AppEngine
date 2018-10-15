@@ -1,0 +1,11 @@
+apply from: "$rootDir/standard-java.gradle"
+
+dependencies {
+    compile project(":common")
+    compile project(":common-test")
+
+    compile project(":songfan-service:songfan-appengine")
+
+    compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
+    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
+}

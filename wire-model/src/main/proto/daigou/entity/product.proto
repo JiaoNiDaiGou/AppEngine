@@ -13,13 +13,14 @@ message Product {
     string brand = 4;
     string description = 5;
 
-    string main_media_id = 20;
-    repeated string other_media_ids = 21;
+    repeated string media_ids = 21;
 
     jiaoni.common.wiremodel.Price suggested_unit_price = 30;
 
-    // For search use
-    repeated string tags = 40;
+    map<string, string> tags = 40;
+
+    // Name in Google ProductSearch
+    string product_search_name = 100;
 }
 
 enum ProductCategory {

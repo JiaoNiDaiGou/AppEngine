@@ -2,6 +2,7 @@ package jiaoni.common.appengine.access.db;
 
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -37,7 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class MemcacheDbClient<T> implements DbClient<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemcacheDbClient.class);
 
-    private static final Expiration DEFAULT_EXPIRATION = Expiration.byDeltaSeconds(60 * 60); //1h
+    private static final Expiration DEFAULT_EXPIRATION = Expiration.byDeltaSeconds(4 * 60 * 60); //4h
 
     private static final int DEFAULT_PARTITION_SIZE = 200;
 
@@ -81,6 +82,19 @@ public class MemcacheDbClient<T> implements DbClient<T> {
             return null;
         }
         return transform.apply(bytes);
+    }
+
+    private <M> Map<String, M> loadCache(final List<String> keys, final Function<byte[], M> transfrom) {
+        Map<String, Object> map = memcache.getAll(keys);
+        Map<String, M> toReturn = new HashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            byte[] bytes = (byte[]) entry.getValue();
+            if (bytes == null || bytes.length == 0) {
+                continue;
+            }
+            toReturn.put(entry.getKey(), transfrom.apply(bytes));
+        }
+        return toReturn;
     }
 
     @Override
@@ -135,6 +149,28 @@ public class MemcacheDbClient<T> implements DbClient<T> {
             }
         }
         return fromDb;
+    }
+
+    @Override
+    public Map<String, T> getByIds(List<String> ids) {
+        List<String> memcacheKeys = ids.stream().map(this::withNamespace).collect(Collectors.toList());
+        Map<String, T> fromMemcache = loadCache(memcacheKeys, this.memcacheTransform::from);
+        List<String> toLoadFromDd = new ArrayList<>(CollectionUtils.subtract(ids, fromMemcache.keySet()));
+        Map<String, T> fromDb = ImmutableMap.of();
+        if (!toLoadFromDd.isEmpty()) {
+            fromDb = dbClient.getByIds(toLoadFromDd);
+            Map<String, byte[]> toPutIntoMemcache = fromDb.entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            t -> withNamespace(t.getKey()),
+                            t -> this.memcacheTransform.to(t.getValue())
+                    ));
+            memcache.putAll(toPutIntoMemcache, DEFAULT_EXPIRATION);
+        }
+        return ImmutableMap.<String, T>builder()
+                .putAll(fromMemcache)
+                .putAll(fromDb)
+                .build();
     }
 
     @Override

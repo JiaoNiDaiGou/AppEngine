@@ -1,7 +1,10 @@
 package jiaoni.common.utils;
 
 import com.google.common.collect.Table;
+import com.google.protobuf.ProtocolMessageEnum;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +13,43 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class CollectionUtils2 {
+    public static String firstNotBlank(String... strs) {
+        if (strs == null || strs.length == 0) {
+            return null;
+        }
+        for (String str : strs) {
+            if (StringUtils.isNotBlank(str)) {
+                return str;
+            }
+        }
+        return null;
+    }
+
+    public static <T extends ProtocolMessageEnum> T firstRecognized(T... enums) {
+        if (enums == null || enums.length == 0) {
+            return null;
+        }
+        for (T t : enums) {
+            if (t.getNumber() != -1) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static <T> List<T> appendNoDup(final List<T> base, Iterable<T> toAppend) {
+        List<T> toReturn = new ArrayList<>(base);
+        if (toAppend == null) {
+            return toReturn;
+        }
+        for (T t : toAppend) {
+            if (!toReturn.contains(t)) {
+                toReturn.add(t);
+            }
+        }
+        return toReturn;
+    }
+
     public static <K> void incCnt(final Map<K, Long> map, final K key) {
         incCnt(map, key, 1L);
     }

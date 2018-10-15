@@ -45,6 +45,6 @@ echo "
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
-$ROOT/gradlew :${SERVICE}-service:service:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+$ROOT/gradlew :${SERVICE}-service:${SERVICE}-appengine:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 
 open "https://$VERSION-dot-$SERVICE-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"

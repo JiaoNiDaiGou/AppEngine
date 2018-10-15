@@ -11,6 +11,9 @@ import jiaoni.common.model.Env;
 import jiaoni.common.utils.Envs;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
+import java.util.Map;
+
 public class Registry extends BaseDbClient<Pair<String, String>> {
     private static final String TABLE_NAME = "Registry";
     private static final String FIELD_VAL = "val";

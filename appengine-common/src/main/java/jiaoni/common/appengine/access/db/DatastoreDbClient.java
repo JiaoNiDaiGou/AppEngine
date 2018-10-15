@@ -19,11 +19,13 @@ import jiaoni.common.appengine.access.db.DbQuery.KeyRangeQuery;
 import jiaoni.common.appengine.access.db.DbQuery.OrQuery;
 import jiaoni.common.appengine.access.db.DbQuery.SimpleQuery;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -112,6 +114,21 @@ public class DatastoreDbClient<T> implements DbClient<T> {
             toReturn = null;
         }
 
+        meterOff();
+        return toReturn;
+    }
+
+    @Override
+    public Map<String, T> getByIds(List<String> ids) {
+        checkState(CollectionUtils.isNotEmpty(ids));
+        ids.forEach(t -> checkState(StringUtils.isNotBlank(t)));
+
+        meterOn();
+        List<Key> keys = ids.stream().map(this::buildKey).collect(Collectors.toList());
+        Map<String, T> toReturn = service.get(keys)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(t -> extractId(t.getKey()), t -> toObj(t.getValue())));
         meterOff();
         return toReturn;
     }

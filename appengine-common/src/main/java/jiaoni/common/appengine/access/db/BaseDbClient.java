@@ -3,6 +3,7 @@ package jiaoni.common.appengine.access.db;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -37,6 +38,11 @@ public abstract class BaseDbClient<T> implements DbClient<T> {
     @Override
     public T getById(String id) {
         return client.getById(id);
+    }
+
+    @Override
+    public Map<String, T> getByIds(List<String> ids) {
+        return client.getByIds(ids);
     }
 
     @Override

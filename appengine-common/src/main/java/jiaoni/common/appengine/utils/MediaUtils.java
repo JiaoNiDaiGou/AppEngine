@@ -23,4 +23,8 @@ public class MediaUtils {
                 return MediaType.OCTET_STREAM.toString();
         }
     }
+
+    public static String toGcsPath(final String mediaId) {
+        return "gs://x-media/" + mediaId;
+    }
 }

@@ -39,7 +39,7 @@ public class RequestValidator {
     }
 
     public static void validateEmpty(final String string) {
-        validateNotBlank(string, null);
+        validateEmpty(string, null);
     }
 
     public static void validateEmpty(final String string, final String message) {

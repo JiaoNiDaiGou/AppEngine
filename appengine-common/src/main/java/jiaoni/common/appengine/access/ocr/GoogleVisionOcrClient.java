@@ -14,14 +14,12 @@ import com.google.cloud.vision.v1.Symbol;
 import com.google.cloud.vision.v1.TextAnnotation;
 import com.google.cloud.vision.v1.Word;
 import com.google.protobuf.ByteString;
-import jiaoni.common.model.InternalIOException;
+import jiaoni.common.appengine.access.gcp.GoogleClientFactory;
 import jiaoni.common.model.Snippet;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.inject.Singleton;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -63,7 +61,7 @@ public class GoogleVisionOcrClient implements OcrClient {
 
     private List<Snippet> annotate(final AnnotateImageRequest request) {
         List<Snippet> toReturn = new ArrayList<>();
-        try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
+        try (ImageAnnotatorClient client = GoogleClientFactory.imageAnnotator()) {
             BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request));
 
             for (AnnotateImageResponse res : response.getResponsesList()) {
@@ -94,8 +92,6 @@ public class GoogleVisionOcrClient implements OcrClient {
 
             }
             return toReturn;
-        } catch (IOException e) {
-            throw new InternalIOException(e);
         }
     }
 }
