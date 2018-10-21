@@ -5,7 +5,6 @@ option java_package = "jiaoni.songfan.wiremodel.entity";
 option java_multiple_files = true;
 
 import "common/common.proto";
-import "songfan/entity/combo.proto";
 import "songfan/entity/dish.proto";
 
 message Menu {
@@ -15,10 +14,7 @@ message Menu {
     int64 expiration_time = 4;
 
     message MenuEntry {
-        oneof entry {
-            Combo combo = 1;
-            Dish dish =2;
-        }
+        Dish dish = 1;
         jiaoni.common.wiremodel.Price price = 10;
     }
     repeated MenuEntry menu_entries = 10;

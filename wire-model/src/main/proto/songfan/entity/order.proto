@@ -5,7 +5,6 @@ option java_package = "jiaoni.songfan.wiremodel.entity";
 option java_multiple_files = true;
 
 import "common/common.proto";
-import "songfan/entity/combo.proto";
 import "songfan/entity/customer.proto";
 import "songfan/entity/dish.proto";
 
@@ -24,10 +23,7 @@ message Order {
     jiaoni.common.wiremodel.Address delivery_address = 5;
 
     message OrderEntry {
-        oneof entry {
-            Dish dish = 1;
-            Combo combo = 2;
-        }
+        Dish dish = 1;
         int32 amount = 10;
         jiaoni.common.wiremodel.Price unit_price = 20;
     }

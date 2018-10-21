@@ -4,9 +4,12 @@ package jiaoni.songfan.wiremodel.entity;
 option java_package = "jiaoni.songfan.wiremodel.entity";
 option java_multiple_files = true;
 
+import "common/common.proto";
+
 message Dish {
     string id = 1;
     string name = 2;
     string description = 3;
+    jiaoni.common.wiremodel.Price suggested_price = 4;
     repeated string media_ids = 10;
 }
