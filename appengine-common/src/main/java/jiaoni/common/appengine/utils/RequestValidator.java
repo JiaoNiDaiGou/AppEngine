@@ -1,9 +1,9 @@
 package jiaoni.common.appengine.utils;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Supplier;
 import javax.ws.rs.BadRequestException;
 
@@ -51,7 +51,23 @@ public class RequestValidator {
     }
 
     public static <T> void validateNotEmpty(final T[] array, final String message) {
-        validateRequest(array != null && array.length > 1, smartMessage(message, "%s must not be empty"));
+        validateRequest(array != null && array.length > 0, smartMessage(message, "%s must not be empty"));
+    }
+
+    public static <T> void validateNotEmpty(final Collection<T> collection) {
+        validateNotEmpty(collection, null);
+    }
+
+    public static <T> void validateNotEmpty(final Collection<T> collection, final String message) {
+        validateRequest(collection != null && collection.size() > 0, smartMessage(message, "%s must not be empty"));
+    }
+
+    public static <K, V> void validateNotEmpty(final Map<K, V> map, final String message) {
+        validateRequest(map != null && map.size() > 0, smartMessage(message, "%s must not be empty"));
+    }
+
+    public static <K, V> void validateNotEmpty(final Map<K, V> map) {
+        validateNotEmpty(map, null);
     }
 
     public static void validateNotEmpty(final byte[] array) {
@@ -60,18 +76,6 @@ public class RequestValidator {
 
     public static void validateNotEmpty(final byte[] array, final String message) {
         validateRequest(array != null && array.length > 1, "%s must not be empty");
-    }
-
-    public static <T> void validateValueInSet(final T toCheck, final Set<T> set, String message) {
-        validateRequest(set.contains(toCheck), smartMessage(message, "%s must be in set " + set));
-    }
-
-    public static <T> void validateValueInSet(final T toCheck, final Set<T> set) {
-        validateValueInSet(toCheck, set, null);
-    }
-
-    public static <T> void validateValueInSet(final T toCheck, final T[] set) {
-        validateValueInSet(toCheck, Sets.newHashSet(set), null);
     }
 
     private static Supplier<String> smartMessage(final String message, final String template) {

@@ -1,9 +1,9 @@
-package jiaoni.songfan.service.appengine.interfaces;
+package jiaoni.songfan.service.appengine.interfaces.admin;
 
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
-import jiaoni.songfan.service.appengine.impls.ComboDbClient;
-import jiaoni.songfan.wiremodel.entity.Combo;
+import jiaoni.songfan.service.appengine.impls.DishDbClient;
+import jiaoni.songfan.wiremodel.entity.Dish;
 import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
@@ -21,25 +21,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/api/combos")
+@Path("/api/admin/dishes")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
-public class ComboInterface {
-    private final ComboDbClient dbClient;
+@RolesAllowed({ Roles.ADMIN })
+public class AdminDishInterface {
+    private final DishDbClient dbClient;
 
     @Inject
-    public ComboInterface(final ComboDbClient dbClient) {
+    public AdminDishInterface(final DishDbClient dbClient) {
         this.dbClient = dbClient;
     }
 
     @POST
     @RolesAllowed({ Roles.ADMIN })
-    public Response create(final Combo combo) {
-        RequestValidator.validateNotNull(combo);
-        RequestValidator.validateEmpty(combo.getId());
+    public Response create(final Dish dish) {
+        RequestValidator.validateNotNull(dish);
+        RequestValidator.validateEmpty(dish.getId());
 
-        Combo afterSave = dbClient.put(combo);
+        Dish afterSave = dbClient.put(dish);
         return Response.ok(afterSave).build();
     }
 
@@ -47,17 +48,17 @@ public class ComboInterface {
     @Path("/{id}")
     @PermitAll
     public Response getById(@PathParam("id") final String id) {
-        Combo combo = dbClient.getById(id);
-        if (combo == null) {
+        Dish dish = dbClient.getById(id);
+        if (dish == null) {
             throw new NotFoundException();
         }
-        return Response.ok(combo).build();
+        return Response.ok(dish).build();
     }
 
     @GET
     @PermitAll
     public Response getAll() {
-        List<Combo> combos = dbClient.scan().collect(Collectors.toList());
+        List<Dish> combos = dbClient.scan().collect(Collectors.toList());
         return Response.ok(combos).build();
     }
 }

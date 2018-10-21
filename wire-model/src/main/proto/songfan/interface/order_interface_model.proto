@@ -8,9 +8,9 @@ import "common/common.proto";
 import "songfan/entity/customer.proto";
 
 message InitOrderRequest {
-    oneof customer {
+    oneof customer_obj {
         string customer_id = 1;
-        jiaoni.songfan.wiremodel.entity.Customer customer_obj = 2; // only check name, phone, wechat nicknames, etc
+        jiaoni.songfan.wiremodel.entity.Customer customer = 2; // only check name, phone, wechat nicknames, etc
     }
     string menu_id = 10;
 
@@ -18,6 +18,11 @@ message InitOrderRequest {
 
     // map[dish.id - amount]
     map<string, int32> dishes = 12;
-    // map[combo.id - amount]
-    map<string, int32> combos = 13;
+
+    string payment_nonce = 20;
+    string payment_type = 21;
+}
+
+message ClientTokenResponse {
+    string client_token = 1;
 }

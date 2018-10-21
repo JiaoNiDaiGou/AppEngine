@@ -17,6 +17,7 @@ message Order {
         DELIVERED = 4;
         DELETED = 10;
     }
+
     string id = 1;
     Status status = 2;
     Customer customer = 3;
@@ -39,4 +40,6 @@ message Order {
     repeated string tags = 60;
 
     string menu_id = 70;
+
+    string transaction_id = 80;
 }

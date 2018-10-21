@@ -10,7 +10,9 @@ message Customer {
     string id = 1;
     string name = 2;
     jiaoni.common.wiremodel.PhoneNumber phone = 3;
-    repeated jiaoni.common.wiremodel.Address addresses = 4; // The first one is the default address
+    string email = 4;
+    repeated jiaoni.common.wiremodel.Address addresses = 10; // The first one is the default address
+
 
     int64 creation_time = 40;
     int64 last_updated_time = 41;
