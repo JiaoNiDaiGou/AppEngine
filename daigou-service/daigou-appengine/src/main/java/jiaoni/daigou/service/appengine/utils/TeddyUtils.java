@@ -1,15 +1,16 @@
 package jiaoni.daigou.service.appengine.utils;
 
 import com.google.common.collect.ImmutableSet;
+import jiaoni.common.utils.Envs;
+import jiaoni.common.wiremodel.Address;
+import jiaoni.common.wiremodel.PhoneNumber;
+import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.lib.teddy.model.OrderPreview;
 import jiaoni.daigou.lib.teddy.model.Receiver;
 import jiaoni.daigou.lib.teddy.model.ShippingHistoryEntry;
-import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.common.wiremodel.PhoneNumber;
 import jiaoni.daigou.wiremodel.entity.Postman;
-import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ProductCategory;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
@@ -25,6 +26,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class TeddyUtils {
     private static Set<String> KNOWN_SHIPPING_CARRIERS = ImmutableSet.of("邮政平邮", "圆通速递", "邮政包裹");
+
+    public static final String WARM_UP_MEMCACHE_KEY = Envs.NAMESPACE_SYS + ".TeddyWarmUp";
 
     public static Set<String> getKnownShippingCarriers() {
         return KNOWN_SHIPPING_CARRIERS;

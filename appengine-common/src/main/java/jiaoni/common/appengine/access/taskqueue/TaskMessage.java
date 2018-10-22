@@ -43,6 +43,13 @@ public class TaskMessage {
                 .withHandler(handler);
     }
 
+    public static TaskMessage newEmptyMessage(final Class<? extends Consumer<TaskMessage>> handler) {
+        return new Builder()
+                .withReachCount(0)
+                .withHandler(handler)
+                .build();
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);

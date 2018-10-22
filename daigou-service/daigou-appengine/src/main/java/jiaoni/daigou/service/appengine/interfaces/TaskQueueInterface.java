@@ -9,6 +9,7 @@ import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
+import jiaoni.daigou.service.appengine.tasks.TeddyWarmupTaskRunner;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +40,15 @@ public class TaskQueueInterface {
                               final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner,
                               final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
                               final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
-                              final AdminReportTaskRunner notifyFeedbackTaskRunner) {
+                              final AdminReportTaskRunner notifyFeedbackTaskRunner,
+                              final TeddyWarmupTaskRunner teddyWarmupTaskRunner) {
         this.consumers = buildConsumerMap(
                 syncJiaoniCustomersTaskRunner,
                 dumpJiaoniShippingOrderTaskRunner,
                 syncJiaoniShippingOrdersTaskRunner,
                 buildProductHintsTaskRunner,
-                notifyFeedbackTaskRunner
+                notifyFeedbackTaskRunner,
+                teddyWarmupTaskRunner
         );
         LOGGER.info("Register following Tasks: {}", consumers.keySet());
     }
