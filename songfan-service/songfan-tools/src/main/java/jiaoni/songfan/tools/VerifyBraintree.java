@@ -13,6 +13,7 @@ import jiaoni.songfan.service.appengine.impls.OrderDbClient;
 import jiaoni.songfan.service.appengine.interfaces.publik.MenuInterface;
 import jiaoni.songfan.service.appengine.interfaces.publik.OrderInterface;
 import jiaoni.songfan.wiremodel.api.InitOrderRequest;
+import jiaoni.songfan.wiremodel.entity.Menu;
 
 public class VerifyBraintree {
     public static void main(String[] args) throws Exception {
@@ -31,13 +32,17 @@ public class VerifyBraintree {
 //        RequestValidator.validateNotEmpty(fromJson.getDishesMap());
 
         try (RemoteApi remoteApi = RemoteApi.login()) {
+            MenuDbClient menuDbClient = new MenuDbClient(Env.DEV, remoteApi.getDatastoreService(), new DoNothingMemcache());
             OrderInterface orderInterface = new OrderInterface(
                     new CustomerDbClient(Env.DEV, remoteApi.getDatastoreService()),
-                    new MenuDbClient(Env.DEV, remoteApi.getDatastoreService(), new DoNothingMemcache()),
+                    menuDbClient,
                     new OrderDbClient(Env.DEV, remoteApi.getDatastoreService()),
                     new BraintreeAccess(new BraintreeGatewayFactory().get())
             );
-            orderInterface.init(fromJson);
+//            orderInterface.init(fromJson);
+
+            Menu menu = menuDbClient.getById("test");
+            System.out.println(menu);
         }
     }
 }

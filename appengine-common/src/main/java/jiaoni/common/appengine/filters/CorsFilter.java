@@ -24,7 +24,8 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
             //
             // Add trusted clients.
             "http://localhost:3000",
-            "https://localhost:3000");
+            "https://localhost:3000",
+            "https://songfan-page-dot-fluid-crane-200921.appspot.com");
 
     private static final List<String> ALLOWED_CONTROL_HEADERS = ImmutableList.of(
             "Authorization",

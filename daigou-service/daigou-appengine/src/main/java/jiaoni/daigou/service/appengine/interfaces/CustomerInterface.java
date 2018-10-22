@@ -4,6 +4,7 @@ import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
+import jiaoni.daigou.service.appengine.impls.TeddyWarmUp;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.jvnet.hk2.annotations.Service;
 
@@ -30,10 +31,13 @@ import javax.ws.rs.core.Response;
 @RolesAllowed({ Roles.ADMIN })
 public class CustomerInterface {
     private final CustomerDbClient customerDbClient;
+    private final TeddyWarmUp teddyWarmUp;
 
     @Inject
-    public CustomerInterface(final CustomerDbClient customerDbClient) {
+    public CustomerInterface(final CustomerDbClient customerDbClient,
+                             final TeddyWarmUp teddyWarmUp) {
         this.customerDbClient = customerDbClient;
+        this.teddyWarmUp = teddyWarmUp;
     }
 
     @GET
@@ -41,6 +45,7 @@ public class CustomerInterface {
     public Response getAllCustomer(@Deprecated @QueryParam("nextToken") final String nextToken,
                                    @Deprecated @QueryParam("limit") final int limit) {
         List<Customer> customers = customerDbClient.scan().collect(Collectors.toList());
+        teddyWarmUp.warmUpAsyncIfNeeded();
         return Response.ok(customers).build();
     }
 

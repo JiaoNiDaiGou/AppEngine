@@ -3,7 +3,7 @@ package jiaoni.daigou.service.appengine.impls;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.memcache.MemcacheService;
-import com.google.cloud.sql.jdbc.internal.Charsets;
+import com.google.common.base.Charsets;
 import jiaoni.common.appengine.access.db.BaseDbClient;
 import jiaoni.common.appengine.access.db.BaseEntityFactory;
 import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
@@ -59,7 +59,7 @@ public class InventoryDbClient extends BaseDbClient<Triple<String, Integer, Long
             if (to == null || to.length == 0) {
                 return Triple.of(null, null, null);
             }
-            String[] parts = StringUtils.split(new String(to), "|");
+            String[] parts = StringUtils.split(new String(to, Charsets.UTF_8), "|");
             return Triple.of(parts[0], Integer.parseInt(parts[1]), Long.parseLong(parts[2]));
         }
     }

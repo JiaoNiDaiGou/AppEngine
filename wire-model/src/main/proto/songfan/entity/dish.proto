@@ -11,5 +11,6 @@ message Dish {
     string name = 2;
     string description = 3;
     jiaoni.common.wiremodel.Price suggested_price = 4;
+    string avatar = 5;
     repeated string media_ids = 10;
 }

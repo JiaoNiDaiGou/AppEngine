@@ -11,4 +11,10 @@
         <Class name="~jiaoni.songfan.wiremodel.*"/>
         <Bug pattern="UCF_USELESS_CONTROL_FLOW,SE_BAD_FIELD"/>
     </Match>
+    <Match>
+        <Package name="~jiaoni.songfan.tools.*"/>
+    </Match>
+    <Match>
+        <Package name="~jiaoni.daigou.tools.*"/>
+    </Match>
 </FindBugsFilter>

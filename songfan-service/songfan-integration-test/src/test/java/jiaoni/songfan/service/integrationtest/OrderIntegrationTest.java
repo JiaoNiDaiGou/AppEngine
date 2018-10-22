@@ -144,7 +144,7 @@ public class OrderIntegrationTest {
                 .setPhone(PhoneNumber.newBuilder().setCountryCode("1").setPhone("1234567890"))
                 .build();
         InitOrderRequest request = InitOrderRequest.newBuilder()
-                .setCustomerObj(customer)
+                .setCustomer(customer)
                 .setDeliveryAddressIndex(0)
                 .setMenuId(menu.getId())
                 .putDishes(dish.getId(), 2)
