@@ -10,7 +10,7 @@ import jiaoni.daigou.service.appengine.tasks.AdminReportTaskRunner;
 
 public class VerifyNotifyFeedback {
     public static void main(String[] args) throws Exception {
-        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
+        try (RemoteApi remoteApi = RemoteApi.login()) {
             AdminReportTaskRunner runner = new AdminReportTaskRunner(
                     new FeedbackDbClient(Env.DEV, remoteApi.getDatastoreService()),
                     new PopupPageEmailClient()

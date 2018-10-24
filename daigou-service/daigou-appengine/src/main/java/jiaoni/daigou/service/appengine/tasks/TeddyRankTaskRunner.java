@@ -73,7 +73,7 @@ public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
     }
 
     private List<ShippingOrder> loadAllShippingOrders() {
-        List<String> paths = storageClient.listAll(AppEnvs.Dir.SHIPPING_ORDERS_DUMP);
+        List<String> paths = storageClient.listAll(AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE);
         if (paths.isEmpty()) {
             return ImmutableList.of();
         }
@@ -104,15 +104,17 @@ public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
         }
         List<Map.Entry<String, Long>> ranks = CollectionUtils2.rankDesc(cnt);
 
+        ranks.forEach(t -> System.out.println(t));
+
         int myRank = IntStream.range(0, ranks.size())
                 .filter(t -> JIAO_NI_SENDER_NAME.equalsIgnoreCase(ranks.get(t).getKey()))
                 .findFirst()
                 .orElse(-1);
 
-        List<Triple<Integer, String, Long>> toReturn = IntStream.range(0, Math.min(10, ranks.size()))
+        List<Triple<Integer, String, Long>> toReturn = IntStream.range(0, Math.min(SENDER_RANK_LIMIT, ranks.size()))
                 .mapToObj(t -> Triple.of(t + 1, ranks.get(t).getKey(), ranks.get(t).getValue()))
                 .collect(Collectors.toList());
-        if (myRank >= 10) {
+        if (myRank >= SENDER_RANK_LIMIT) {
             toReturn.add(Triple.of(myRank + 1, ranks.get(myRank).getKey(), ranks.get(myRank).getValue()));
         }
         return toReturn;

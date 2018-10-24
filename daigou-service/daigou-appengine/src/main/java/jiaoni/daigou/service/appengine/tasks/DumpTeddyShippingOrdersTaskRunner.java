@@ -256,7 +256,8 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         for (Map.Entry<String, Collection<ShippingOrder>> entry : map.asMap().entrySet()) {
             // archive_dir/2018_04.json
             String path = ARCHIEVE_DIR + entry.getKey() + ".json";
-            List<ShippingOrder> toSave = new ArrayList<>(loadShippingOrders(path));
+
+            List<ShippingOrder> toSave = storageClient.exists(path) ? new ArrayList<>(loadShippingOrders(path)) : new ArrayList<>();
             toSave.addAll(entry.getValue());
             toSave.sort(ShippingOrderUtils.comparatorByTeddyOrderIdAsc());
 

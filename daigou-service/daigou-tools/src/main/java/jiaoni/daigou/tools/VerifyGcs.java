@@ -10,7 +10,7 @@ import java.util.List;
 
 public class VerifyGcs {
     public static void main(String[] args) throws Exception {
-        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
+        try (RemoteApi remoteApi = RemoteApi.login()) {
             StorageClient storageClient = new GcsClient(remoteApi.getStorage());
             List<String> files = storageClient.listAll("gs://fluid-crane-200921.appspot.com/teddy_orders_dump");
             System.out.println(files);
