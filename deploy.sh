@@ -42,9 +42,20 @@ echo "
 
 "
 
+# Copy shared configs into $service/WEB-INF
+cp $ROOT/appengine_shared/cron.xml.template $ROOT/daigou-service/daigou-appengine/src/main/webapp/WEB-INF/
+cp $ROOT/appengine_shared/queue.xml.template $ROOT/daigou-service/daigou-appengine/src/main/webapp/WEB-INF/
+cp $ROOT/appengine_shared/cron.xml.template $ROOT/songfan-service/songfan-appengine/src/main/webapp/WEB-INF/
+cp $ROOT/appengine_shared/queue.xml.template $ROOT/songfan-service/songfan-appengine/src/main/webapp/WEB-INF/
+
 # echo "Fetching secrets ..."
 # $ROOT/scripts/fetch_secrets.sh
 
 $ROOT/gradlew :${SERVICE}-service:${SERVICE}-appengine:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
+
+rm -rf $ROOT/daigou-service/daigou-appengine/src/main/webapp/WEB-INF/cron.xml*
+rm -rf $ROOT/daigou-service/daigou-appengine/src/main/webapp/WEB-INF/queue.xml*
+rm -rf $ROOT/songfan-service/daigou-appengine/src/main/webapp/WEB-INF/cron.xml*
+rm -rf $ROOT/songfan-service/daigou-appengine/src/main/webapp/WEB-INF/queue.xml*
 
 open "https://$VERSION-dot-$SERVICE-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"

@@ -5,7 +5,7 @@
         <url>/cron/syncJiaoniCustomers</url>
         <description>Sync JiaoNiDaiGou customers</description>
         <schedule>every day 03:00</schedule>
-        <target>prod</target>
+        <target>prod-dot-daigou</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
 
@@ -13,15 +13,7 @@
         <url>/cron/dumpTeddyShippingOrders?limit=10</url>
         <description>Teddy full shipping orders dump</description>
         <schedule>every day 07:00</schedule>
-        <target>prod</target>
-        <timezone>America/Los_Angeles</timezone>
-    </cron>
-
-    <cron>
-        <url>/cron/syncJiaoniShippingOrders</url>
-        <description>Sync JiaoNiDaiGou orders</description>
-        <schedule>every day 04:00</schedule>
-        <target>prod</target>
+        <target>prod-dot-daigou</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
 
@@ -29,7 +21,7 @@
         <url>/cron/syncJiaoniShippingOrders</url>
         <description>Sync JiaoNiDaiGou orders</description>
         <schedule>every day 08:00</schedule>
-        <target>prod</target>
+        <target>prod-dot-daigou</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
 

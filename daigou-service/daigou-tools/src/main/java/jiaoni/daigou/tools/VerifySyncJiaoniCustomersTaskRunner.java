@@ -13,7 +13,7 @@ import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 
 public class VerifySyncJiaoniCustomersTaskRunner {
     public static void main(String[] args) throws Exception {
-        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
+        try (RemoteApi remoteApi = RemoteApi.login()) {
             SyncJiaoniCustomersTaskRunner runner = new SyncJiaoniCustomersTaskRunner(
                     new CustomerDbClient(
                             Env.DEV,

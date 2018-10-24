@@ -34,7 +34,7 @@ public class VerifyDbClient {
                 .addAddresses(Address.newBuilder().setRegion("r1").build())
                 .addAddresses(Address.newBuilder().setRegion("r2").build())
                 .build();
-        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
+        try (RemoteApi remoteApi = RemoteApi.login()) {
             CustomerDbClient dbClient = new CustomerDbClient(
                     Env.DEV,
                     remoteApi.getDatastoreService(),
@@ -44,7 +44,7 @@ public class VerifyDbClient {
     }
 
     private static void testDummp() throws Exception {
-        try (RemoteApi remoteApi = RemoteApi.login(AppEnvs.getHostname(Env.DEV))) {
+        try (RemoteApi remoteApi = RemoteApi.login()) {
             ItemDbClient client = new ItemDbClient(remoteApi.getDatastoreService());
 
             String name = UUID.randomUUID().toString();

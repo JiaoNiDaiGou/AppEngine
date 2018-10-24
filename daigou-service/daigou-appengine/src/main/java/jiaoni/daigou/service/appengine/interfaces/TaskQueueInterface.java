@@ -9,12 +9,15 @@ import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
+import jiaoni.daigou.service.appengine.tasks.TeddyRankTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.TeddyWarmupTaskRunner;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.security.RolesAllowed;
@@ -41,15 +44,17 @@ public class TaskQueueInterface {
                               final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
                               final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
                               final AdminReportTaskRunner notifyFeedbackTaskRunner,
-                              final TeddyWarmupTaskRunner teddyWarmupTaskRunner) {
-        this.consumers = buildConsumerMap(
+                              final TeddyWarmupTaskRunner teddyWarmupTaskRunner,
+                              final TeddyRankTaskRunner teddyRankTaskRunner) {
+        this.consumers = buildConsumerMap(Arrays.asList(
                 syncJiaoniCustomersTaskRunner,
                 dumpJiaoniShippingOrderTaskRunner,
                 syncJiaoniShippingOrdersTaskRunner,
                 buildProductHintsTaskRunner,
                 notifyFeedbackTaskRunner,
-                teddyWarmupTaskRunner
-        );
+                teddyWarmupTaskRunner,
+                teddyRankTaskRunner
+        ));
         LOGGER.info("Register following Tasks: {}", consumers.keySet());
     }
 
@@ -72,7 +77,7 @@ public class TaskQueueInterface {
         return Response.ok().build();
     }
 
-    private static Map<String, Consumer<TaskMessage>> buildConsumerMap(final Consumer<TaskMessage>... consumers) {
+    private static Map<String, Consumer<TaskMessage>> buildConsumerMap(final List<? extends Consumer<TaskMessage>> consumers) {
         ImmutableMap.Builder<String, Consumer<TaskMessage>> builder = ImmutableMap.builder();
         for (Consumer<TaskMessage> consumer : consumers) {
             builder.put(consumer.getClass().getSimpleName(), consumer);

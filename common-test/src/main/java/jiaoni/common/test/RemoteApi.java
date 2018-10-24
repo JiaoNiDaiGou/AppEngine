@@ -50,11 +50,6 @@ public class RemoteApi implements AutoCloseable {
         }
     }
 
-    @Deprecated
-    public static RemoteApi login(final String hostname) {
-        return new RemoteApi(hostname);
-    }
-
     public static RemoteApi login() {
         String hostname = Envs.getGaeProjectId() + ".appspot.com";
         return new RemoteApi(hostname);
