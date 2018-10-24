@@ -18,11 +18,11 @@ import jiaoni.common.model.InternalIOException;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.model.Order;
+import jiaoni.daigou.service.appengine.AppEnvs;
+import jiaoni.daigou.service.appengine.utils.RegistryFactory;
 import jiaoni.daigou.service.appengine.utils.ShippingOrderUtils;
 import jiaoni.daigou.service.appengine.utils.TeddyUtils;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
-import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.utils.RegistryFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -57,7 +57,10 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
     /**
      * If we find this number of continuous null orders, break it.
      */
-    private static final int MAX_NUM_CONTINUOUS_NULL_ORDER = 100;
+    private static final int MAX_CONTINUOUS_NULL_FOR_THREE_DAYS = 100;
+    private static final int MAX_CONTINUOUS_NULL_FOR_ONE_DAY = 20;
+    private static final int MAX_CONTINOUS_NULL = 800;
+
     /**
      * How long the task can run
      */
@@ -111,9 +114,15 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         if (!hasNextTask) {
             return null;
         }
-        return new Message(curId, message.limit, true);
+        return new Message(curId, message.limit, true, null);
     }
 
+    /**
+     * Handle forward. Stop criteria:
+     * - task.limit reached
+     * - the creation date of last non-null item is within 1 day, and continues 20 null
+     * - the creation date of last non-null item is within 3 day, and continues 100 null
+     */
     private Message handleForward(final Message message,
                                   final TaskMessage taskMessage,
                                   final DateTime startTime) {
@@ -127,23 +136,41 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         long curId = startId;
         long lastNonNullId = startId;
         boolean hasNextTask = true;
+        DateTime lastNonNullTimestamp = null;
 
         while (DateTime.now().isBefore(endTime)) {
-            curId++;
             ShippingOrder shippingOrder = loadShippingOrder(curId);
             boolean isNull = shippingOrder == null || shippingOrder.getCreationTime() == 0;
             if (isNull) {
                 continuousNullCount++;
-                if (continuousNullCount > MAX_NUM_CONTINUOUS_NULL_ORDER) {
+
+                if (continuousNullCount > MAX_CONTINUOUS_NULL_FOR_ONE_DAY
+                        && lastNonNullTimestamp != null
+                        && DateTime.now().minusDays(1).isBefore(lastNonNullTimestamp)) {
+                    LOGGER.info("Found {} continues null order when last non-null order is within 1 day. BREAK!", continuousNullCount);
+                    hasNextTask = false;
+                    break;
+                }
+                if (continuousNullCount > MAX_CONTINUOUS_NULL_FOR_THREE_DAYS
+                        && lastNonNullTimestamp != null
+                        && DateTime.now().minusDays(1).isBefore(lastNonNullTimestamp)) {
+                    LOGGER.info("Found {} continues null order when last non-null order is within 3 day. BREAK!", continuousNullCount);
+                    hasNextTask = false;
+                    break;
+                }
+                if (continuousNullCount > MAX_CONTINOUS_NULL) {
                     LOGGER.info("Found {} continuous null order. I think no newer orders.", continuousNullCount);
                     hasNextTask = false;
                     break;
                 }
+                // For others, just keep going.
             } else {
                 continuousNullCount = 0;
                 lastNonNullId = curId;
+                lastNonNullTimestamp = new DateTime(shippingOrder.getCreationTime());
                 shippingOrders.add(shippingOrder);
             }
+            curId++;
         }
 
         hasNextTask &= message.limit == 0 || taskMessage.getReachCount() < message.limit;
@@ -156,7 +183,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
             return null;
         }
         // If we continue task, just start from curId. Otherwise, tomorrow, the task will start from lastNonNullId.
-        return new Message(curId - 1, message.limit, false);
+        return new Message(curId - 1, message.limit, false, lastNonNullTimestamp);
     }
 
     @Override
@@ -310,11 +337,14 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         private int limit;
         @JsonProperty
         private boolean backward;
+        @JsonProperty
+        private DateTime latestNonNullTimestamp;
 
-        public Message(long id, int limit, boolean backward) {
+        public Message(long id, int limit, boolean backward, DateTime latestNonNullTimestamp) {
             this.id = id;
             this.limit = limit;
             this.backward = backward;
+            this.latestNonNullTimestamp = latestNonNullTimestamp;
         }
 
         // For json
