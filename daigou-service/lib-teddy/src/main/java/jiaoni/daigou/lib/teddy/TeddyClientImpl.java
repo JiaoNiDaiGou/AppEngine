@@ -7,7 +7,6 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
 import jiaoni.common.httpclient.MockBrowserClient;
 import jiaoni.common.utils.JsoupUtils;
-import jiaoni.common.utils.Secrets;
 import jiaoni.common.utils.StringUtils2;
 import jiaoni.daigou.lib.teddy.model.Admin;
 import jiaoni.daigou.lib.teddy.model.Order;
@@ -70,7 +69,7 @@ public class TeddyClientImpl implements TeddyClient {
 
     public TeddyClientImpl(final String adminUsername,
                            final MockBrowserClient client) {
-        this(Secrets.of("teddy." + adminUsername + ".json").getAsJson(Admin.class), client);
+        this(TeddyAdmins.adminOf(adminUsername), client);
     }
 
     TeddyClientImpl(final Admin admin,

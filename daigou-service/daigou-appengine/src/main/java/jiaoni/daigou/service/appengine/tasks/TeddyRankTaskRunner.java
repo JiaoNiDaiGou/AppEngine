@@ -9,8 +9,10 @@ import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
 import jiaoni.common.utils.CollectionUtils2;
 import jiaoni.common.utils.Envs;
+import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeddyRankTaskRunner.class);
+
+    private static final String JIAO_NI_SENDER_NAME = TeddyAdmins.adminOf(TeddyAdmins.JIAONI).getSenderName();
 
     private static final int SENDER_RANK_LIMIT = 10;
 
@@ -47,18 +53,18 @@ public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
         List<ShippingOrder> shippingOrders = loadAllShippingOrders();
 
         DateTime now = DateTime.now();
-        List<Map.Entry<String, Long>> senderRankLast30d = senderRank(shippingOrders, now.minusDays(30));
-        List<Map.Entry<String, Long>> senderRankLast180d = senderRank(shippingOrders, now.minusDays(180));
+        List<Triple<Integer, String, Long>> senderRankLast30d = senderRank(shippingOrders, now.minusDays(30));
+        List<Triple<Integer, String, Long>> senderRankLast180d = senderRank(shippingOrders, now.minusDays(180));
 
         StringBuilder html = new StringBuilder();
         html.append("report time: ").append(now).append("\n");
         html.append("last 30d\n");
-        for (Map.Entry<String, Long> entry : senderRankLast30d) {
-            html.append("   ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        for (Triple<Integer, String, Long> triple : senderRankLast30d) {
+            html.append("   [").append(triple.getLeft()).append("] ").append(triple.getMiddle()).append(": ").append(triple.getRight()).append("\n");
         }
         html.append("\nlast 180d\n");
-        for (Map.Entry<String, Long> entry : senderRankLast30d) {
-            html.append("   ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        for (Triple<Integer, String, Long> triple : senderRankLast180d) {
+            html.append("   [").append(triple.getLeft()).append("] ").append(triple.getMiddle()).append(": ").append(triple.getRight()).append("\n");
         }
 
         for (String emailTo : Envs.getAdminEmails()) {
@@ -89,13 +95,26 @@ public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
         return toReturn;
     }
 
-    private List<Map.Entry<String, Long>> senderRank(List<ShippingOrder> shippingOrders, DateTime timeline) {
+    private List<Triple<Integer, String, Long>> senderRank(List<ShippingOrder> shippingOrders, DateTime timeline) {
         Map<String, Long> cnt = new HashMap<>();
         for (ShippingOrder shippingOrder : shippingOrders) {
             if (timeline.isBefore(shippingOrder.getCreationTime())) {
                 CollectionUtils2.incCnt(cnt, shippingOrder.getSenderName());
             }
         }
-        return CollectionUtils2.topDesc(cnt, SENDER_RANK_LIMIT);
+        List<Map.Entry<String, Long>> ranks = CollectionUtils2.rankDesc(cnt);
+
+        int myRank = IntStream.range(0, ranks.size())
+                .filter(t -> JIAO_NI_SENDER_NAME.equalsIgnoreCase(ranks.get(t).getKey()))
+                .findFirst()
+                .orElse(-1);
+
+        List<Triple<Integer, String, Long>> toReturn = IntStream.range(0, Math.min(10, ranks.size()))
+                .mapToObj(t -> Triple.of(t + 1, ranks.get(t).getKey(), ranks.get(t).getValue()))
+                .collect(Collectors.toList());
+        if (myRank >= 10) {
+            toReturn.add(Triple.of(myRank + 1, ranks.get(myRank).getKey(), ranks.get(myRank).getValue()));
+        }
+        return toReturn;
     }
 }
