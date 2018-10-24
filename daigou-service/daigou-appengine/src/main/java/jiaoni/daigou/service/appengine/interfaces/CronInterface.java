@@ -47,7 +47,7 @@ public class CronInterface {
                 HIGH_FREQUENCY,
                 TaskMessage.builder()
                         .withHandler(DumpTeddyShippingOrdersTaskRunner.class)
-                        .withPayloadJson(new DumpTeddyShippingOrdersTaskRunner.Message(id, limit, backward))
+                        .withPayloadJson(new DumpTeddyShippingOrdersTaskRunner.Message(id, limit, backward, null))
                         .build()
         );
         return Response.ok().build();

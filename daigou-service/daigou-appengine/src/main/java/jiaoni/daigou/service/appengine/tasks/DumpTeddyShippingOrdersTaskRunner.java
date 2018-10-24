@@ -223,6 +223,11 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
                         "Teddy OrderDump " + taskMessage.getReachCount(),
                         String.format("End RID %s.", message.id));
             }
+
+            // In the end, kick off rank task
+            LOGGER.info("Schedule Teddy Rank task");
+            pubSubClient.submit(PubSubClient.QueueName.HIGH_FREQUENCY,
+                    TaskMessage.newEmptyMessage(TeddyRankTaskRunner.class));
         }
     }
 
