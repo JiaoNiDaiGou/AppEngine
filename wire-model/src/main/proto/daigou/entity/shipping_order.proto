@@ -81,6 +81,8 @@ message ShippingOrder {
 
     jiaoni.common.wiremodel.Price shipping_fee = 135;
 
+    jiaoni.common.wiremodel.Price total_sell_price = 136;
+
     bool customer_notified = 140;
 
     repeated string media_ids = 150;

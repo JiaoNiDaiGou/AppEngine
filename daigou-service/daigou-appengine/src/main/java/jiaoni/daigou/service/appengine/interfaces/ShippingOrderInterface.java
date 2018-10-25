@@ -4,18 +4,18 @@ import jiaoni.common.appengine.access.db.PageToken;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.model.Order;
-import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
-import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
-import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.common.wiremodel.Price;
-import jiaoni.daigou.wiremodel.entity.ShippingOrder;
-import jiaoni.wiremodel.common.entity.PaginatedResults;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
 import jiaoni.daigou.service.appengine.impls.ShippingOrderDbClient;
 import jiaoni.daigou.service.appengine.utils.TeddyUtils;
+import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
+import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
+import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import jiaoni.wiremodel.common.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -97,6 +97,7 @@ public class ShippingOrderInterface {
                 .addAllProductEntries(request.getProductEntriesList())
                 .setTotalWeightLb(request.getTotalWeightLb())
                 .setTotalPrice(totalPrice)
+                .setTotalSellPrice(request.getTotalSellPrice())
                 .build();
 
         shippingOrder = shippingOrderDbClient.put(shippingOrder);

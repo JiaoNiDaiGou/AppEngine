@@ -53,9 +53,4 @@ cp $ROOT/appengine_shared/queue.xml.template $ROOT/songfan-service/songfan-appen
 
 $ROOT/gradlew :${SERVICE}-service:${SERVICE}-appengine:appengineUpdate -PgaeAppId=$PROJECT_ID -PgaeVersion=$VERSION
 
-rm -rf $ROOT/daigou-service/daigou-appengine/src/main/webapp/WEB-INF/cron.xml*
-rm -rf $ROOT/daigou-service/daigou-appengine/src/main/webapp/WEB-INF/queue.xml*
-rm -rf $ROOT/songfan-service/daigou-appengine/src/main/webapp/WEB-INF/cron.xml*
-rm -rf $ROOT/songfan-service/daigou-appengine/src/main/webapp/WEB-INF/queue.xml*
-
 open "https://$VERSION-dot-$SERVICE-dot-$PROJECT_ID.appspot.com/api/ping?input=helloworld"
