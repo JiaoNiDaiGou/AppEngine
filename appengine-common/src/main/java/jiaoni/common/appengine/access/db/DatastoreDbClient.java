@@ -209,11 +209,6 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public PaginatedResults<T> queryInPagination(int limit, PageToken nextToken) {
-        return queryInPagination(null, limit, nextToken);
-    }
-
-    @Override
     public PaginatedResults<T> queryInPagination(final DbQuery query,
                                                  final int limit,
                                                  final PageToken pageToken) {

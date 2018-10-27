@@ -81,11 +81,6 @@ public abstract class BaseDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public PaginatedResults<T> queryInPagination(int limit, PageToken pageToken) {
-        return client.queryInPagination(limit, pageToken);
-    }
-
-    @Override
     public PaginatedResults<T> queryInPagination(DbQuery query, int limit, PageToken pageToken) {
         return client.queryInPagination(query, limit, pageToken);
     }

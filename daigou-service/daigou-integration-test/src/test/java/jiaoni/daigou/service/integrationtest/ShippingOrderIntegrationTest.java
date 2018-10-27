@@ -98,4 +98,17 @@ public class ShippingOrderIntegrationTest {
                 shippingOrder.getTotalSellPrice());
         assertEquals(2, shippingOrder.getProductEntriesCount());
     }
+
+    @Test
+    public void test_get() {
+        String shippingOrderId = "5741384237580288";
+        ShippingOrder shippingOrder = apiClient.newTarget()
+                .path("api/shippingOrders/get/" + shippingOrderId)
+                .request()
+                .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
+                .get()
+                .readEntity(ShippingOrder.class);
+
+        System.out.println(shippingOrder);
+    }
 }

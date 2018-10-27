@@ -5,6 +5,7 @@ import jiaoni.wiremodel.common.entity.PaginatedResults;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 public interface DbClient<T> {
     T put(final T obj);
@@ -31,9 +32,7 @@ public interface DbClient<T> {
 
     Stream<T> queryInStream(final DbQuery query);
 
-    PaginatedResults<T> queryInPagination(final int limit, final PageToken pageToken);
-
-    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, final PageToken pageToken);
+    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, @Nullable final PageToken pageToken);
 
     /**
      * Extract the identifier of the object.
