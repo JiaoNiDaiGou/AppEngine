@@ -109,11 +109,6 @@ public class InMemoryDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public PaginatedResults<T> queryInPagination(int limit, PageToken pageToken) {
-        return queryInPagination(null, limit, pageToken);
-    }
-
-    @Override
     public PaginatedResults<T> queryInPagination(DbQuery query, int limit, PageToken pageToken) {
         int fromIndex = 0;
         if (pageToken != null) {

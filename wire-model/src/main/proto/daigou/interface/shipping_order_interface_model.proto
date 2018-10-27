@@ -12,6 +12,7 @@ message InitShippingOrderRequest {
     jiaoni.common.wiremodel.Address address = 2;
     repeated jiaoni.daigou.wiremodel.entity.ShippingOrder.ProductEntry product_entries = 3;
     double total_weight_lb = 4;
+    jiaoni.common.wiremodel.Price total_sell_price = 5;
 }
 
 message ExternalCreateShippingOrderRequest {

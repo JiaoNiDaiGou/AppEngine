@@ -20,6 +20,7 @@ public class Envs {
     private static final String LOCAL_TMP_DIR;
     private static final String GAE_ADMIN_EMAIL = "songfan.rfu@gmail.com";
     private static final List<String> ADMIN_EMAILS = ImmutableList.of("furuijie@gmail.com");
+    private static final List<String> POWER_USERS_EMAILS = ImmutableList.of("furuijie@gmail.com", "xiaoxiao9143@gmail.com");
 
     public static String getGaeProjectId() {
         return GAE_PROJECT_ID;
@@ -31,6 +32,10 @@ public class Envs {
 
     public static List<String> getAdminEmails() {
         return ADMIN_EMAILS;
+    }
+
+    public static List<String> getPowerUsersEmails() {
+        return POWER_USERS_EMAILS;
     }
 
     public static OSType getOSType() {

@@ -67,7 +67,7 @@ public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
             html.append("   [").append(triple.getLeft()).append("] ").append(triple.getMiddle()).append(": ").append(triple.getRight()).append("\n");
         }
 
-        for (String emailTo : Envs.getAdminEmails()) {
+        for (String emailTo : Envs.getPowerUsersEmails()) {
             emailClient.sendText(emailTo, "Teddy Sender Rank", html.toString());
         }
     }

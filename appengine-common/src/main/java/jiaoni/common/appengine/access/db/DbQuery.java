@@ -65,6 +65,8 @@ public interface DbQuery {
     }
 
     static <T> InMemoryQuery<T> inMemory(final DbQuery dbQuery, final Predicate<T> predicate) {
+        // We don't support multi-level in-memory DB
+        checkState(!(dbQuery instanceof InMemoryQuery));
         return new InMemoryQuery<>(dbQuery, predicate);
     }
 
@@ -92,6 +94,10 @@ public interface DbQuery {
 
         DbQuery getDbQuery() {
             return dbQuery;
+        }
+
+        boolean hasDbQuery() {
+            return dbQuery != null;
         }
 
         @Override
