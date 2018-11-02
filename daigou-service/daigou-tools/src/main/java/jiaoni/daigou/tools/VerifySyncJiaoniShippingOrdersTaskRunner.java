@@ -3,7 +3,7 @@ package jiaoni.daigou.tools;
 import jiaoni.common.appengine.access.email.PopupPageEmailClient;
 import jiaoni.common.appengine.access.sms.ConsoleSmsClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
-import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.RemoteApi;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 public class VerifySyncJiaoniShippingOrdersTaskRunner {
     public static void main(String[] args) throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
-            TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new MockBrowserClient("jiaoni"));
+            TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
             ShippingOrderDbClient dbClient = new ShippingOrderDbClient(Env.DEV, remoteApi.getDatastoreService());
 
             dbClient.deleteItems(dbClient.scan().collect(Collectors.toList()));
 
             SyncJiaoniShippingOrdersTaskRunner taskRunner = new SyncJiaoniShippingOrdersTaskRunner(
                     teddyClient,
-                    new TeddyClientImpl(TeddyAdmins.HACK, new MockBrowserClient("hack")),
+                    new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()),
                     dbClient,
                     new PopupPageEmailClient(),
                     new ConsoleSmsClient()

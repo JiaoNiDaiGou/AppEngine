@@ -5,6 +5,7 @@ import jiaoni.common.appengine.access.email.PopupPageEmailClient;
 import jiaoni.common.appengine.access.storage.LocalFileStorageClient;
 import jiaoni.common.appengine.access.taskqueue.LocalStaticTaskClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
+import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.httpclient.MockBrowserClient;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
@@ -18,7 +19,7 @@ public class VerifyDumpTeddyShippingOrdersTaskRunner {
                 new PopupPageEmailClient(),
                 new LocalFileStorageClient(),
                 LocalStaticTaskClient.instance(),
-                new TeddyClientImpl(TeddyAdmins.HACK, new MockBrowserClient("jiaoni")));
+                new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()));
         LocalStaticTaskClient.initialize(runner);
 
         Map<String, Object> obj = ImmutableMap

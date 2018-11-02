@@ -25,8 +25,7 @@ import jiaoni.common.appengine.access.taskqueue.PubSubClient;
 import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
 import jiaoni.common.appengine.auth.WxSessionDbClient;
 import jiaoni.common.appengine.guice.ENV;
-import jiaoni.common.httpclient.InMemoryCookieStore;
-import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.daigou.contentparser.CnAddressParser;
 import jiaoni.daigou.contentparser.CnCellPhoneParser;
 import jiaoni.daigou.contentparser.CnCustomerContactParser;
@@ -91,16 +90,14 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     @Named(TeddyAdmins.JIAONI)
     TeddyClient provideTeddyClientJiaoni() {
-        return new TeddyClientImpl(TeddyAdmins.JIAONI,
-                new MockBrowserClient("teddyclient." + TeddyAdmins.JIAONI, new InMemoryCookieStore()));
+        return new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.HACK)
     TeddyClient provideTeddyClientHack() {
-        return new TeddyClientImpl(TeddyAdmins.HACK,
-                new MockBrowserClient("teddyclient." + TeddyAdmins.HACK, new InMemoryCookieStore()));
+        return new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient());
     }
 
     @Provides
@@ -109,11 +106,9 @@ public class ServiceModule extends AbstractModule {
     TeddyClient provideTeddyClientByEnv() {
         switch (AppEnvs.getEnv()) {
             case PROD:
-                return new TeddyClientImpl(TeddyAdmins.JIAONI,
-                        new MockBrowserClient("teddyclient." + TeddyAdmins.JIAONI, new InMemoryCookieStore()));
+                return new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
             default:
-                return new TeddyClientImpl(TeddyAdmins.HACK,
-                        new MockBrowserClient("teddyclient." + TeddyAdmins.HACK, new InMemoryCookieStore()));
+                return new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient());
         }
     }
 

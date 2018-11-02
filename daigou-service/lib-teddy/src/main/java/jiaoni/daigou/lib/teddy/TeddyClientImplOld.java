@@ -5,7 +5,7 @@ import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
-import jiaoni.common.httpclient.BrowserClient;
+import jiaoni.common.httpclient.MockBrowserClient;
 import jiaoni.common.utils.JsoupUtils;
 import jiaoni.common.utils.StringUtils2;
 import jiaoni.daigou.lib.teddy.model.Admin;
@@ -42,8 +42,8 @@ import static jiaoni.common.utils.JsoupUtils.getChildText;
 import static jiaoni.common.utils.JsoupUtils.getElementTextById;
 import static jiaoni.common.utils.StringUtils2.replaceNonCharTypesWith;
 
-public class TeddyClientImpl implements TeddyClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TeddyClientImpl.class);
+public class TeddyClientImplOld implements TeddyClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TeddyClientImplOld.class);
 
     private static final String BASE_URL = "http://rnbex.us";
     private static final String INDEX_URL = BASE_URL + "/index.aspx";
@@ -56,14 +56,14 @@ public class TeddyClientImpl implements TeddyClient {
     private static final Pattern POSTMAN_TRACK_ENTRY_PATTERN = Pattern.compile("^.*(1\\d{10}).*$");
 
     private final Admin admin;
-    private final BrowserClient client;
+    private final MockBrowserClient client;
     private final State curState;
 
-    public TeddyClientImpl(final String adminUsername, final BrowserClient client) {
+    public TeddyClientImplOld(final String adminUsername, final MockBrowserClient client) {
         this(TeddyAdmins.adminOf(adminUsername), client);
     }
 
-    TeddyClientImpl(final Admin admin, final BrowserClient client) {
+    TeddyClientImplOld(final Admin admin, final MockBrowserClient client) {
         this.client = checkNotNull(client);
         this.admin = admin;
         this.curState = new State();

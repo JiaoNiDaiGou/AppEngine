@@ -1,9 +1,9 @@
 package jiaoni.daigou.lib.teddy;
 
-import jiaoni.common.httpclient.MockBrowserClient;
-import jiaoni.daigou.lib.teddy.model.OrderPreview;
+import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.daigou.lib.teddy.model.Admin;
 import jiaoni.daigou.lib.teddy.model.Order;
+import jiaoni.daigou.lib.teddy.model.OrderPreview;
 import jiaoni.daigou.lib.teddy.model.Product;
 import jiaoni.daigou.lib.teddy.model.Receiver;
 import org.junit.Before;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 public class TeddyClientTest {
-    private MockBrowserClient client;
+    private BrowserClient client;
     private TeddyClientImpl underTest;
 
     @Before
