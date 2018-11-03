@@ -12,7 +12,7 @@ public class GetAllFeedback {
     public static void main(String[] args) throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
             FeedbackDbClient dbClient = new FeedbackDbClient(
-                    Env.PROD,
+                    Env.DEV,
                     remoteApi.getDatastoreService()
             );
             list(dbClient);
@@ -21,9 +21,7 @@ public class GetAllFeedback {
 
     private static void delete(FeedbackDbClient client) {
         String[] toDelete = {
-                "6231337195274240",
-                "5694339984392192",
-                "5068254280155136"
+                "5732004632985600"
         };
         client.delete(toDelete);
     }

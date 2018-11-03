@@ -4,7 +4,7 @@ import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
-import jiaoni.daigou.service.appengine.impls.TeddyWarmUp;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.jvnet.hk2.annotations.Service;
 
@@ -62,6 +62,9 @@ public class CustomerInterface {
         }
     }
 
+    /**
+     * Create a new customer if not exists, or add address if the customer exists.
+     */
     @POST
     @Path("/create")
     public Response createCustomer(final Customer customer) {
@@ -79,8 +82,9 @@ public class CustomerInterface {
                 .collect(Collectors.toList());
         Customer toReturn = existing.toBuilder()
                 .clearAddresses()
-                .addAllAddresses(newAddresses)
+                .addAllAddresses(newAddresses) // The new address will be the default one.
                 .addAllAddresses(existing.getAddressesList())
+                .setDefaultAddressIndex(0)
                 .build();
         toReturn = customerDbClient.putAndUpdateTimestamp(toReturn);
         return Response.ok(toReturn).build();
@@ -107,8 +111,8 @@ public class CustomerInterface {
             throw new NotFoundException();
         }
 
-        int defaultAddressIndex = customer.getAddressesList()
-                .indexOf(address);
+        int defaultAddressIndex = customer.getAddressesList().indexOf(address);
+
         Customer toReturn;
         if (defaultAddressIndex >= 0) {
             toReturn = customer.toBuilder()

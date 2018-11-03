@@ -4,8 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.Uninterruptibles;
-import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.utils.JsoupUtils;
 import jiaoni.common.utils.StringUtils2;
 import jiaoni.daigou.lib.teddy.model.Admin;
@@ -26,19 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -57,27 +48,24 @@ public class TeddyClientImpl implements TeddyClient {
     private static final String MEMBER_URL = BASE_URL + "/Member/";
     private static final String MEMBER_RECEIVER_LIST_URL = MEMBER_URL + "ReceiverList.aspx";
     private static final String MEMBER_ORDER_ADD_URL = MEMBER_URL + "OrderAdd.aspx";
+    private static final String MEMBER_ORDER_DELETE_URL = MEMBER_URL + "OrderDel.aspx";
     private static final String MEMBER_ORDER_LIST_ALL_URL = MEMBER_URL + "OrderListAll.aspx";
     private static final String MEMBER_ORDER_VIEW_URL = MEMBER_URL + "OrderView.aspx";
     private static final String ORDER_SHIPPING_TRACK = "http://rnbex.us/select/";
     private static final Pattern POSTMAN_TRACK_ENTRY_PATTERN = Pattern.compile("^.*(1\\d{10}).*$");
 
     private final Admin admin;
-    private final MockBrowserClient client;
+    private final BrowserClient client;
     private final State curState;
-    private final CompletionService<String> makeOrderResultFetchCompletionService;
 
-    public TeddyClientImpl(final String adminUsername,
-                           final MockBrowserClient client) {
+    public TeddyClientImpl(final String adminUsername, final BrowserClient client) {
         this(TeddyAdmins.adminOf(adminUsername), client);
     }
 
-    TeddyClientImpl(final Admin admin,
-                    final MockBrowserClient client) {
+    TeddyClientImpl(final Admin admin, final BrowserClient client) {
         this.client = checkNotNull(client);
         this.admin = admin;
         this.curState = new State();
-        this.makeOrderResultFetchCompletionService = new ExecutorCompletionService<>(Executors.newFixedThreadPool(3));
     }
 
     @Override
@@ -162,7 +150,9 @@ public class TeddyClientImpl implements TeddyClient {
                 .url(MEMBER_ORDER_ADD_URL)
                 .request()
                 .callToHtml());
-        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+        if (!KNOWN_CATEGORIES.equals(getCategories(document))) {
+            throw new RuntimeException("We cannot make any order since Teddy changed their category list.!!!");
+        }
         String orderViewState = document.select("#__VIEWSTATE").val();
 
         String productsStr = products.stream()
@@ -220,66 +210,27 @@ public class TeddyClientImpl implements TeddyClient {
         }
         long orderId = Long.parseLong(orderIdStr);
 
-        // Let's kick off 3 threads
-        // one call: /Member/Out.aspx?ID=109371
-        // another is call: /Member/OrderView?ID=109371
-        // Once any of it finished, we could get the formatted ID.
-        Callable<String> fetchFormattedIdFromOutPage = () -> {
-            Document outPage = autoLogin(() -> client
-                    .doGet()
-                    .url(BASE_URL + orderLink)
-                    .request()
-                    .callToHtml());
-            // Response:
-            // <div class="showContent showContentInfo" style="padding: 60px 200px; font-size: 18px;">
-            // 运单号：<b style="color: #8FC320;">RB100113911</b>创建成功！...
-            Element outEle = outPage.selectFirst("div.showContent");
-            String formattedId = replaceNonCharTypesWith(
-                    outEle.text(),
-                    new StringUtils2.CharType[]{
-                            StringUtils2.CharType.DIGIT,
-                            StringUtils2.CharType.A2Z,
-                            StringUtils2.CharType.CHINESE },
-                    " ");
-            return StringUtils.substringBetween(formattedId, "运单号", "创建成功").trim();
-        };
-        Callable<String> fetchFormattedIdFromOrderViewPage = () -> getOrderDetails(orderId).getFormattedId();
-        List<Callable<String>> callables = Arrays.asList(fetchFormattedIdFromOrderViewPage, fetchFormattedIdFromOutPage);
-        List<Future<String>> futures = new ArrayList<>(callables.size());
-        for (Callable<String> callable : callables) {
-            futures.add(this.makeOrderResultFetchCompletionService.submit(callable));
-        }
-        String formattedOrderIdToReturn = null;
-        try {
-            for (int i = 0; i < callables.size(); i++) {
-                try {
-                    String formattedOrderId = makeOrderResultFetchCompletionService.take().get();
-                    if (StringUtils.isNotBlank(formattedOrderId)) {
-                        formattedOrderIdToReturn = formattedOrderId;
-                        break;
-                    }
-                } catch (ExecutionException | InterruptedException | CancellationException ignore) {
-                    // I will just ignore it
-                }
-            }
-        } finally {
-            for (Future<String> f : futures) {
-                // As we get any result, cancel others
-                f.cancel(true);
-            }
-        }
-        if (StringUtils.isBlank(formattedOrderIdToReturn)) {
-            throw new RuntimeException("Well I still cannot get the formatted id for " + orderIdStr);
-        }
+        // To speed it up, given the orderId 93036, we assume the format orderId is RB100093036.
+        String formattedId = String.format("RB1%08d", orderId);
 
-        LOGGER.info("Make order success. Order# Id={}, formattedId={}", orderId, formattedOrderIdToReturn);
+        LOGGER.info("Make order success. Order# Id={}, formattedId={}", orderId, formattedId);
         return Order.builder()
                 .withId(orderId)
-                .withFormattedId(formattedOrderIdToReturn)
+                .withFormattedId(formattedId)
                 .withStatus(Order.Status.CREATED)
                 .withReceiver(receiver)
                 .withProducts(products)
                 .build();
+    }
+
+    @Override
+    public void cancelOrder(long orderId) {
+        autoLogin(() -> client
+                .doGet()
+                .url(MEMBER_ORDER_DELETE_URL)
+                .pathParam("ID", orderId)
+                .request()
+                .callToHtml());
     }
 
     @Override
@@ -322,6 +273,29 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @Override
+    public List<Product.Category> getCategories() {
+        // Get VIEWSTATE for addOrder page.
+        Document document = autoLogin(() -> client
+                .doGet()
+                .url(MEMBER_ORDER_ADD_URL)
+                .request()
+                .callToHtml());
+        return getCategories(document);
+    }
+
+    private List<Product.Category> getCategories(final Document orderAddPage) {
+        List<Product.Category> toReturn = new ArrayList<>();
+        Element element = orderAddPage.selectFirst("select.LeiBie");
+        for (Element option : element.getElementsByTag("option")) {
+            String name = option.val();
+            if (StringUtils.isNotBlank(name)) {
+                toReturn.add(Product.Category.chineseNameOf(name.trim()));
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
     public Order getOrderDetails(final long orderId,
                                  final boolean includeShippingInfo) {
         Document orderViewPage = autoLogin(() -> client
@@ -330,6 +304,8 @@ public class TeddyClientImpl implements TeddyClient {
                 .pathParam("ID", orderId)
                 .request()
                 .callToHtml());
+
+        System.out.println(orderViewPage);
 
         String formattedIdFromPage = getElementTextById(orderViewPage, "lblCNum");
         if (StringUtils.isBlank(formattedIdFromPage)) {
@@ -344,7 +320,7 @@ public class TeddyClientImpl implements TeddyClient {
         double totalPrice = 0d;
         for (int i = 1; i < trs.size(); i++) {
             Element tr = trs.get(i);
-            Product.Category category = Product.Category.nameOf(getChildText(tr, 2));
+            Product.Category category = Product.Category.chineseNameOf(getChildText(tr, 2));
             String brand = getChildText(tr, 5);
             String name = getChildText(tr, 3);
             String unit = getChildText(tr, 4);
@@ -531,6 +507,10 @@ public class TeddyClientImpl implements TeddyClient {
      * Make callAsString with auto login.
      */
     private Document autoLogin(final Callable<Document> call) {
+        if (!this.curState.loggedIn) {
+            login();
+        }
+
         Document document;
         try {
             document = call.call();
@@ -695,7 +675,6 @@ public class TeddyClientImpl implements TeddyClient {
                 .callToString();
 
         curState.loggedIn = true;
-        client.saveCookies();
     }
 
     @VisibleForTesting

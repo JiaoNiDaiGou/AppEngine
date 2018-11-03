@@ -3,15 +3,16 @@ package jiaoni.common.httpclient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
 import jiaoni.common.utils.Retrier;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -20,11 +21,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -38,18 +38,17 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Wrapping {@link org.apache.http.impl.client.CloseableHttpClient}
+ * A new implementation for Browser client.
  */
-public class MockBrowserClient implements Closeable {
+public class BrowserClient implements Closeable {
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = ObjectMapperProvider.get();
-    private static final Logger LOGGER = LoggerFactory.getLogger(MockBrowserClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrowserClient.class);
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36";
     private static final Retrier DEFAULT_RETRIER = Retrier
             .builder()
@@ -58,26 +57,29 @@ public class MockBrowserClient implements Closeable {
             .stopWithMaxAttempts(5)
             .build();
     private static final RequestConfig DEFAULT_REQUEST_CONFIG = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+    private final PoolingHttpClientConnectionManager connectionManager;
+    private final HttpClient client;
 
-    private final String appName;
-    private final CloseableHttpClient client;
-    private final org.apache.http.client.CookieStore cookieStore;
-    private final CookieDao cookieStorage;
-
-    public MockBrowserClient(final String appName) {
-        this(appName, null);
+    public BrowserClient() {
+        connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal(20);
+        client = HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .setDefaultRequestConfig(RequestConfig.DEFAULT)
+                .setDefaultCookieStore(new BasicCookieStore()) // in memory
+                .build();
     }
 
-    public MockBrowserClient(final String appName,
-                             final CookieDao cookieStore) {
-        this.appName = checkNotNull(appName);
-        this.cookieStore = new BasicCookieStore();
-        this.client = HttpClients.custom()
-                .setDefaultCookieStore(this.cookieStore)
-                .setDefaultRequestConfig(DEFAULT_REQUEST_CONFIG)
-                .build();
+    public DoGet doGet() {
+        return new DoGet(this);
+    }
 
-        this.cookieStorage = cookieStore == null ? new FileBasedCookieStore() : cookieStore;
+    public DoPost doPost() {
+        return new DoPost(this);
+    }
+
+    public DoOptions doOptions() {
+        return new DoOptions(this);
     }
 
     private static void addHeaderUserAgent(final HttpMessage httpMessage) {
@@ -115,50 +117,14 @@ public class MockBrowserClient implements Closeable {
                 .collect(Collectors.toList());
     }
 
-    public List<Cookie> getCookies() {
-        return cookieStore.getCookies();
-    }
-
-    public Cookie getCookie(final String cookieName) {
-        return cookieStore.getCookies()
-                .stream()
-                .filter(t -> cookieName.equalsIgnoreCase(t.getName()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public DoGet doGet() {
-        return new DoGet(this);
-    }
-
-    public DoPost doPost() {
-        return new DoPost(this);
-    }
-
-    public DoOptions doOptions() {
-        return new DoOptions(this);
-    }
-
-    public void saveCookies() {
-        cookieStorage.save(appName, getCookies());
-    }
-
-    public void loadCookies() {
-        List<Cookie> cookies = cookieStorage.load(appName);
-        if (cookies != null) {
-            cookieStore.clear();
-            cookies.forEach(cookieStore::addCookie);
-        }
-    }
-
     @Override
-    public void close()
-            throws IOException {
-        if (client != null) {
-            client.close();
+    public void close() throws IOException {
+        if (connectionManager != null) {
+            connectionManager.close();
         }
     }
 
+    @VisibleForTesting
     public <T> T execute(final DoHttp request, final HttpEntityHandle<T> handle) {
         if (request instanceof DoGet) {
             return execute((DoGet) request, handle);
@@ -193,23 +159,17 @@ public class MockBrowserClient implements Closeable {
     }
 
     private <T> T execute(final DoPost request, final HttpEntityHandle<T> handle) {
-        int bodyAssignments = 0;
-        bodyAssignments += MapUtils.isEmpty(request.getFormBody()) ? 0 : 1;
-        bodyAssignments += request.getBody() == null ? 0 : 1;
-        checkArgument(bodyAssignments <= 1,
-                "Can only set one of request.body, request.formBody or request.stringBody.");
+        HttpEntity entity = request.getBody();
+        if (entity == null && !request.formBody.isEmpty()) {
+            entity = new UrlEncodedFormEntity(toNameValueParis(request.getFormBody()), Consts.UTF_8);
+        }
 
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpPost httpPost = new HttpPost(url);
         addHeaders(httpPost, request.getHeaders());
         addHeaderUserAgent(httpPost);
+        httpPost.setEntity(entity);
 
-        if (request.getBody() != null) {
-            httpPost.setEntity(request.getBody());
-        } else if (MapUtils.isNotEmpty(request.getFormBody())) {
-            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(toNameValueParis(request.getFormBody()), Consts.UTF_8);
-            httpPost.setEntity(entity);
-        }
         LOGGER.info("Executing request {}. Entity: {}", httpPost.getRequestLine(), httpPost.getEntity());
         return execute(httpPost, handle);
     }
@@ -240,7 +200,7 @@ public class MockBrowserClient implements Closeable {
         private final Map<String, Object> formBody = new HashMap<>();
         private HttpEntity body;
 
-        DoPost(MockBrowserClient client) {
+        DoPost(BrowserClient client) {
             super(client);
         }
 
@@ -280,26 +240,25 @@ public class MockBrowserClient implements Closeable {
     }
 
     public static class DoGet extends DoHttp<DoGet> {
-        DoGet(MockBrowserClient client) {
+        DoGet(BrowserClient client) {
             super(client);
         }
     }
 
     public static class DoOptions extends DoHttp<DoOptions> {
-
-        DoOptions(MockBrowserClient client) {
+        DoOptions(BrowserClient client) {
             super(client);
         }
     }
 
     public static class DoHttp<T extends DoHttp<T>> {
-        private final MockBrowserClient client;
+        private final BrowserClient client;
         private final Map<String, Object> pathParams = new HashMap<>();
         private final Map<String, String> headers = new HashMap<>();
         private String url;
         private boolean redirect;
 
-        DoHttp(final MockBrowserClient client) {
+        DoHttp(final BrowserClient client) {
             this.client = checkNotNull(client);
         }
 
@@ -313,23 +272,11 @@ public class MockBrowserClient implements Closeable {
             return (T) this;
         }
 
-        public T headerWhen(final Supplier<Boolean> when, final String name, final String value) {
-            if (when.get()) {
-                headers.put(name, value);
-            }
-            return (T) this;
-        }
-
         public T pathParam(final String name, final Object value) {
             checkArgument(!pathParams.containsKey(name));
             if (value != null) {
                 pathParams.put(name, value);
             }
-            return (T) this;
-        }
-
-        public T pathParam(final Map<String, Object> pathParams) {
-            pathParams.forEach(this::pathParam);
             return (T) this;
         }
 
@@ -342,20 +289,20 @@ public class MockBrowserClient implements Closeable {
             return new HttpCallback(this);
         }
 
-        public Map<String, Object> getPathParams() {
+        Map<String, String> getHeaders() {
+            return headers;
+        }
+
+        Map<String, Object> getPathParams() {
             return pathParams;
         }
 
-        public String getUrl() {
+        String getUrl() {
             return url;
         }
 
-        public boolean isRedirect() {
+        boolean isRedirect() {
             return redirect;
-        }
-
-        public Map<String, String> getHeaders() {
-            return headers;
         }
     }
 
@@ -398,6 +345,7 @@ public class MockBrowserClient implements Closeable {
         }
 
         public Document callToHtml() {
+            // TODO: is this the best way?
             return Jsoup.parse(callToString());
         }
 

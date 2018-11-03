@@ -1,5 +1,6 @@
 package jiaoni.daigou.lib.teddy;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.lib.teddy.model.OrderPreview;
@@ -10,6 +11,23 @@ import java.util.List;
 import java.util.Map;
 
 public interface TeddyClient {
+    /**
+     * This is the known categories.
+     * If this change, the price would change. We should NOT make any order until fixing it.
+     */
+    List<Product.Category> KNOWN_CATEGORIES = ImmutableList.of(Product.Category.BAGS,
+            Product.Category.MAKE_UP,
+            Product.Category.WATCH_AND_ACCESSORIES,
+            Product.Category.LARGE_ITEMS,
+            Product.Category.SMALL_APPLIANCES,
+            Product.Category.LARGE_COMMERCIAL_GOODS,
+            Product.Category.CLOTHES_AND_SHOES,
+            Product.Category.HEALTH_SUPPLEMENTS,
+            Product.Category.BABY_PRODUCTS,
+            Product.Category.FOOD,
+            Product.Category.TOYS_AND_DAILY_NECESSITIES,
+            Product.Category.MILK_POWDER);
+
     /**
      * Load receivers on given page number.
      *
@@ -43,9 +61,19 @@ public interface TeddyClient {
      */
     Order getOrderDetails(final long orderId);
 
+    /**
+     * Make a new order.
+     */
     Order makeOrder(final Receiver receiver,
                     final List<Product> products,
                     final double totalWeight);
+
+    /**
+     * Cancel order.
+     *
+     * @param orderId Order ID.
+     */
+    void cancelOrder(final long orderId);
 
     /**
      * Load order previews on given page number.
@@ -62,4 +90,9 @@ public interface TeddyClient {
      * @return Order previews by order ID.
      */
     Map<Long, OrderPreview> getOrderPreviews(final Range<Integer> pageRange);
+
+    /**
+     * Load the latest categories.
+     */
+    List<Product.Category> getCategories();
 }

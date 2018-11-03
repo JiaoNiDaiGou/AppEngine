@@ -11,6 +11,8 @@ import jiaoni.common.appengine.access.email.LocalGmailSender;
 import jiaoni.common.appengine.access.gcp.GoogleClientFactory;
 import jiaoni.common.appengine.access.sheets.SheetsUtils;
 import jiaoni.common.utils.Envs;
+import jiaoni.common.wiremodel.PhoneNumber;
+import jiaoni.common.wiremodel.Price;
 import jiaoni.contenttemplate.TemplateData;
 import jiaoni.contenttemplate.Templates;
 import jiaoni.contenttemplate.TemplatesFactory;
@@ -18,8 +20,6 @@ import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.daigou.wiremodel.entity.Delivery;
 import jiaoni.daigou.wiremodel.entity.Order;
 import jiaoni.daigou.wiremodel.entity.OrderEntry;
-import jiaoni.common.wiremodel.PhoneNumber;
-import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,7 +51,7 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1dacsEsLneh75jmMi15E0vpOADzQIwLSYH9gkrWxzxjo/edit#gid=1567371258";
+            "https://docs.google.com/spreadsheets/d/1xJKo5zPh7LpCNmOKaoSAOHSs0MIjFPAqRwr_o9cDmnc/edit#gid=963582816";
     private static final boolean SEND_TO_FU = false;
 
     //

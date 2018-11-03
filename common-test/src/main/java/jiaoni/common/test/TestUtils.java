@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
-import jiaoni.common.httpclient.MockBrowserClient;
+import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.model.InternalIOException;
 import org.mockito.stubbing.Stubber;
 
@@ -39,8 +39,8 @@ public class TestUtils {
         }
     }
 
-    public static MockBrowserClient mockBrowserClient() {
-        MockBrowserClient toReturn = mock(MockBrowserClient.class);
+    public static BrowserClient mockBrowserClient() {
+        BrowserClient toReturn = mock(BrowserClient.class);
         doCallRealMethod().when(toReturn).doPost();
         doCallRealMethod().when(toReturn).doGet();
         doCallRealMethod().when(toReturn).doOptions();
