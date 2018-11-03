@@ -682,6 +682,11 @@ public class TeddyClientImpl implements TeddyClient {
         return curState.loggedIn;
     }
 
+    @VisibleForTesting
+    void setLoggedIn(final boolean loggedIn) {
+        curState.loggedIn = loggedIn;
+    }
+
     private static class State {
         boolean loggedIn;
     }

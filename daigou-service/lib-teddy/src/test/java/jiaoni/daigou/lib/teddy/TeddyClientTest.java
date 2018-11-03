@@ -51,6 +51,7 @@ public class TeddyClientTest {
 
     @Test
     public void testGetReceiversByPageNum() {
+        underTest.setLoggedIn(true);
         arrangeClient("receiver_list");
         List<Receiver> receivers = underTest.getReceivers(1);
 
@@ -68,9 +69,10 @@ public class TeddyClientTest {
 
     @Test
     public void testGetOrderDetails_withShippingInfo() {
+        underTest.setLoggedIn(true);
         arrangeClient("order_view_created", "shipping_history");
         Order order = underTest.getOrderDetails(93036, true);
-        
+
         assertTrue(order.getId() > 0);
         assertNotNull(order.getFormattedId());
         assertNotNull(order.getCreationTime());
@@ -90,6 +92,7 @@ public class TeddyClientTest {
 
     @Test
     public void testGetOrderDetails_noShippingInfo_created() {
+        underTest.setLoggedIn(true);
         arrangeClient("order_view_created");
         Order order = underTest.getOrderDetails(93036, false);
 
@@ -111,6 +114,7 @@ public class TeddyClientTest {
 
     @Test
     public void testGetOrderDetails_noShippingInfo_pending() {
+        underTest.setLoggedIn(true);
         arrangeClient("order_view_pending");
         Order order = underTest.getOrderDetails(138359, false);
 
@@ -132,6 +136,7 @@ public class TeddyClientTest {
 
     @Test
     public void testGetOrderPreview() {
+        underTest.setLoggedIn(true);
         arrangeClient("order_preview_list");
         Map<Long, OrderPreview> orderPreviews = underTest.getOrderPreviews(1);
 
@@ -156,6 +161,7 @@ public class TeddyClientTest {
 
     @Test
     public void testGetCategories() {
+        underTest.setLoggedIn(true);
         arrangeClient("order_add");
         List<Product.Category> results = underTest.getCategories();
         List<Product.Category> expected = Arrays.asList(Product.Category.BAGS,
