@@ -6,7 +6,7 @@ import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
 import jiaoni.daigou.lib.teddy.model.Order;
-import jiaoni.daigou.service.appengine.utils.TeddyUtils;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 
 public class VerifyGetTeddyOrderById {

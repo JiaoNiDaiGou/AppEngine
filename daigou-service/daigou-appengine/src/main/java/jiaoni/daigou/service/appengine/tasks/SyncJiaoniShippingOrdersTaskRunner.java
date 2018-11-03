@@ -12,7 +12,7 @@ import jiaoni.contenttemplate.TemplatesFactory;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.service.appengine.utils.ShippingOrderUtils;
-import jiaoni.daigou.service.appengine.utils.TeddyUtils;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder.Status;

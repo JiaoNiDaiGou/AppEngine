@@ -70,7 +70,7 @@ public class TeddyClientTest {
     public void testGetOrderDetails_withShippingInfo() {
         arrangeClient("order_view_created", "shipping_history");
         Order order = underTest.getOrderDetails(93036, true);
-
+        
         assertTrue(order.getId() > 0);
         assertNotNull(order.getFormattedId());
         assertNotNull(order.getCreationTime());
@@ -152,6 +152,25 @@ public class TeddyClientTest {
             }
         }
         assertEquals(21, numOfOrderWithTrackingNumber);
+    }
+
+    @Test
+    public void testGetCategories() {
+        arrangeClient("order_add");
+        List<Product.Category> results = underTest.getCategories();
+        List<Product.Category> expected = Arrays.asList(Product.Category.BAGS,
+                Product.Category.MAKE_UP,
+                Product.Category.WATCH_AND_ACCESSORIES,
+                Product.Category.LARGE_ITEMS,
+                Product.Category.SMALL_APPLIANCES,
+                Product.Category.LARGE_COMMERCIAL_GOODS,
+                Product.Category.CLOTHES_AND_SHOES,
+                Product.Category.HEALTH_SUPPLEMENTS,
+                Product.Category.BABY_PRODUCTS,
+                Product.Category.FOOD,
+                Product.Category.TOYS_AND_DAILY_NECESSITIES,
+                Product.Category.MILK_POWDER);
+        assertEquals(expected, results);
     }
 
     private void arrangeClient(final String... resourceNames) {

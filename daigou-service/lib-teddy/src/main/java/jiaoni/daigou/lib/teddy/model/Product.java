@@ -83,7 +83,7 @@ public class Product {
             this.val = val;
         }
 
-        public static Category nameOf(final String name) {
+        public static Category chineseNameOf(final String name) {
             return Arrays.stream(Category.values())
                     .filter(t -> t.getVal().equals(name))
                     .findFirst()

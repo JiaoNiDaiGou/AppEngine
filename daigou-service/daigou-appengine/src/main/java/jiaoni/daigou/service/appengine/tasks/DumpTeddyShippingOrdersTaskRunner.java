@@ -21,7 +21,7 @@ import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.utils.RegistryFactory;
 import jiaoni.daigou.service.appengine.utils.ShippingOrderUtils;
-import jiaoni.daigou.service.appengine.utils.TeddyUtils;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;

@@ -34,6 +34,7 @@ import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
 import jiaoni.daigou.service.appengine.AppEnvs;
+import jiaoni.daigou.service.appengine.impls.teddy.CallAwareTeddyClient;
 
 import java.io.IOException;
 import javax.inject.Named;
@@ -83,27 +84,39 @@ public class ServiceModule extends AbstractModule {
     @Provides
     @Singleton
     MemcacheService provideMemcacheService() {
-        return MemcacheServiceFactory.getMemcacheService();
+        return MemcacheServiceFactory.getMemcacheService(AppEnvs.getServiceName() + "." + AppEnvs.getEnv());
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.JIAONI)
-    TeddyClient provideTeddyClientJiaoni() {
-        return new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
+    TeddyClient provideTeddyClientJiaoni(final MemcacheService memcache) {
+        return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient()), memcache);
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.HACK)
-    TeddyClient provideTeddyClientHack() {
-        return new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient());
+    TeddyClient provideTeddyClientHack(final MemcacheService memcache) {
+        return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()), memcache);
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.BY_ENV)
-    TeddyClient provideTeddyClientByEnv() {
+    TeddyClient provideTeddyClientByEnv(final MemcacheService memcache) {
+        switch (AppEnvs.getEnv()) {
+            case PROD:
+                return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient()), memcache);
+            default:
+                return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()), memcache);
+        }
+    }
+
+    @Provides
+    @Singleton
+    @Named(TeddyAdmins.FOR_WARM_UP)
+    TeddyClient provideTeddyClientForWarmUp(final MemcacheService memcache) {
         switch (AppEnvs.getEnv()) {
             case PROD:
                 return new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
