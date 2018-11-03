@@ -23,6 +23,11 @@ public class TaskQueueClient implements PubSubClient {
 
     @Override
     public void submit(final QueueName name, final TaskMessage taskMessage) {
+        submit(name, 0, taskMessage);
+    }
+
+    @Override
+    public void submit(QueueName name, long countdownMills, TaskMessage taskMessage) {
         checkNotNull(taskMessage);
         Queue queue = QueueFactory.getQueue(name.queueName());
         checkNotNull(queue);
@@ -40,6 +45,7 @@ public class TaskQueueClient implements PubSubClient {
                 .withTaskName(UUID.randomUUID().toString())
                 .url("/tasks/" + taskMessage.getHandler())
                 .method(TaskOptions.Method.POST)
+                .countdownMillis(countdownMills)
                 .payload(payload)
                 .retryOptions(RetryOptions.Builder.withTaskRetryLimit(DEFAULT_RETRY_LIMIT));
 

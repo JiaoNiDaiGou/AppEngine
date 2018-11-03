@@ -6,7 +6,6 @@ import jiaoni.common.appengine.access.storage.LocalFileStorageClient;
 import jiaoni.common.appengine.access.taskqueue.LocalStaticTaskClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.httpclient.BrowserClient;
-import jiaoni.common.httpclient.MockBrowserClient;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
 import jiaoni.daigou.service.appengine.tasks.DumpTeddyShippingOrdersTaskRunner;

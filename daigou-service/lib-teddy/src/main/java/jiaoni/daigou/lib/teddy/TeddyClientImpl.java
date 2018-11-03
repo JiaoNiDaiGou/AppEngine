@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.Uninterruptibles;
 import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.utils.JsoupUtils;
 import jiaoni.common.utils.StringUtils2;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -50,6 +48,7 @@ public class TeddyClientImpl implements TeddyClient {
     private static final String MEMBER_URL = BASE_URL + "/Member/";
     private static final String MEMBER_RECEIVER_LIST_URL = MEMBER_URL + "ReceiverList.aspx";
     private static final String MEMBER_ORDER_ADD_URL = MEMBER_URL + "OrderAdd.aspx";
+    private static final String MEMBER_ORDER_DELETE_URL = MEMBER_URL + "OrderDel.aspx";
     private static final String MEMBER_ORDER_LIST_ALL_URL = MEMBER_URL + "OrderListAll.aspx";
     private static final String MEMBER_ORDER_VIEW_URL = MEMBER_URL + "OrderView.aspx";
     private static final String ORDER_SHIPPING_TRACK = "http://rnbex.us/select/";
@@ -151,7 +150,9 @@ public class TeddyClientImpl implements TeddyClient {
                 .url(MEMBER_ORDER_ADD_URL)
                 .request()
                 .callToHtml());
-        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+        if (!KNOWN_CATEGORIES.equals(getCategories(document))) {
+            throw new RuntimeException("We cannot make any order since Teddy changed their category list.!!!");
+        }
         String orderViewState = document.select("#__VIEWSTATE").val();
 
         String productsStr = products.stream()
@@ -223,6 +224,16 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @Override
+    public void cancelOrder(long orderId) {
+        autoLogin(() -> client
+                .doGet()
+                .url(MEMBER_ORDER_DELETE_URL)
+                .pathParam("ID", orderId)
+                .request()
+                .callToHtml());
+    }
+
+    @Override
     public Map<Long, OrderPreview> getOrderPreviews(int pageNum) {
         checkArgument(pageNum >= 1);
 
@@ -262,6 +273,29 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @Override
+    public List<Product.Category> getCategories() {
+        // Get VIEWSTATE for addOrder page.
+        Document document = autoLogin(() -> client
+                .doGet()
+                .url(MEMBER_ORDER_ADD_URL)
+                .request()
+                .callToHtml());
+        return getCategories(document);
+    }
+
+    private List<Product.Category> getCategories(final Document orderAddPage) {
+        List<Product.Category> toReturn = new ArrayList<>();
+        Element element = orderAddPage.selectFirst("select.LeiBie");
+        for (Element option : element.getElementsByTag("option")) {
+            String name = option.val();
+            if (StringUtils.isNotBlank(name)) {
+                toReturn.add(Product.Category.chineseNameOf(name.trim()));
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
     public Order getOrderDetails(final long orderId,
                                  final boolean includeShippingInfo) {
         Document orderViewPage = autoLogin(() -> client
@@ -270,6 +304,8 @@ public class TeddyClientImpl implements TeddyClient {
                 .pathParam("ID", orderId)
                 .request()
                 .callToHtml());
+
+        System.out.println(orderViewPage);
 
         String formattedIdFromPage = getElementTextById(orderViewPage, "lblCNum");
         if (StringUtils.isBlank(formattedIdFromPage)) {
@@ -284,7 +320,7 @@ public class TeddyClientImpl implements TeddyClient {
         double totalPrice = 0d;
         for (int i = 1; i < trs.size(); i++) {
             Element tr = trs.get(i);
-            Product.Category category = Product.Category.nameOf(getChildText(tr, 2));
+            Product.Category category = Product.Category.chineseNameOf(getChildText(tr, 2));
             String brand = getChildText(tr, 5);
             String name = getChildText(tr, 3);
             String unit = getChildText(tr, 4);
@@ -471,6 +507,10 @@ public class TeddyClientImpl implements TeddyClient {
      * Make callAsString with auto login.
      */
     private Document autoLogin(final Callable<Document> call) {
+        if (!this.curState.loggedIn) {
+            login();
+        }
+
         Document document;
         try {
             document = call.call();

@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableMap;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.json.ObjectMapperProvider;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
 import jiaoni.daigou.service.appengine.tasks.AdminReportTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.TeddyRankTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.TeddyWarmupTaskRunner;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class TaskQueueInterface {
                               final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
                               final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
                               final AdminReportTaskRunner notifyFeedbackTaskRunner,
-                              final TeddyWarmupTaskRunner teddyWarmupTaskRunner,
+                              final TeddyWarmUp teddyWarmUp,
                               final TeddyRankTaskRunner teddyRankTaskRunner) {
         this.consumers = buildConsumerMap(Arrays.asList(
                 syncJiaoniCustomersTaskRunner,
@@ -52,7 +52,7 @@ public class TaskQueueInterface {
                 syncJiaoniShippingOrdersTaskRunner,
                 buildProductHintsTaskRunner,
                 notifyFeedbackTaskRunner,
-                teddyWarmupTaskRunner,
+                teddyWarmUp,
                 teddyRankTaskRunner
         ));
         LOGGER.info("Register following Tasks: {}", consumers.keySet());

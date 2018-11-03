@@ -1,9 +1,10 @@
 package jiaoni.common.appengine.access.taskqueue;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Uninterruptibles;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import javax.inject.Singleton;
 
 public class LocalStaticTaskClient implements PubSubClient {
     private static Consumer<TaskMessage> currentRunner;
@@ -22,6 +23,13 @@ public class LocalStaticTaskClient implements PubSubClient {
     @Override
     public void submit(QueueName name, TaskMessage taskMessage) {
         Preconditions.checkNotNull(currentRunner);
+        currentRunner.accept(taskMessage);
+    }
+
+    @Override
+    public void submit(QueueName name, long countdownMills, TaskMessage taskMessage) {
+        Preconditions.checkNotNull(currentRunner);
+        Uninterruptibles.sleepUninterruptibly(countdownMills, TimeUnit.MILLISECONDS);
         currentRunner.accept(taskMessage);
     }
 

@@ -7,6 +7,7 @@ public interface TeddyAdmins {
     String JIAONI = "jiaoni";
     String HACK = "hack";
     String BY_ENV = "byEnv";
+    String FOR_WARM_UP = "forWarmUp";
 
     static Admin adminOf(final String adminUsername) {
         return Secrets.of("teddy." + adminUsername + ".json").getAsJson(Admin.class);

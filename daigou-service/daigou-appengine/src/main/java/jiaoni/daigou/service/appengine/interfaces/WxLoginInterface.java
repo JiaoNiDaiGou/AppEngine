@@ -9,7 +9,7 @@ import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.utils.Secrets;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.impls.TeddyWarmUp;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
 import jiaoni.daigou.wiremodel.api.WxLoginRequest;
 import jiaoni.daigou.wiremodel.api.WxLoginResponse;
 import org.apache.http.HttpResponse;
