@@ -1,6 +1,7 @@
-package jiaoni.daigou.service.appengine.impls;
+package jiaoni.daigou.service.appengine.impls.products;
 
 import jiaoni.common.appengine.access.productsearch.ProSearchClient;
+import jiaoni.daigou.service.appengine.impls.db.ProductDbClient;
 import jiaoni.daigou.wiremodel.api.ParsedObject;
 import jiaoni.daigou.wiremodel.entity.Product;
 

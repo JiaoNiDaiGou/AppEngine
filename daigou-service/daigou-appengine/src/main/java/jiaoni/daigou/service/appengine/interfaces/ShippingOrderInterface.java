@@ -1,5 +1,6 @@
 package jiaoni.daigou.service.appengine.interfaces;
 
+import jiaoni.common.appengine.access.db.DbQuery;
 import jiaoni.common.appengine.access.db.PageToken;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
@@ -8,8 +9,8 @@ import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.model.Order;
-import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
-import jiaoni.daigou.service.appengine.impls.ShippingOrderDbClient;
+import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
+import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
 import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
@@ -21,8 +22,8 @@ import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,7 +31,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -38,6 +38,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_CUSTOMER_ID;
+import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_STATUS;
 
 @Path("/api/shippingOrders")
 @Produces(MediaType.APPLICATION_JSON)
@@ -176,55 +179,25 @@ public class ShippingOrderInterface {
 
     @GET
     @Path("/query")
-    public Response queryShippingOrders(@QueryParam("customerId") final String customerId,
-                                        @QueryParam("customerName") final String customerName,
-                                        @QueryParam("customerPhone") final String customerPhone,
-                                        @QueryParam("status") final ShippingOrder.Status status,
-                                        @QueryParam("includeDelivered") final boolean includeDelivered,
-                                        @QueryParam("pageToken") final String pageTokenStr,
-                                        @QueryParam("limit") final int limit) {
+    public Response query(@QueryParam("customerId") final String customerId,
+                          @QueryParam("delivered") final boolean delivered,
+                          @QueryParam("pageToken") final String pageTokenStr,
+                          @QueryParam("limit") final int limit) {
         PageToken pageToken = PageToken.fromPageToken(pageTokenStr);
-        RequestValidator.validateRequest(pageToken == null || pageToken.isSourceInMemory());
-        RequestValidator.validateRequest(status == null || status != ShippingOrder.Status.DELIVERED);
 
-        List<ShippingOrder> shippingOrders = queryShippingOrdersFromDb(customerId, status, includeDelivered)
-                .stream()
-                .filter(t -> {
-                    boolean filterOut = (!includeDelivered && t.getStatus() == ShippingOrder.Status.DELIVERED)
-                            || (status != null && t.getStatus() != status)
-                            || (StringUtils.isNotBlank(customerId) && !t.getReceiver().getId().equals(customerId))
-                            || (StringUtils.isNotBlank(customerName) && !t.getReceiver().getName().equals(customerName))
-                            || (StringUtils.isNotBlank(customerPhone) && !t.getReceiver().getPhone().getPhone().equals(customerPhone));
-                    return !filterOut;
-                })
-                .collect(Collectors.toList());
-
-        int from = pageToken == null ? 0 : pageToken.getIndex();
-        int to = limit > 0 ? Math.min(shippingOrders.size(), from + limit) : shippingOrders.size();
-        String newPageToken = to == shippingOrders.size() ? null : PageToken.inMemory(to).toPageToken();
-        if (from != 0 || to != shippingOrders.size()) {
-            shippingOrders = shippingOrders.subList(from, to);
-        }
-
-        PaginatedResults<ShippingOrder> toReturn = PaginatedResults
-                .<ShippingOrder>builder()
-                .withTotoalCount(shippingOrders.size())
-                .withResults(shippingOrders)
-                .withPageToken(newPageToken)
-                .build();
-        return Response.ok(toReturn).build();
-    }
-
-    private List<ShippingOrder> queryShippingOrdersFromDb(final String customerId,
-                                                          ShippingOrder.Status status,
-                                                          final boolean includeDelivered) {
+        List<DbQuery> queries = new ArrayList<>();
         if (StringUtils.isNotBlank(customerId)) {
-            return shippingOrderDbClient.queryOrdersByCustomerId(customerId);
-        } else if (status != null) {
-            return shippingOrderDbClient.queryOrdersByStatus(status);
-        } else if (!includeDelivered) {
-            return shippingOrderDbClient.queryNonDeliveredOrders();
+            queries.add(DbQuery.eq(FIELD_CUSTOMER_ID, customerId));
         }
-        throw new NotSupportedException("includeDelivered not supported yet");
+        if (delivered) {
+            queries.add(DbQuery.eq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name()));
+        } else {
+            queries.add(DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name()));
+        }
+        PaginatedResults<ShippingOrder> results = shippingOrderDbClient.queryInPagination(
+                DbQuery.and(queries),
+                limit,
+                pageToken);
+        return Response.ok(results).build();
     }
 }

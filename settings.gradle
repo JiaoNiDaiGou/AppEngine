@@ -16,6 +16,7 @@ include 'daigou-service:daigou-integration-test'
 include 'daigou-service:daigou-tools'
 include 'daigou-service:lib-douyin'
 include 'daigou-service:lib-teddy'
+include 'daigou-service:lib-wx'
 
 // SongFan
 include 'songfan-service:songfan-appengine'

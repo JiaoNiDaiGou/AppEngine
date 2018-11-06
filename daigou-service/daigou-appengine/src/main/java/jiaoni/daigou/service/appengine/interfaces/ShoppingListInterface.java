@@ -12,7 +12,7 @@ import jiaoni.daigou.wiremodel.api.InitShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.api.PurchaseShoppingListItemRequest;
 import jiaoni.daigou.wiremodel.entity.ShoppingListItem;
 import jiaoni.daigou.wiremodel.entity.ShoppingListItemOrBuilder;
-import jiaoni.daigou.service.appengine.impls.ShoppingListDbCilent;
+import jiaoni.daigou.service.appengine.impls.db.ShoppingListDbCilent;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;

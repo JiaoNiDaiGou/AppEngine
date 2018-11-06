@@ -13,7 +13,7 @@ import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.common.wiremodel.PhoneNumber;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
+import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;

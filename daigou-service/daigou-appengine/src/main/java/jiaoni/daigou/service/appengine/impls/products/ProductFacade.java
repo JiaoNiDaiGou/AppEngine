@@ -1,7 +1,8 @@
-package jiaoni.daigou.service.appengine.impls;
+package jiaoni.daigou.service.appengine.impls.products;
 
 import jiaoni.common.appengine.access.productsearch.ProSearchClient;
 import jiaoni.common.appengine.utils.RequestValidator;
+import jiaoni.daigou.service.appengine.impls.db.ProductDbClient;
 import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -16,12 +17,12 @@ import static jiaoni.common.utils.CollectionUtils2.firstNotBlank;
 import static jiaoni.common.utils.CollectionUtils2.firstRecognized;
 
 @Singleton
-public class ProductAccess {
+public class ProductFacade {
     private final ProductDbClient dbClient;
     private final ProSearchClient searchClient;
 
     @Inject
-    public ProductAccess(final ProductDbClient dbClient,
+    public ProductFacade(final ProductDbClient dbClient,
                          final ProSearchClient searchClient) {
         this.dbClient = dbClient;
         this.searchClient = searchClient;

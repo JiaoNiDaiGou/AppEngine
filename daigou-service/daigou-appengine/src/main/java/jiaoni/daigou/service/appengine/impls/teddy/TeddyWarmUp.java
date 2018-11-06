@@ -69,12 +69,15 @@ public class TeddyWarmUp implements Consumer<TaskMessage> {
         DateTime lastCall = safeGetTimestamp(LAST_CALL_TS_MEMCACHE_KEY);
         long nextWarmupCountdownSec = -1;
         long sinceLastCall = now.getMillis() - (lastCall == null ? 0 : lastCall.getMillis());
+        int reachCount = taskMessage.getReachCount();
         if (sinceLastCall < 60 * 1000) { // < 1m, we should warm up frequently
             nextWarmupCountdownSec = 30;
         } else if (sinceLastCall < 30 * 60 * 1000) { // < 30m
             nextWarmupCountdownSec = 60;
         } else if (sinceLastCall < 120 * 60 * 1000) { // < 2h
             nextWarmupCountdownSec = 120;
+        } else if (reachCount < 5) {
+            nextWarmupCountdownSec = 60;
         }
         if (nextWarmupCountdownSec > 0) {
             LOGGER.info("Schedule next Teddy warm up in {} seconds", nextWarmupCountdownSec);

@@ -7,7 +7,7 @@ import jiaoni.common.model.Env;
 import jiaoni.common.test.RemoteApi;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
-import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
+import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 
 public class VerifySyncJiaoniCustomersTaskRunner {

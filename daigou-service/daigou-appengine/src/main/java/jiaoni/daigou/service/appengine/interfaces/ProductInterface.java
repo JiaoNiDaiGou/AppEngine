@@ -6,7 +6,7 @@ import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.daigou.service.appengine.impls.ProductAccess;
+import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
 import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jvnet.hk2.annotations.Service;
@@ -35,31 +35,31 @@ import javax.ws.rs.core.Response;
 public class ProductInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductInterface.class);
 
-    private final ProductAccess access;
+    private final ProductFacade productFacade;
 
     @Inject
-    public ProductInterface(final ProductAccess access) {
-        this.access = access;
+    public ProductInterface(final ProductFacade productFacade) {
+        this.productFacade = productFacade;
     }
 
     @GET
     @Path("/all")
     public Response getAll() {
-        return Response.ok(access.getAll()).build();
+        return Response.ok(productFacade.getAll()).build();
     }
 
     @POST
     @Path("/create")
     public Response createProduct(final Product product) {
         RequestValidator.validateNotNull(product);
-        return Response.ok(access.create(product)).build();
+        return Response.ok(productFacade.create(product)).build();
     }
 
     @POST
     @Path("/update")
     public Response updateProduct(final Product product) {
         RequestValidator.validateNotNull(product);
-        Product toReturn = access.update(product);
+        Product toReturn = productFacade.update(product);
         if (toReturn == null) {
             throw new NotFoundException();
         }
@@ -72,7 +72,7 @@ public class ProductInterface {
                                 final List<String> mediaIds) {
         RequestValidator.validateNotBlank(id);
         RequestValidator.validateRequest(CollectionUtils.isNotEmpty(mediaIds));
-        Product product = access.attachMedia(id, mediaIds);
+        Product product = productFacade.attachMedia(id, mediaIds);
         if (product == null) {
             throw new NotFoundException();
         }

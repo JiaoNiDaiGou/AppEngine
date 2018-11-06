@@ -17,7 +17,7 @@ import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder.Status;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.impls.ShippingOrderDbClient;
+import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;

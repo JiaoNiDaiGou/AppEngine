@@ -33,6 +33,8 @@ import jiaoni.daigou.contentparser.CnPeopleNameParser;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
+import jiaoni.daigou.lib.wx.WxClient;
+import jiaoni.daigou.lib.wx.WxClientImpl;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.teddy.CallAwareTeddyClient;
 
@@ -139,5 +141,11 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     Storage provideStorage() {
         return GoogleClientFactory.storage();
+    }
+
+    @Provides
+    @Singleton
+    WxClient provideWxClient() {
+        return new WxClientImpl(new BrowserClient());
     }
 }

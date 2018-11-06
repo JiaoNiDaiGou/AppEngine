@@ -1,0 +1,2 @@
+GET
+https://login.web.wechat.com/jslogin?appid=wx782c26e4c19acffb&redirect_uri=https%3A%2F%2Fweb.wechat.com%2Fcgi-bin%2Fmmwebwx-bin%2Fwebwxnewloginpage&fun=new&lang=zh_CN&_=1541372698751

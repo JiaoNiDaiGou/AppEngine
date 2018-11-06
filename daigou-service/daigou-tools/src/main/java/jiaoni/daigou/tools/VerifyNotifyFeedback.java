@@ -4,8 +4,7 @@ import jiaoni.common.appengine.access.email.PopupPageEmailClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.RemoteApi;
-import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.impls.FeedbackDbClient;
+import jiaoni.daigou.service.appengine.impls.db.FeedbackDbClient;
 import jiaoni.daigou.service.appengine.tasks.AdminReportTaskRunner;
 
 public class VerifyNotifyFeedback {

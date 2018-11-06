@@ -2,7 +2,6 @@ package jiaoni.common.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.ProtocolMessageEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -17,6 +16,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StringUtils2 {
+    /**
+     * Given a list of splits flag, split the string with any flag in it.
+     * E.g. multiSplit("111#222$333", "#", "$") will return ["111", "222", "333"]
+     */
     public static String[] multiSplit(String str, String... splits) {
         if (str == null) {
             return null;

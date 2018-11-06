@@ -3,7 +3,8 @@ package jiaoni.daigou.service.appengine.interfaces;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.wiremodel.Address;
-import jiaoni.daigou.service.appengine.impls.CustomerDbClient;
+import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
+import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.jvnet.hk2.annotations.Service;
@@ -30,13 +31,17 @@ import javax.ws.rs.core.Response;
 @Singleton
 @RolesAllowed({ Roles.ADMIN })
 public class CustomerInterface {
+    private final CustomerFacade customerFacade;
+    @Deprecated
     private final CustomerDbClient customerDbClient;
     private final TeddyWarmUp teddyWarmUp;
 
     @Inject
     public CustomerInterface(final CustomerDbClient customerDbClient,
+                             final CustomerFacade customerFacade,
                              final TeddyWarmUp teddyWarmUp) {
         this.customerDbClient = customerDbClient;
+        this.customerFacade = customerFacade;
         this.teddyWarmUp = teddyWarmUp;
     }
 
@@ -51,9 +56,8 @@ public class CustomerInterface {
 
     @GET
     @Path("/{id}")
-    public Response getAllCustomer(@PathParam("id") final String id) {
+    public Response getCustomerById(@PathParam("id") final String id) {
         RequestValidator.validateNotBlank(id);
-
         Customer customer = customerDbClient.getById(id);
         if (customer == null) {
             throw new NotFoundException();
@@ -70,23 +74,8 @@ public class CustomerInterface {
     public Response createCustomer(final Customer customer) {
         RequestValidator.validateNotNull(customer);
 
-        String key = CustomerDbClient.computeKey(customer.getPhone(), customer.getName());
-        Customer existing = customerDbClient.getById(key);
-        if (existing == null) {
-            Customer toReturn = customerDbClient.putAndUpdateTimestamp(customer.toBuilder().setId(key).build());
-            return Response.ok(toReturn).build();
-        }
-        List<Address> newAddresses = customer.getAddressesList()
-                .stream()
-                .filter(t -> !existing.getAddressesList().contains(t))
-                .collect(Collectors.toList());
-        Customer toReturn = existing.toBuilder()
-                .clearAddresses()
-                .addAllAddresses(newAddresses) // The new address will be the default one.
-                .addAllAddresses(existing.getAddressesList())
-                .setDefaultAddressIndex(0)
-                .build();
-        toReturn = customerDbClient.putAndUpdateTimestamp(toReturn);
+        Customer toReturn = customerFacade.createOrUpdateCustomer(customer);
+
         return Response.ok(toReturn).build();
     }
 

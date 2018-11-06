@@ -25,6 +25,7 @@ dependencies {
 
     compile project(':daigou-service:content-parser')
     compile project(':daigou-service:lib-teddy')
+    compile project(':daigou-service:lib-wx')
 
     compile "commons-io:commons-io:$commons_io_ver"
     compile "commons-validator:commons-validator:$commons_validator_ver"

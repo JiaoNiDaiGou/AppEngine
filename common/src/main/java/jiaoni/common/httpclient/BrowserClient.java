@@ -70,6 +70,12 @@ public class BrowserClient implements Closeable {
                 .build();
     }
 
+    @VisibleForTesting
+    public BrowserClient(final HttpClient client) {
+        connectionManager = null;
+        this.client = checkNotNull(client);
+    }
+
     public DoGet doGet() {
         return new DoGet(this);
     }
@@ -176,7 +182,9 @@ public class BrowserClient implements Closeable {
 
     private <T> T execute(final HttpUriRequest request, final HttpEntityHandle<T> handle) {
         try {
-            return DEFAULT_RETRIER.call(() -> client.execute(request, responseHandler(handle)));
+            T toReturn = DEFAULT_RETRIER.call(() -> client.execute(request, responseHandler(handle)));
+            System.out.println(toReturn);
+            return toReturn;
         } catch (Exception e) {
             throw new InternalIOException(e);
         }

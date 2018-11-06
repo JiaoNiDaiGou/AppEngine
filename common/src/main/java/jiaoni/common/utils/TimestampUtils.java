@@ -1,8 +1,9 @@
-package jiaoni.common.appengine.utils;
+package jiaoni.common.utils;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 public class TimestampUtils {
     private TimestampUtils() {
@@ -18,5 +19,9 @@ public class TimestampUtils {
 
     public static DateTime toJodaTime(final Timestamp timestamp) {
         return new DateTime(timestamp.getSeconds() * 1000);
+    }
+
+    public static Duration diff(final DateTime a, final DateTime b) {
+        return Duration.millis(Math.abs(a.getMillis() - b.getMillis()));
     }
 }

@@ -3,7 +3,7 @@ package jiaoni.daigou.tools;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.RemoteApi;
-import jiaoni.daigou.service.appengine.impls.FeedbackDbClient;
+import jiaoni.daigou.service.appengine.impls.db.FeedbackDbClient;
 import jiaoni.daigou.wiremodel.entity.sys.Feedback;
 
 import java.util.List;

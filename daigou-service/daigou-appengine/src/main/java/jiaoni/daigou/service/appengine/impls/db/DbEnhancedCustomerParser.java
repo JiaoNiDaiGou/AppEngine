@@ -1,4 +1,4 @@
-package jiaoni.daigou.service.appengine.impls;
+package jiaoni.daigou.service.appengine.impls.db;
 
 import jiaoni.daigou.contentparser.Answer;
 import jiaoni.daigou.contentparser.Answers;

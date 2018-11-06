@@ -4,7 +4,7 @@ import jiaoni.common.appengine.access.email.EmailClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.daigou.wiremodel.entity.sys.Feedback;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.impls.FeedbackDbClient;
+import jiaoni.daigou.service.appengine.impls.db.FeedbackDbClient;
 
 import java.util.List;
 import java.util.function.Consumer;

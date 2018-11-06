@@ -23,9 +23,11 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
                              final MemcacheService memcacheService) {
         super(new DbClientBuilder<WxSessionTicket>()
                 .datastoreService(datastoreService)
-                .memcacheService(memcacheService)
-                .entityFactory(new EntityFactory(serviceName, env))
-                .memcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
+                // TODO:
+                // set customized cache duration
+//                .memcacheService(memcacheService)
+//                .entityFactory(new EntityFactory(serviceName, env))
+//                .memcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
                 .build());
     }
 

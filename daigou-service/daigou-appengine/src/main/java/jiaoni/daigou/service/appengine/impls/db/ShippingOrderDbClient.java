@@ -1,4 +1,4 @@
-package jiaoni.daigou.service.appengine.impls;
+package jiaoni.daigou.service.appengine.impls.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
@@ -23,15 +23,12 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
     private static final String TABLE_NAME = "ShippingOrder";
     private static final String FIELD_DATA = "data";
     private static final String FIELD_CREATION_TIME = "creation_time";
-    private static final String FIELD_CUSTOMER_ID = "customer_id";
-    private static final String FIELD_CUSTOMER_PHONE = "customer_phone";
-    private static final String FIELD_CUSTOMER_NAME = "customer_name";
+    public static final String FIELD_CUSTOMER_ID = "customer_id";
     private static final String FIELD_TEDDY_ORDER_ID = "teddy_order_id";
-    private static final String FIELD_STATUS = "status";
+    public static final String FIELD_STATUS = "status";
 
     @Inject
-    public ShippingOrderDbClient(@ENV final Env env,
-                                 final DatastoreService datastoreService) {
+    public ShippingOrderDbClient(@ENV final Env env, final DatastoreService datastoreService) {
         super(datastoreService, new EntityFactory(env));
     }
 
@@ -41,27 +38,6 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                 DbQuery.ge(FIELD_TEDDY_ORDER_ID, minTeddyIdInclusive),
                 DbQuery.le(FIELD_TEDDY_ORDER_ID, maxTeddyIdInclusive)
         );
-        return this.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ShippingOrder> queryNonDeliveredOrders() {
-        DbQuery query = DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name());
-        return this.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ShippingOrder> queryOrdersByStatus(final ShippingOrder.Status status) {
-        DbQuery query = DbQuery.eq(FIELD_STATUS, status.name());
-        return this.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ShippingOrder> queryOrdersByCustomerId(final String customerId) {
-        DbQuery query = DbQuery.eq(FIELD_CUSTOMER_ID, customerId);
         return this.queryInStream(query)
                 .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
                 .collect(Collectors.toList());
@@ -87,8 +63,6 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
             return partialBuilder
                     .indexedLong(FIELD_CREATION_TIME, obj.getCreationTime())
                     .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())
-                    .indexedString(FIELD_CUSTOMER_PHONE, obj.getReceiver().getPhone().getPhone())
-                    .indexedString(FIELD_CUSTOMER_NAME, obj.getReceiver().getName())
                     .indexedLong(FIELD_TEDDY_ORDER_ID, StringUtils.isNotBlank(obj.getTeddyOrderId()) ? Long.parseLong(obj.getTeddyOrderId()) : 0)
                     .indexedEnum(FIELD_STATUS, obj.getStatus())
                     .unindexedProto(FIELD_DATA, obj)

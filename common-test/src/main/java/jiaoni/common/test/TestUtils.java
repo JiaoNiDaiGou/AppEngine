@@ -4,8 +4,11 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
-import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.model.InternalIOException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Stubber;
 
 import java.io.File;
@@ -13,10 +16,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.mockito.Mockito.doCallRealMethod;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TestUtils {
     public static String readResourcesAsString(final String resourceName) {
@@ -39,12 +45,12 @@ public class TestUtils {
         }
     }
 
-    public static BrowserClient mockBrowserClient() {
-        BrowserClient toReturn = mock(BrowserClient.class);
-        doCallRealMethod().when(toReturn).doPost();
-        doCallRealMethod().when(toReturn).doGet();
-        doCallRealMethod().when(toReturn).doOptions();
-        return toReturn;
+    public static ExpectedHttpRequest readResourceAsExpectedHttpRequest(final String resourceName) {
+        try {
+            return ExpectedHttpRequest.fromReqFile(Resources.getResource(resourceName));
+        } catch (IOException e) {
+            throw new InternalIOException(e);
+        }
     }
 
     public static Stubber doReturnStringFromResource(final String... resourceNames) {
@@ -55,6 +61,24 @@ public class TestUtils {
                     .map(TestUtils::readResourcesAsString)
                     .toArray(String[]::new);
             return doReturn(readResourcesAsString(resourceNames[0]), (Object[]) otherResponses);
+        }
+    }
+
+    public static void verifyHttpExecute(final HttpClient client,
+                                         final ExpectedHttpRequest... requests) {
+        ArgumentCaptor<HttpUriRequest> argumentCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+        try {
+            verify(client, times(requests.length)).execute(argumentCaptor.capture(), any(ResponseHandler.class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<HttpUriRequest> requestsExecuted = argumentCaptor.getAllValues();
+        for (int i = 0; i < requests.length; i++) {
+            ExpectedHttpRequest expected = requests[i];
+            HttpUriRequest actual = requestsExecuted.get(i);
+
+            assertEquals(expected.getMethod(), actual.getMethod());
+            assertEquals(expected.getUrl(), actual.getURI().toString());
         }
     }
 }

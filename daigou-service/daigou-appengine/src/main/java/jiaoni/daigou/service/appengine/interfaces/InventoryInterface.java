@@ -2,8 +2,8 @@ package jiaoni.daigou.service.appengine.interfaces;
 
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
-import jiaoni.daigou.service.appengine.impls.InventoryDbClient;
-import jiaoni.daigou.service.appengine.impls.ProductAccess;
+import jiaoni.daigou.service.appengine.impls.db.InventoryDbClient;
+import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
 import jiaoni.daigou.wiremodel.entity.InventoryItem;
 import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.lang3.tuple.Triple;
@@ -31,11 +31,11 @@ import javax.ws.rs.core.Response;
 @RolesAllowed({ Roles.ADMIN })
 public class InventoryInterface {
     private final InventoryDbClient inventoryDbClient;
-    private final ProductAccess productAccess;
+    private final ProductFacade productAccess;
 
     @Inject
     public InventoryInterface(final InventoryDbClient inventoryDbClient,
-                              final ProductAccess productAccess) {
+                              final ProductFacade productAccess) {
         this.inventoryDbClient = inventoryDbClient;
         this.productAccess = productAccess;
     }

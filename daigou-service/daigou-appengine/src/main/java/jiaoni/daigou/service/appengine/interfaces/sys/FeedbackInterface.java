@@ -3,7 +3,7 @@ package jiaoni.daigou.service.appengine.interfaces.sys;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.daigou.wiremodel.entity.sys.Feedback;
-import jiaoni.daigou.service.appengine.impls.FeedbackDbClient;
+import jiaoni.daigou.service.appengine.impls.db.FeedbackDbClient;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Service;
 

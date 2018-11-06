@@ -6,7 +6,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
-import jiaoni.common.appengine.utils.TimestampUtils;
+import jiaoni.common.utils.TimestampUtils;
 import jiaoni.common.json.ObjectMapperProvider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;

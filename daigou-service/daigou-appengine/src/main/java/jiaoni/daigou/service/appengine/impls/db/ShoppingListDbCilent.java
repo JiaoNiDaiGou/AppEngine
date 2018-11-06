@@ -1,4 +1,4 @@
-package jiaoni.daigou.service.appengine.impls;
+package jiaoni.daigou.service.appengine.impls.db;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;

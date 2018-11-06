@@ -14,21 +14,27 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public interface DbQuery {
 
-    static AndQuery and(final List<DbQuery> queries) {
+    static DbQuery and(final List<DbQuery> queries) {
+        if (queries.size() == 1) {
+            return queries.get(0);
+        }
         queries.forEach(t -> checkState(t.canComposited()));
         return new AndQuery(queries);
     }
 
-    static AndQuery and(final DbQuery... queries) {
+    static DbQuery and(final DbQuery... queries) {
         return and(Arrays.asList(queries));
     }
 
-    static OrQuery or(final List<DbQuery> queries) {
+    static DbQuery or(final List<DbQuery> queries) {
+        if (queries.size() == 1) {
+            return queries.get(0);
+        }
         queries.forEach(t -> checkState(t.canComposited()));
         return new OrQuery(queries);
     }
 
-    static OrQuery or(final DbQuery... queries) {
+    static DbQuery or(final DbQuery... queries) {
         return or(Arrays.asList(queries));
     }
 

@@ -11,9 +11,6 @@ import jiaoni.common.model.Env;
 import jiaoni.common.utils.Envs;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.List;
-import java.util.Map;
-
 public class Registry extends BaseDbClient<Pair<String, String>> {
     private static final String TABLE_NAME = "Registry";
     private static final String FIELD_VAL = "val";
@@ -36,6 +33,16 @@ public class Registry extends BaseDbClient<Pair<String, String>> {
     public String getRegistry(final String serviceName, final String key) {
         Pair<String, String> pair = getById(key(serviceName, key));
         return pair == null ? null : pair.getRight();
+    }
+
+    public int getRegistryAsInt(final String serviceName, final String key, final int defaultVal) {
+        String val = getRegistry(serviceName, key);
+        return val == null ? defaultVal : Integer.parseInt(val);
+    }
+
+    public boolean getRegistryAsBoolean(final String serviceName, final String key, final boolean defaultVal) {
+        String val = getRegistry(serviceName, key);
+        return val == null ? defaultVal : Boolean.parseBoolean(val);
     }
 
     public void deleteRegistry(final String serviceName, final String key) {

@@ -1,6 +1,7 @@
 package jiaoni.daigou.lib.teddy;
 
 import jiaoni.common.httpclient.BrowserClient;
+import jiaoni.common.test.MockHttpClient;
 import jiaoni.daigou.lib.teddy.model.Admin;
 import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.lib.teddy.model.OrderPreview;
@@ -13,26 +14,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static jiaoni.common.test.TestUtils.doReturnStringFromResource;
-import static jiaoni.common.test.TestUtils.mockBrowserClient;
+import static jiaoni.common.test.TestUtils.readResourcesAsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 
-public class TeddyClientTest {
-    private BrowserClient client;
+public class TeddyClientImplTest {
+    private MockHttpClient client;
     private TeddyClientImpl underTest;
 
     @Before
     public void setUp() {
-        client = mockBrowserClient();
+        client = new MockHttpClient();
         Admin admin = Admin.builder()
                 .withLoginUsername("test-admin")
                 .build();
-        underTest = new TeddyClientImpl(admin, client);
+        underTest = new TeddyClientImpl(admin, new BrowserClient(client));
     }
 
     @Test
@@ -180,9 +179,8 @@ public class TeddyClientTest {
     }
 
     private void arrangeClient(final String... resourceNames) {
-        String[] resources = Arrays.stream(resourceNames)
-                .map(t -> "teddy_responses/" + t + ".html")
-                .toArray(String[]::new);
-        doReturnStringFromResource(resources).when(client).execute(any(), any());
+        for (String resource : resourceNames) {
+            client.arrangeResponse(200, readResourcesAsString("teddy_responses/" + resource + ".html"));
+        }
     }
 }
