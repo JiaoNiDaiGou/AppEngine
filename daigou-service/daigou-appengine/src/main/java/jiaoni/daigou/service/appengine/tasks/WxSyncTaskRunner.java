@@ -14,7 +14,7 @@ import jiaoni.daigou.lib.wx.WxClient;
 import jiaoni.daigou.lib.wx.model.Message;
 import jiaoni.daigou.lib.wx.model.SyncCheck;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.service.appengine.impls.db.WxSessionDbClient;
+import jiaoni.daigou.service.appengine.impls.db.WxWebSessionDbClient;
 import jiaoni.daigou.service.appengine.impls.wx.WxHandler;
 import jiaoni.daigou.service.appengine.utils.RegistryFactory;
 import org.joda.time.DateTime;
@@ -39,7 +39,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
     private final WxClient wxClient;
     private final PubSubClient pubSubClient;
     private final EmailClient emailClient;
-    private final WxSessionDbClient dbClient;
+    private final WxWebSessionDbClient dbClient;
     private final Registry registry;
     private final WxHandler handler;
 
@@ -47,7 +47,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
     public WxSyncTaskRunner(final WxClient wxClient,
                             final PubSubClient pubSubClient,
                             final EmailClient emailClient,
-                            final WxSessionDbClient dbClient,
+                            final WxWebSessionDbClient dbClient,
                             final WxHandler handler) {
         this.wxClient = wxClient;
         this.pubSubClient = pubSubClient;

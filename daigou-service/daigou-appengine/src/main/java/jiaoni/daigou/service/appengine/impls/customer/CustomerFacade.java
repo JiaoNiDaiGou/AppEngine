@@ -26,6 +26,10 @@ public class CustomerFacade {
         return dbClient.getById(key);
     }
 
+    public Customer getCustomer(final String customerId) {
+        return dbClient.getById(customerId);
+    }
+
     /**
      * If the customer not exists, create it. Otherwise, update it (NOTE the phone and the name cannot be updated).
      */

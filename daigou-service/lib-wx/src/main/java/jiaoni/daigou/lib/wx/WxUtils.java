@@ -2,14 +2,17 @@ package jiaoni.daigou.lib.wx;
 
 import jiaoni.daigou.lib.wx.model.SyncKey;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class WxUtils {
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     /**
      * Generates a random 15 digit as DeviceId.
      */
     static String generateRandomDeviceId() {
-        return "e" + String.valueOf(new Random().nextLong()).substring(1, 16);
+        return "e" + String.valueOf(SECURE_RANDOM.nextLong()).substring(1, 16);
     }
 
     // 時間戳左移4位隨後補上4位隨機數

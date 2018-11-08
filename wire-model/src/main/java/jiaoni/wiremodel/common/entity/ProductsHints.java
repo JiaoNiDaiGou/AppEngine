@@ -29,6 +29,13 @@ public class ProductsHints {
         public void setUsd(double usd) {
             this.usd = usd;
         }
+
+        public static NameAndPrice of(final String name, double usd) {
+            NameAndPrice nameAndPrice = new NameAndPrice();
+            nameAndPrice.name = name;
+            nameAndPrice.usd = usd;
+            return nameAndPrice;
+        }
     }
 
     @JsonProperty("hints")

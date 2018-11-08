@@ -1,19 +1,16 @@
 package jiaoni.daigou.service.appengine.interfaces;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.io.Resources;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
-import jiaoni.common.json.ObjectMapperProvider;
-import jiaoni.common.model.InternalIOException;
 import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
+import jiaoni.daigou.service.appengine.impls.products.ProductHintsFacade;
 import jiaoni.daigou.wiremodel.entity.Product;
+import jiaoni.wiremodel.common.entity.ProductsHints;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -36,10 +33,13 @@ public class ProductInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductInterface.class);
 
     private final ProductFacade productFacade;
+    private final ProductHintsFacade productHintsFacade;
 
     @Inject
-    public ProductInterface(final ProductFacade productFacade) {
+    public ProductInterface(final ProductFacade productFacade,
+                            final ProductHintsFacade productHintsFacade) {
         this.productFacade = productFacade;
+        this.productHintsFacade = productHintsFacade;
     }
 
     @GET
@@ -82,14 +82,7 @@ public class ProductInterface {
     @GET
     @Path("/hints")
     public Response getProductsHints() {
-        JsonNode jsonNode;
-        try {
-            jsonNode = ObjectMapperProvider.get()
-                    .readTree(Resources.getResource("products_hints.json"));
-            LOGGER.info("Load {} product hints", jsonNode.size());
-        } catch (IOException e) {
-            throw new InternalIOException(e);
-        }
-        return Response.ok(jsonNode).build();
+        ProductsHints hints = productHintsFacade.loadHints();
+        return Response.ok(hints).build();
     }
 }

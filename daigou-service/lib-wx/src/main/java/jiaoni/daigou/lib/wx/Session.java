@@ -84,7 +84,7 @@ public class Session {
         return startTimestamp;
     }
 
-    String getSkey() {
+    synchronized String getSkey() {
         return skey;
     }
 
@@ -92,7 +92,7 @@ public class Session {
         this.skey = skey;
     }
 
-    String getWxsid() {
+    synchronized String getWxsid() {
         return wxsid;
     }
 
@@ -100,7 +100,7 @@ public class Session {
         this.wxsid = wxsid;
     }
 
-    String getWxuin() {
+    synchronized String getWxuin() {
         return wxuin;
     }
 
@@ -108,7 +108,7 @@ public class Session {
         this.wxuin = wxuin;
     }
 
-    String getPassTicket() {
+    synchronized String getPassTicket() {
         return passTicket;
     }
 
@@ -116,7 +116,7 @@ public class Session {
         this.passTicket = passTicket;
     }
 
-    String getDeviceId() {
+    synchronized String getDeviceId() {
         return deviceId;
     }
 
@@ -124,7 +124,7 @@ public class Session {
         this.deviceId = deviceId;
     }
 
-    String getWebUrl() {
+    synchronized String getWebUrl() {
         return webUrl;
     }
 
@@ -132,7 +132,7 @@ public class Session {
         this.webUrl = webUrl;
     }
 
-    SyncKey getSyncKey() {
+    synchronized SyncKey getSyncKey() {
         return syncKey;
     }
 
@@ -140,7 +140,7 @@ public class Session {
         this.syncKey = syncKey;
     }
 
-    Contact getMyself() {
+    synchronized Contact getMyself() {
         return myself;
     }
 
@@ -148,7 +148,7 @@ public class Session {
         this.myself = myself;
     }
 
-    boolean isLoggedIn() {
+    synchronized boolean isLoggedIn() {
         return loggedIn;
     }
 
@@ -156,7 +156,7 @@ public class Session {
         this.loggedIn = loggedIn;
     }
 
-    String getWebpushUrl() {
+    synchronized String getWebpushUrl() {
         return webpushUrl;
     }
 
@@ -164,7 +164,7 @@ public class Session {
         this.webpushUrl = webpushUrl;
     }
 
-    SyncKey getSyncCheckKey() {
+    synchronized SyncKey getSyncCheckKey() {
         return syncCheckKey;
     }
 
@@ -172,7 +172,7 @@ public class Session {
         this.syncCheckKey = syncCheckKey;
     }
 
-    DateTime getLastSyncCheckTimestamp() {
+    synchronized DateTime getLastSyncCheckTimestamp() {
         return lastSyncCheckTimestamp;
     }
 
@@ -198,15 +198,15 @@ public class Session {
         }
     }
 
-    public Map<String, Contact> getPersonalAccounts() {
+    public synchronized Map<String, Contact> getPersonalAccounts() {
         return Collections.unmodifiableMap(personalAccounts);
     }
 
-    public Map<String, Contact> getGroupChatAccounts() {
+    public synchronized Map<String, Contact> getGroupChatAccounts() {
         return Collections.unmodifiableMap(groupChatAccounts);
     }
 
-    public DateTime getLastReplyTimestamp() {
+    public synchronized DateTime getLastReplyTimestamp() {
         return lastReplyTimestamp;
     }
 

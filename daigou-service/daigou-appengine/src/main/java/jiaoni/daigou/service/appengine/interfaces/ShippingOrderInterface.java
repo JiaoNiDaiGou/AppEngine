@@ -9,12 +9,14 @@ import jiaoni.common.wiremodel.Price;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.model.Order;
-import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
+import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
 import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
+import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
 import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
 import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -50,17 +53,20 @@ import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIE
 public class ShippingOrderInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShippingOrderInterface.class);
 
-    private final TeddyClient teddyClient;
+    private final CustomerFacade customerFacade;
+    private final ProductFacade productFacade;
     private final ShippingOrderDbClient shippingOrderDbClient;
-    private final CustomerDbClient customerDbClient;
+    private final TeddyClient teddyClient;
 
     @Inject
-    public ShippingOrderInterface(@Named(TeddyAdmins.BY_ENV) final TeddyClient teddyClient,
+    public ShippingOrderInterface(final CustomerFacade customerFacade,
+                                  final ProductFacade productFacade,
                                   final ShippingOrderDbClient shippingOrderDbClient,
-                                  final CustomerDbClient customerDbClient) {
-        this.teddyClient = teddyClient;
+                                  @Named(TeddyAdmins.BY_ENV) final TeddyClient teddyClient) {
+        this.customerFacade = customerFacade;
+        this.productFacade = productFacade;
         this.shippingOrderDbClient = shippingOrderDbClient;
-        this.customerDbClient = customerDbClient;
+        this.teddyClient = teddyClient;
     }
 
     @POST
@@ -71,7 +77,7 @@ public class ShippingOrderInterface {
 
         LOGGER.info("init shipping order: " + ObjectMapperProvider.compactToJson(request));
 
-        Customer receiver = customerDbClient.getById(request.getReceiverCustomerId());
+        Customer receiver = customerFacade.getCustomer(request.getReceiverCustomerId());
         if (receiver == null) {
             throw new NotFoundException("invalid customer ID: " + request.getReceiverCustomerId());
         }
@@ -93,11 +99,14 @@ public class ShippingOrderInterface {
                         .get())
                 .build();
 
+        List<ShippingOrder.ProductEntry> productEntries = request.getProductEntriesList();
+        saveProductsIfNecessary(productEntries);
+
         ShippingOrder shippingOrder = ShippingOrder.newBuilder()
                 .setStatus(status)
                 .setCreationTime(System.currentTimeMillis())
                 .setReceiver(receiver)
-                .addAllProductEntries(request.getProductEntriesList())
+                .addAllProductEntries(productEntries)
                 .setTotalWeightLb(request.getTotalWeightLb())
                 .setTotalPrice(totalPrice)
                 .setTotalSellPrice(request.getTotalSellPrice())
@@ -199,5 +208,27 @@ public class ShippingOrderInterface {
                 limit,
                 pageToken);
         return Response.ok(results).build();
+    }
+
+    private void saveProductsIfNecessary(final List<ShippingOrder.ProductEntry> entries) {
+        List<Product> toSave = new ArrayList<>(entries.size());
+        List<Integer> indexToReplace = new ArrayList<>();
+        for (int i = 0; i < entries.size(); i++) {
+            Product product = entries.get(i).getProduct();
+            if (StringUtils.isBlank(product.getId())) {
+                toSave.add(product);
+                indexToReplace.add(i);
+            }
+        }
+        List<Product> afterSave = productFacade.create(toSave);
+        Iterator<Integer> indexItr = indexToReplace.iterator();
+        for (Product product : afterSave) {
+            int idx = indexItr.next();
+            ShippingOrder.ProductEntry updatedEntry = entries.get(idx)
+                    .toBuilder()
+                    .setProduct(product)
+                    .build();
+            entries.set(idx, updatedEntry);
+        }
     }
 }

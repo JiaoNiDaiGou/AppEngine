@@ -17,14 +17,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class WxSessionDbClient extends BaseDbClient<Session> {
+public class WxWebSessionDbClient extends BaseDbClient<Session> {
     private static final String TABLE_NAME = "WxSession";
     private static final String FIELD_DATA = "data";
 
     @Inject
-    public WxSessionDbClient(@ENV final Env env,
-                             final DatastoreService datastoreService,
-                             final MemcacheService memcacheService) {
+    public WxWebSessionDbClient(@ENV final Env env,
+                                final DatastoreService datastoreService,
+                                final MemcacheService memcacheService) {
         super(new DbClientBuilder<Session>()
                 .datastoreService(datastoreService)
                 .entityFactory(new EntityFactory(env))

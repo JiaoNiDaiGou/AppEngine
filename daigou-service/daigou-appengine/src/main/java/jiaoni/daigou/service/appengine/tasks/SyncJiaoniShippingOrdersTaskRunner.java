@@ -7,17 +7,17 @@ import com.google.common.collect.Multimap;
 import jiaoni.common.appengine.access.email.EmailClient;
 import jiaoni.common.appengine.access.sms.SmsClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
+import jiaoni.common.wiremodel.Price;
 import jiaoni.contenttemplate.TemplateData;
 import jiaoni.contenttemplate.TemplatesFactory;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
-import jiaoni.daigou.service.appengine.utils.ShippingOrderUtils;
-import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
-import jiaoni.common.wiremodel.Price;
-import jiaoni.daigou.wiremodel.entity.ShippingOrder;
-import jiaoni.daigou.wiremodel.entity.ShippingOrder.Status;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
+import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
+import jiaoni.daigou.service.appengine.utils.ShippingOrderUtils;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder;
+import jiaoni.daigou.wiremodel.entity.ShippingOrder.Status;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -213,7 +213,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
     }
 
     private void syncFromDb(final Report report) {
-        List<ShippingOrder> toCheck = shippingOrderDbClient.queryNonDeliveredOrders();
+        List<ShippingOrder> toCheck = shippingOrderDbClient.queryNonDeliveredShippingOrders();
         List<ShippingOrder> toSave = new ArrayList<>();
         List<ShippingOrder> toNotifyCustomer = new ArrayList<>();
 

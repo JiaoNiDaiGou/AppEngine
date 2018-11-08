@@ -43,6 +43,13 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                 .collect(Collectors.toList());
     }
 
+    public List<ShippingOrder> queryNonDeliveredShippingOrders() {
+        DbQuery query = DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name());
+        return this.queryInStream(query)
+                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
+                .collect(Collectors.toList());
+    }
+
     private static class EntityFactory extends BaseEntityFactory<ShippingOrder> {
         EntityFactory(Env env) {
             super(env);
