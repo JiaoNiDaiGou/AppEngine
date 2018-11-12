@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
 
+<!--
+
     <cron>
         <url>/cron/syncJiaoniCustomers</url>
         <description>Sync JiaoNiDaiGou customers</description>
@@ -24,5 +26,7 @@
         <target>prod-dot-daigou</target>
         <timezone>America/Los_Angeles</timezone>
     </cron>
+
+-->
 
 </cronentries>
