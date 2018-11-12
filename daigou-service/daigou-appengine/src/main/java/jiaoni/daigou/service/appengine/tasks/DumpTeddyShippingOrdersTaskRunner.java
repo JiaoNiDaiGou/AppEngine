@@ -353,5 +353,11 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         // For json
         Message() {
         }
+
+        public Message(long id, int limit, boolean backward) {
+            this.id = id;
+            this.limit = limit;
+            this.backward = backward;
+        }
     }
 }

@@ -106,7 +106,7 @@ public class Contact {
                 type = Type.GROUP_CHAT_ACCOUNT;
             } else if (StringUtils.startsWith(username, "@")) {
                 int verifyFlag = getVerifyFlag();
-                if (verifyFlag % 8 == 0) {
+                if (verifyFlag != 0 && verifyFlag % 8 == 0) {
                     return Type.PUBLIC_ACCOUNT;
                 }
                 type = Type.PERSONAL_ACCOUNT;

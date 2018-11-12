@@ -17,31 +17,18 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class WxHandler {
+public class WxCustomerParseMessageHandler implements WxMessageHandler {
     private final ParserFacade parserFacade;
     private final CustomerFacade customerFacade;
     private final WxClient wxClient;
 
     @Inject
-    public WxHandler(final ParserFacade parserFacade,
-                     final CustomerFacade customerFacade,
-                     final WxClient wxClient) {
+    public WxCustomerParseMessageHandler(final ParserFacade parserFacade,
+                                         final CustomerFacade customerFacade,
+                                         final WxClient wxClient) {
         this.parserFacade = parserFacade;
         this.customerFacade = customerFacade;
         this.wxClient = wxClient;
-    }
-
-    public void handle(final Session session, final Message message) {
-        ParseRequest request = buildParseRequest(session, message);
-        ParseResponse response = parserFacade.parse(request);
-
-        // Only consider top 1 high conf
-        if (response.getResultsCount() > 0) {
-            ParsedObject parsedObject = response.getResults(0);
-            if (parsedObject.getConfidence() > Conf.HIGH) {
-                handleHighConfParsedObject(session, message, parsedObject);
-            }
-        }
     }
 
     private ParseRequest buildParseRequest(final Session session,
@@ -79,7 +66,7 @@ public class WxHandler {
                                               final Customer customer) {
         Customer existingCustomer = customerFacade.getCustomer(customer.getPhone(), customer.getName());
         if (existingCustomer == null) {
-            String prompt = String.format("发现一个新客户! 姓名:%s, 电话:%s, 地址:%s %s %s, %s. 我已经把他记录了.",
+            String prompt = String.format("我发现一个新客户! 姓名:%s, 电话:%s, 地址:%s %s %s, %s. 我已经把他记录了.",
                     customer.getName(),
                     customer.getPhone().getPhone(),
                     customer.getAddresses(0).getRegion(),
@@ -89,5 +76,22 @@ public class WxHandler {
             customerFacade.putCustomer(customer);
             wxClient.sendReply(session, WxReply.builder().text(message.getFromUserName(), prompt).build());
         }
+    }
+
+    @Override
+    public boolean handle(Session session, Message message) {
+        ParseRequest request = buildParseRequest(session, message);
+        ParseResponse response = parserFacade.parse(request);
+
+        // Only consider top 1 high conf
+        if (response.getResultsCount() > 0) {
+            ParsedObject parsedObject = response.getResults(0);
+            if (parsedObject.getConfidence() > Conf.HIGH) {
+                handleHighConfParsedObject(session, message, parsedObject);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -183,7 +183,6 @@ public class BrowserClient implements Closeable {
     private <T> T execute(final HttpUriRequest request, final HttpEntityHandle<T> handle) {
         try {
             T toReturn = DEFAULT_RETRIER.call(() -> client.execute(request, responseHandler(handle)));
-            System.out.println(toReturn);
             return toReturn;
         } catch (Exception e) {
             throw new InternalIOException(e);

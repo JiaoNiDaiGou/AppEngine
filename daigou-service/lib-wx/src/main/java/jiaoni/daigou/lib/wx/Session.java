@@ -140,7 +140,7 @@ public class Session {
         this.syncKey = syncKey;
     }
 
-    synchronized Contact getMyself() {
+    public synchronized Contact getMyself() {
         return myself;
     }
 

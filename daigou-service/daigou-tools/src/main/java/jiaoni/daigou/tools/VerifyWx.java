@@ -19,6 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 public class VerifyWx {
     public static void main(String[] args) throws Exception {
+
+        //
+        // Login
+        //
         String qrFile = Envs.getLocalTmpDir() + "wxqr.png";
         WxClient client = new WxClientImpl(new BrowserClient());
         String uuid = client.fetchLoginUuid();
@@ -43,6 +47,9 @@ public class VerifyWx {
         client.initialize(session);
         client.syncContacts(session);
 
+        //
+        // Start syncing
+        //
         boolean startSync = true;
         if (startSync) {
             LinkedBlockingQueue<Message> messages = new LinkedBlockingQueue<>();
@@ -54,7 +61,15 @@ public class VerifyWx {
 
                 while (!messages.isEmpty()) {
                     Message message = messages.poll();
-                    Contact contact = session.getPersonalAccounts().get(message.getFromUserName());
+                    String fromUserName = message.getFromUserName();
+
+                    Contact contact = null;
+                    if (session.getMyself().getUserName().equals(fromUserName)) {
+                        contact = session.getMyself();
+                    }
+                    if (contact == null) {
+                        contact = session.getPersonalAccounts().get(message.getFromUserName());
+                    }
                     if (contact == null) {
                         contact = session.getGroupChatAccounts().get(message.getFromUserName());
                     }
