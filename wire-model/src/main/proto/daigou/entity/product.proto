@@ -41,3 +41,14 @@ enum ProductCategory {
     TOYS = 14;
     WATCHES = 15;
 }
+
+message ProductHint {
+    ProductCategory category = 1;
+    string brand = 2;
+    string name = 3;
+    jiaoni.common.wiremodel.Price suggested_unit_price = 4;
+}
+
+message ProductHints {
+    repeated ProductHint hints = 1;
+}

@@ -1,11 +1,12 @@
 package jiaoni.daigou.contentparser;
 
 import com.google.common.collect.ImmutableSet;
-import jiaoni.common.location.CnCity;
 import jiaoni.common.location.CnLocations;
-import jiaoni.common.location.CnZone;
 import jiaoni.common.utils.StringUtils2;
 import jiaoni.common.wiremodel.Address;
+import jiaoni.common.wiremodel.City;
+import jiaoni.common.wiremodel.Region;
+import jiaoni.common.wiremodel.Zone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -18,9 +19,14 @@ import java.util.Set;
 
 import static jiaoni.common.utils.LocalMeter.meterOff;
 import static jiaoni.common.utils.LocalMeter.meterOn;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 public class CnAddressParser implements Parser<Address> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CnAddressParser.class);
+
+    private final CnLocations LOC = CnLocations.getInstance();
+    private final List<City> ALL_CITIES = LOC.allCities();
+    private final List<City> ALL_NON_MUNICIPALITY_CITIES = LOC.allNonMunicipalityCities();
 
     private static final Set<String> ZONE_FLAGS = ImmutableSet
             .<String>builder()
@@ -28,19 +34,29 @@ public class CnAddressParser implements Parser<Address> {
             .add("区", "市", "县", "镇", "乡", "村", "旗", "集")
             .build();
 
-    private static final char[] ALLOWED_CHARS = { '-', '.', '(', ')', '（', '#' };
+    private static final char[] ALLOWED_CHARS = { '-', '.', '(', ')', '（', '）', '#', '：', ':', '·' };
 
     private static final int SEARCH_ZONE_FLAG_MAX_LENGTH = 6;
 
     /**
      * Parse zone part of the address. Return [zone part, the rest]
      */
-    private static Pair<String, String> parseAddressZone(final String input, final CnCity city) {
+    private Pair<String, String> parseAddressZone(final String input, final City city) {
         // Check known zones
-        for (CnZone zone : city.getZones()) {
-            for (String zoneName : zone.getAllPossibleNames()) {
-                if (input.startsWith(zoneName)) {
-                    return Pair.of(zone.getName(), input.substring(zoneName.length()));
+        List<String> allCityNames = LOC.allPossibleNames(city);
+        for (Zone zone : city.getZonesList()) {
+            List<String> possibleZonePrefixes = new ArrayList<>();
+            for (String zoneName : LOC.allPossibleNames(zone)) {
+                possibleZonePrefixes.add(zoneName);
+                for (String cityAlias : allCityNames) {
+                    possibleZonePrefixes.add(cityAlias + zoneName);
+                    possibleZonePrefixes.add(cityAlias + " " + zoneName);
+                }
+                possibleZonePrefixes.sort((a, b) -> Integer.compare(b.length(), a.length()));
+            }
+            for (String possibleZonePrefix : possibleZonePrefixes) {
+                if (input.startsWith(possibleZonePrefix)) {
+                    return Pair.of(zone.getName(), input.substring(possibleZonePrefix.length()));
                 }
             }
         }
@@ -52,7 +68,7 @@ public class CnAddressParser implements Parser<Address> {
             if (ZONE_FLAGS.contains(ch)) {
                 String zone = input.substring(0, i + 1);
                 // In case somebody say 河南省许昌市许昌魏都区
-                for (String cityName : city.getAllPossibleNames()) {
+                for (String cityName : LOC.allPossibleNames(city)) {
                     if (zone.startsWith(cityName) && zone.length() > cityName.length() + 1) {
                         zone = zone.substring(cityName.length());
                         break;
@@ -66,11 +82,13 @@ public class CnAddressParser implements Parser<Address> {
         return Pair.of(null, input);
     }
 
-    private List<String> allPossibleRegionAndNameCombinations(final CnCity city) {
+    private List<String> allPossibleRegionAndNameCombinations(final City city) {
         Set<String> toReturn = new HashSet<>();
-        for (String regionName : city.getRegion().getAllPossibleNames()) {
-            for (String cityName : city.getAllPossibleNames()) {
+        Region region = LOC.getRegionForCity(city);
+        for (String regionName : LOC.allPossibleNames(region)) {
+            for (String cityName : LOC.allPossibleNames(city)) {
                 toReturn.add(regionName + cityName);
+                toReturn.add(regionName + " " + cityName);
             }
         }
         List<String> sorted = new ArrayList<>(toReturn);
@@ -107,11 +125,9 @@ public class CnAddressParser implements Parser<Address> {
     /**
      * Find backwards.
      */
-    public Answer<Address> parseSingleAddress(final String rawInput) {
-        final List<CnCity> allCities = CnLocations.getInstance().allCities();
-        final List<CnCity> allNonMunicipalityCities = CnLocations.getInstance().allNonMunicipalityCities();
-
-        CnCity foundCity = null;
+    private Answer<Address> parseSingleAddress(final String rawInput) {
+        boolean unknownPostalCode = false;
+        City foundCity = null;
         String inputAfterCity = null;
         String inputBeforeWholeAddress = null;
         int conf = Conf.ZERO;
@@ -127,15 +143,19 @@ public class CnAddressParser implements Parser<Address> {
                 " ",
                 ALLOWED_CHARS);
 
+        if (input.contains(" 000000")) { // unknown postal code
+            unknownPostalCode = true;
+        }
+
         // Find region + city
         loop1:
-        for (CnCity city : allNonMunicipalityCities) {
+        for (City city : ALL_NON_MUNICIPALITY_CITIES) {
             for (String regionNameAndCityName : allPossibleRegionAndNameCombinations(city)) {
                 if (input.contains(regionNameAndCityName)) {
                     foundCity = city;
                     conf = Conf.HIGH;
-                    inputAfterCity = StringUtils.substringAfterLast(input, regionNameAndCityName).trim();
-                    inputBeforeWholeAddress = StringUtils.substringBeforeLast(input, regionNameAndCityName).trim();
+                    inputAfterCity = StringUtils.substringAfter(input, regionNameAndCityName).trim();
+                    inputBeforeWholeAddress = StringUtils.substringBefore(input, regionNameAndCityName).trim();
                     break loop1;
                 }
             }
@@ -144,16 +164,16 @@ public class CnAddressParser implements Parser<Address> {
         // Find city only
         if (foundCity == null) {
             loop2:
-            for (CnCity city : allCities) {
-                for (String cityName : city.getAllPossibleNames()) {
+            for (City city : ALL_CITIES) {
+                for (String cityName : LOC.allPossibleNames(city)) {
                     if (input.contains(cityName)) {
                         foundCity = city;
                         conf = Conf.HIGH;
-                        inputAfterCity = StringUtils.substringAfterLast(input, cityName).trim();
-                        inputBeforeWholeAddress = StringUtils.substringBeforeLast(input, cityName).trim();
+                        inputAfterCity = StringUtils.substringAfter(input, cityName).trim();
+                        inputBeforeWholeAddress = StringUtils.substringBefore(input, cityName).trim();
                         // in case duplicated city name:
                         // 上海市上海市虹口区...
-                        for (String duplicatedCityName : city.getAllPossibleNames()) {
+                        for (String duplicatedCityName : LOC.allPossibleNames(city)) {
                             if (inputBeforeWholeAddress.endsWith(duplicatedCityName)) {
                                 inputBeforeWholeAddress = inputBeforeWholeAddress.substring(
                                         0, inputBeforeWholeAddress.length() - duplicatedCityName.length());
@@ -168,13 +188,13 @@ public class CnAddressParser implements Parser<Address> {
         // Find city only
         if (foundCity == null) {
             loop3:
-            for (CnCity city : allNonMunicipalityCities) {
-                for (String cityName : city.getAllPossibleNames()) {
+            for (City city : ALL_NON_MUNICIPALITY_CITIES) {
+                for (String cityName : LOC.allPossibleNames(city)) {
                     if (input.contains(cityName)) {
                         foundCity = city;
                         conf = Conf.MEDIUM;
-                        inputAfterCity = StringUtils.substringAfterLast(input, cityName).trim();
-                        inputBeforeWholeAddress = StringUtils.substringBeforeLast(input, cityName).trim();
+                        inputAfterCity = StringUtils.substringAfter(input, cityName).trim();
+                        inputBeforeWholeAddress = StringUtils.substringBefore(input, cityName).trim();
                         break loop3;
                     }
                 }
@@ -194,13 +214,33 @@ public class CnAddressParser implements Parser<Address> {
             conf = Conf.CONFIRMED;
         }
 
+        // Extract postal code
+        String foundPostalCode = "";
+        if (!unknownPostalCode) {
+            Set<String> postalCodes = new HashSet<>(foundCity.getPostalCodesList());
+            if (foundZone != null) {
+                foundCity.getZonesList()
+                        .stream()
+                        .filter(t -> t.getName().equals(foundZone))
+                        .forEach(t -> postalCodes.addAll(t.getPostalCodesList()));
+            }
+            for (String postalCode : postalCodes) {
+                if (foundAddress.contains(" " + postalCode)) {
+                    foundPostalCode = postalCode;
+                    foundAddress = StringUtils2.replaceLast(foundAddress, foundPostalCode, "");
+                    break;
+                }
+            }
+        }
+
         return new Answer<Address>()
                 .setRawStringAfterExtraction(inputBeforeWholeAddress)
                 .setTarget(Address.newBuilder()
-                        .setRegion(foundCity.getRegion().getName())
+                        .setRegion(foundCity.getRegionName())
                         .setCity(foundCity.getName())
-                        .setZone(foundZone == null ? foundCity.getName() : foundZone)
-                        .setAddress(StringUtils2.removeDuplicatedSpaces(foundAddress))
+                        .setZone(foundZone == null ? trimToEmpty(foundCity.getName()) : trimToEmpty(foundZone))
+                        .setAddress(trimToEmpty(StringUtils.replace(foundAddress, " ", "")))
+                        .setPostalCode(foundPostalCode)
                         .build(), conf);
     }
 }

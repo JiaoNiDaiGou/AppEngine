@@ -22,16 +22,17 @@ import javax.inject.Singleton;
 public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
     private static final String TABLE_NAME = "ShippingOrder";
     private static final String FIELD_DATA = "data";
-    private static final String FIELD_CREATION_TIME = "creation_time";
+    public static final String FIELD_CREATION_TIME = "creation_time";
     public static final String FIELD_CUSTOMER_ID = "customer_id";
-    private static final String FIELD_TEDDY_ORDER_ID = "teddy_order_id";
-    public static final String FIELD_STATUS = "status";
+    public static final String FIELD_TEDDY_ORDER_ID = "teddy_order_id";
+    public static final String FIELD_STATUS_NUM = "status_num";
 
     @Inject
     public ShippingOrderDbClient(@ENV final Env env, final DatastoreService datastoreService) {
         super(datastoreService, new EntityFactory(env));
     }
 
+    @Deprecated
     public List<ShippingOrder> queryByTeddyOrderIdRange(final long minTeddyIdInclusive,
                                                         final long maxTeddyIdInclusive) {
         DbQuery query = DbQuery.and(
@@ -43,8 +44,9 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                 .collect(Collectors.toList());
     }
 
+    @Deprecated
     public List<ShippingOrder> queryNonDeliveredShippingOrders() {
-        DbQuery query = DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name());
+        DbQuery query = DbQuery.notEq(FIELD_STATUS_NUM, ShippingOrder.Status.DELIVERED_VALUE);
         return this.queryInStream(query)
                 .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
                 .collect(Collectors.toList());
@@ -71,7 +73,7 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
                     .indexedLong(FIELD_CREATION_TIME, obj.getCreationTime())
                     .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())
                     .indexedLong(FIELD_TEDDY_ORDER_ID, StringUtils.isNotBlank(obj.getTeddyOrderId()) ? Long.parseLong(obj.getTeddyOrderId()) : 0)
-                    .indexedEnum(FIELD_STATUS, obj.getStatus())
+                    .indexedInteger(FIELD_STATUS_NUM, obj.getStatusValue())
                     .unindexedProto(FIELD_DATA, obj)
                     .unindexedLastUpdatedTimestampAsNow()
                     .build();

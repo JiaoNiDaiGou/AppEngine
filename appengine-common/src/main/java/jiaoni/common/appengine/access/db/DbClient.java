@@ -32,7 +32,9 @@ public interface DbClient<T> {
 
     Stream<T> queryInStream(final DbQuery query);
 
-    PaginatedResults<T> queryInPagination(final DbQuery query, final int limit, @Nullable final PageToken pageToken);
+    PaginatedResults<T> queryInPagination(@Nullable final DbQuery query, final int limit, @Nullable final PageToken pageToken);
+
+    PaginatedResults<T> queryInPagination(@Nullable final DbQuery query, @Nullable final DbSort sort, final int limit, @Nullable final PageToken pageToken);
 
     /**
      * Extract the identifier of the object.

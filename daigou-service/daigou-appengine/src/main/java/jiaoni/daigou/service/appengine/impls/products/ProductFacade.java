@@ -7,7 +7,7 @@ import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -41,16 +41,24 @@ public class ProductFacade {
 
     public Product create(final Product product) {
         RequestValidator.validateEmpty(product.getId());
-        Product toReturn = dbClient.put(product);
-//        toReturn = searchClient.addProduct(toReturn, product.getMediaIdsList());
-        toReturn = dbClient.put(toReturn);
-        return toReturn;
+        Product existing = dbClient.getByHash(product);
+        if (existing == null) {
+            return dbClient.put(product);
+        } else {
+            Collection<String> extraMediaIds = CollectionUtils.subtract(product.getMediaIdsList(), existing.getMediaIdsList());
+            if (!extraMediaIds.isEmpty()) {
+                existing = attachMedia(existing.getId(), extraMediaIds);
+            }
+            return existing;
+        }
     }
 
     public List<Product> create(final List<Product> products) {
         checkNotNull(products);
-        products.forEach(t -> checkArgument(StringUtils.isBlank(t.getId())));
-        return dbClient.put(products);
+        return products.stream()
+                .peek(t -> checkArgument(StringUtils.isBlank(t.getId())))
+                .map(this::create)
+                .collect(Collectors.toList());
     }
 
     public Product update(final Product product) {
@@ -74,7 +82,7 @@ public class ProductFacade {
         return toReturn;
     }
 
-    public Product attachMedia(final String productId, final List<String> mediaIds) {
+    public Product attachMedia(final String productId, final Collection<String> mediaIds) {
         Product toReturn = dbClient.getById(productId);
         if (toReturn == null) {
             return null;

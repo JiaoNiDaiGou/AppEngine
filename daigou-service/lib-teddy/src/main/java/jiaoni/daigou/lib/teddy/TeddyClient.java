@@ -54,7 +54,7 @@ public interface TeddyClient {
     Order getOrderDetails(final long orderId, final boolean includeShippingInfo);
 
     /**
-     * Get order details by id. By default, shipping infomation is included.
+     * Get order details by id. By default, shipping information is included.
      *
      * @param orderId Order ID.
      * @return The order details. NOTE that it doesn't have shipping history.

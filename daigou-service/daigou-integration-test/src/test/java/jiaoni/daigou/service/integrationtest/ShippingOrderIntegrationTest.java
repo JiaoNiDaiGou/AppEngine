@@ -24,10 +24,11 @@ public class ShippingOrderIntegrationTest {
     private static final String KNOWN_CUSTOMER_ID = "ODZ8MTIzNDU2Nzg5MHw0MTk5NDk0NC1jNjJmLTRkZmEtOTVlZi0wMWU4N2QwNTY3NmU=";
 
     @Test
-    public void test_query_nonDelivered_byCustomer() {
+    public void test_query_nonDelivered() {
         PaginatedResults<ShippingOrder> results = apiClient.newTarget()
                 .path("api/shippingOrders/query")
-                .queryParam("customerName", "王海亚")
+                .queryParam("delivered", false)
+                .queryParam("limit", 10)
                 .request()
                 .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
@@ -37,25 +38,10 @@ public class ShippingOrderIntegrationTest {
     }
 
     @Test
-    public void test_query_delivered_byCustomer() {
+    public void test_query_delivered() {
         PaginatedResults<ShippingOrder> results = apiClient.newTarget()
                 .path("api/shippingOrders/query")
-                .queryParam("customerId", "ODZ8MTM0MDgzNTU0NDh85qiK5Lmm5L2Z")
-                .queryParam("includeDelivered", true)
-                .request()
-                .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
-                .get()
-                .readEntity(new GenericType<PaginatedResults<ShippingOrder>>() {
-                });
-        System.out.println(ObjectMapperProvider.prettyToJson(results));
-    }
-
-
-    @Test
-    public void test_query_byStatus() {
-        PaginatedResults<ShippingOrder> results = apiClient.newTarget()
-                .path("api/shippingOrders/query")
-                .queryParam("status", ShippingOrder.Status.CN_POSTMAN_ASSIGNED.name())
+                .queryParam("delivered", true)
                 .request()
                 .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()

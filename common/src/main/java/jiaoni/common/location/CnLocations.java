@@ -1,37 +1,30 @@
 package jiaoni.common.location;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.Resources;
+import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
-import jiaoni.common.utils.DsvParser;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import jiaoni.common.wiremodel.City;
+import jiaoni.common.wiremodel.Region;
+import jiaoni.common.wiremodel.Regions;
+import jiaoni.common.wiremodel.Zone;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CnLocations {
     public static final List<String> ZONE_FLAGS = ImmutableList.of("县", "区", "市", "旗", "州");
 
-    private final DsvParser dsvParser = new DsvParser();
-
-    private final List<CnRegion> regions;
-    private final List<CnCity> cities;
+    private Regions regions;
 
     private CnLocations() {
-        try {
-            regions = loadRegions();
-            List<CnZone> zones = loadZones();
-            cities = loadCities(regions, zones);
-        } catch (IOException e) {
+        try (InputStream inputStream = Resources.getResource("location/locations.json").openStream()) {
+            regions = ObjectMapperProvider.get().readValue(inputStream, Regions.class);
+        } catch (Exception e) {
             throw new InternalIOException(e);
         }
     }
@@ -40,113 +33,83 @@ public class CnLocations {
         return LazyHolder.INSTANCE;
     }
 
-    private List<CnRegion> loadRegions()
-            throws IOException {
-        return dsvParser.parseResource("location/regions.csv", t -> {
-            String name = t.get("name");
-            List<String> alias = Arrays.asList(StringUtils.split(t.get("alias"), ","));
-            return CnRegion.builder()
-                    .withName(name)
-                    .withAlias(alias)
-                    .build();
-        });
-    }
-
-    private List<CnZone> loadZones()
-            throws IOException {
-        return dsvParser.parseResource("location/zones.csv", t -> {
-            String region = t.get("region");
-            String city = t.get("city");
-            String[] zones = StringUtils.split(t.get("zones"), "|");
-            List<CnZone> toReturn = new ArrayList<>();
-
-            for (String zone : zones) {
-                List<String> alias = new ArrayList<>();
-                for (String flag : ZONE_FLAGS) {
-                    if (zone.endsWith(flag)) {
-                        alias.add(zone.substring(0, zone.length() - flag.length()));
-                        break;
-                    }
-                }
-
-                toReturn.add(CnZone.builder()
-                        .withRegionName(region)
-                        .withCityName(city)
-                        .withName(zone)
-                        .withAlias(alias)
-                        .build());
-            }
-            return toReturn;
-        }).stream().flatMap(Collection::stream).collect(Collectors.toList());
-    }
-
-    private List<CnCity> loadCities(final List<CnRegion> regions, final List<CnZone> zones)
-            throws IOException {
-        Map<String, CnRegion> regionsByName = regions
-                .stream()
-                .collect(Collectors.toMap(
-                        CnRegion::getName,
-                        t -> t
-                ));
-        List<CnCity> toReturn = dsvParser.parseResource("location/cities.csv", t -> {
-            String name = t.get("name");
-            Set<String> alias = new HashSet<>();
-            String[] aliasPart = StringUtils.split(t.get("alias"), ",");
-            if (ArrayUtils.isNotEmpty(aliasPart)) {
-                alias.addAll(Arrays.asList(aliasPart));
-            }
-            int flag = name.indexOf("市");
-            if (flag > 0) {
-                alias.add(name.substring(0, flag) + name.substring(flag + 1, name.length()));
-            }
-            CnRegion region = checkNotNull(regionsByName.get(t.get("region")));
-            boolean municipality = name.equals(region.getName());
-
-            List<CnZone> itsZones = zones.stream()
-                    .filter(z -> z.getRegionName().equals(region.getName()) && z.getCityName().equals(name))
-                    .collect(Collectors.toList());
-
-            return CnCity.builder()
-                    .withName(name)
-                    .withRegion(region)
-                    .withZones(itsZones)
-                    .withAlias(new ArrayList<>(alias))
-                    .withMunicipality(municipality)
-                    .build();
-        });
-        toReturn.sort((a, b) -> Integer.compare(a.getName().length(), b.getName().length()) * -1);
-        return toReturn;
-    }
-
-    public List<CnRegion> allRegions() {
+    public Regions getRegions() {
         return regions;
     }
 
-    public List<CnCity> allCities() {
-        return cities;
+    public List<Region> allRegions() {
+        return regions.getRegionsList();
     }
 
-    public List<CnCity> allMunicipalityCities() {
-        return cities.stream().filter(CnCity::isMunicipality).collect(Collectors.toList());
-    }
-
-    public List<CnCity> allNonMunicipalityCities() {
-        return cities.stream().filter(t -> !t.isMunicipality()).collect(Collectors.toList());
-    }
-
-    public List<CnRegion> searchRegion(final String text) {
-        return regions.stream().filter(t -> t.getAllPossibleNames().contains(text)).collect(Collectors.toList());
-    }
-
-    public List<CnCity> searchCity(final String text) {
-        return cities.stream().filter(t -> t.getAllPossibleNames().contains(text)).collect(Collectors.toList());
-    }
-
-    public List<CnCity> searchCity(final CnRegion region, final String text) {
-        return cities.stream()
-                .filter(t -> t.getRegion().equals(region))
-                .filter(t -> t.getAllPossibleNames().contains(text))
+    public List<City> allCities() {
+        return regions.getRegionsList()
+                .stream()
+                .map(Region::getCitiesList)
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+    }
+
+    public List<City> allNonMunicipalityCities() {
+        return regions.getRegionsList()
+                .stream()
+                .map(Region::getCitiesList)
+                .flatMap(Collection::stream)
+                .filter(t -> !t.getMunicipality())
+                .collect(Collectors.toList());
+    }
+
+    public List<Region> searchRegion(final String text) {
+        return regions.getRegionsList()
+                .stream()
+                .filter(t -> t.getName().equals(text) || t.getAliasList().contains(text))
+                .collect(Collectors.toList());
+    }
+
+    public Region getRegionForCity(final City city) {
+        return regions.getRegionsList().stream().filter(t -> t.getName().equals(city.getRegionName())).findFirst().orElse(null);
+    }
+
+    public List<Pair<Region, City>> searchCity(final String text) {
+        List<Pair<Region, City>> toReturn = new ArrayList<>();
+        for (Region region : regions.getRegionsList()) {
+            for (City city : region.getCitiesList()) {
+                if (city.getName().equals(text) || city.getAliasList().contains(text)) {
+                    toReturn.add(Pair.of(region, city));
+                }
+            }
+        }
+        return toReturn;
+    }
+
+    public List<City> searchCity(final Region region, final String text) {
+        return region.getCitiesList()
+                .stream()
+                .filter(t -> t.getName().equals(text) || t.getAliasList().contains(text))
+                .collect(Collectors.toList());
+    }
+
+    public boolean matchAnyName(final Region region, String name) {
+        return region.getName().equals(name) || region.getAliasList().contains(name);
+    }
+
+    public boolean matchAnyName(final City city, String name) {
+        return city.getName().equals(name) || city.getAliasList().contains(name);
+    }
+
+    public boolean matchAnyName(final Zone zone, String name) {
+        return zone.getName().equals(name) || zone.getAliasList().contains(name);
+    }
+
+    public List<String> allPossibleNames(final Region region) {
+        return ImmutableList.<String>builder().add(region.getName()).addAll(region.getAliasList()).build();
+    }
+
+    public List<String> allPossibleNames(final City city) {
+        return ImmutableList.<String>builder().add(city.getName()).addAll(city.getAliasList()).build();
+    }
+
+    public List<String> allPossibleNames(final Zone zone) {
+        return ImmutableList.<String>builder().add(zone.getName()).addAll(zone.getAliasList()).build();
     }
 
     private static class LazyHolder {

@@ -33,7 +33,7 @@ message ShippingOrder {
 
         // The package got delivered.
         // See ShippingEnding.
-        DELIVERED = 6;
+        DELIVERED = 99;
     }
 
     enum ShippingEnding {

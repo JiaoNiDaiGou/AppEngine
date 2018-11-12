@@ -5,7 +5,7 @@ import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
 import jiaoni.daigou.service.appengine.impls.products.ProductHintsFacade;
 import jiaoni.daigou.wiremodel.entity.Product;
-import jiaoni.wiremodel.common.entity.ProductsHints;
+import jiaoni.daigou.wiremodel.entity.ProductHints;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class ProductInterface {
     @GET
     @Path("/hints")
     public Response getProductsHints() {
-        ProductsHints hints = productHintsFacade.loadHints();
+        ProductHints hints = productHintsFacade.loadHints();
         return Response.ok(hints).build();
     }
 }

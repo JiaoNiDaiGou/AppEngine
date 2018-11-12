@@ -305,8 +305,6 @@ public class TeddyClientImpl implements TeddyClient {
                 .request()
                 .callToHtml());
 
-        System.out.println(orderViewPage);
-
         String formattedIdFromPage = getElementTextById(orderViewPage, "lblCNum");
         if (StringUtils.isBlank(formattedIdFromPage)) {
             // No such order

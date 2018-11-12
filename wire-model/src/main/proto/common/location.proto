@@ -1,0 +1,32 @@
+syntax = "proto3";
+package jiaoni.common.wiremodel;
+
+option java_package = "jiaoni.common.wiremodel";
+option java_multiple_files = true;
+
+message Regions {
+    repeated Region regions = 1;
+}
+
+message Region {
+    string name = 1;
+    repeated string alias = 2;
+    repeated City cities = 3;
+}
+
+message City {
+    string name = 1;
+    string region_name = 2;
+    repeated string alias = 3;
+    repeated Zone zones = 4;
+    bool municipality = 5;
+    repeated string postal_codes = 6;
+}
+
+message Zone {
+    string name = 1;
+    string region_name = 2;
+    string city_name = 3;
+    repeated string postal_codes = 4;
+    repeated string alias = 5;
+}

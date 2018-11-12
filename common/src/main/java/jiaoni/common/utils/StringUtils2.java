@@ -3,6 +3,8 @@ package jiaoni.common.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StringUtils2 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StringUtils2.class);
+
     /**
      * Given a list of splits flag, split the string with any flag in it.
      * E.g. multiSplit("111#222$333", "#", "$") will return ["111", "222", "333"]
@@ -261,10 +265,18 @@ public class StringUtils2 {
     }
 
     public static String removeDuplicatedSpaces(final String str) {
-        if (str == null) {
+        if (StringUtils.isBlank(str)) {
             return null;
         }
         return String.join(" ", StringUtils.split(str.trim(), " "));
+    }
+
+    public static String replaceLast(String str, String find, String repl) {
+        int idx = StringUtils.lastIndexOf(str, find);
+        if (idx < 0) {
+            return str;
+        }
+        return str.substring(0, idx) + repl + str.substring(idx + find.length(), str.length());
     }
 
     public enum CharType {

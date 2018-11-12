@@ -1,17 +1,15 @@
 package jiaoni.daigou.service.integrationtest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.ApiClient;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ProductCategory;
+import jiaoni.daigou.wiremodel.entity.ProductHints;
 import org.junit.Test;
 
-import java.util.List;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericType;
 
 import static org.junit.Assert.assertTrue;
 
@@ -38,23 +36,13 @@ public class ProductIntegrationTest {
 
     @Test
     public void testGetProductsHints() {
-        List<MyTriple> hints = apiClient.newTarget()
+        ProductHints hints = apiClient.newTarget()
                 .path("/api/products/hints")
                 .request()
                 .header(ApiClient.CUSTOM_SECRET_HEADER, apiClient.getCustomSecretHeader())
                 .get()
-                .readEntity(new GenericType<List<MyTriple>>() {
-                });
-        assertTrue(hints.size() > 0);
+                .readEntity(ProductHints.class);
+        assertTrue(hints.getHintsList().size() > 0);
         System.out.println(ObjectMapperProvider.prettyToJson(hints));
-    }
-
-    private static class MyTriple {
-        @JsonProperty
-        ProductCategory left;
-        @JsonProperty
-        String middle;
-        @JsonProperty
-        List<String> right;
     }
 }

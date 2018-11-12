@@ -5,6 +5,7 @@ import jiaoni.wiremodel.common.entity.PaginatedResults;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -81,7 +82,12 @@ public abstract class BaseDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public PaginatedResults<T> queryInPagination(DbQuery query, int limit, PageToken pageToken) {
+    public PaginatedResults<T> queryInPagination(@Nullable DbQuery query, int limit, @Nullable PageToken pageToken) {
         return client.queryInPagination(query, limit, pageToken);
+    }
+
+    @Override
+    public PaginatedResults<T> queryInPagination(@Nullable DbQuery query, @Nullable DbSort sort, int limit, @Nullable PageToken pageToken) {
+        return client.queryInPagination(query, sort, limit, pageToken);
     }
 }

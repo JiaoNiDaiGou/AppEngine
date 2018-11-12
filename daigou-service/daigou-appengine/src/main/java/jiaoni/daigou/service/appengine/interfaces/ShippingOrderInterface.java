@@ -1,6 +1,5 @@
 package jiaoni.daigou.service.appengine.interfaces;
 
-import jiaoni.common.appengine.access.db.DbQuery;
 import jiaoni.common.appengine.access.db.PageToken;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
@@ -12,6 +11,7 @@ import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
 import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
 import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
+import jiaoni.daigou.service.appengine.impls.shippingorders.ShippingOrderFacade;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
 import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -42,9 +41,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_CUSTOMER_ID;
-import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_STATUS;
-
 @Path("/api/shippingOrders")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
@@ -56,16 +52,19 @@ public class ShippingOrderInterface {
     private final CustomerFacade customerFacade;
     private final ProductFacade productFacade;
     private final ShippingOrderDbClient shippingOrderDbClient;
+    private final ShippingOrderFacade shippingOrderFacade;
     private final TeddyClient teddyClient;
 
     @Inject
     public ShippingOrderInterface(final CustomerFacade customerFacade,
                                   final ProductFacade productFacade,
                                   final ShippingOrderDbClient shippingOrderDbClient,
+                                  final ShippingOrderFacade shippingOrderFacade,
                                   @Named(TeddyAdmins.BY_ENV) final TeddyClient teddyClient) {
         this.customerFacade = customerFacade;
         this.productFacade = productFacade;
         this.shippingOrderDbClient = shippingOrderDbClient;
+        this.shippingOrderFacade = shippingOrderFacade;
         this.teddyClient = teddyClient;
     }
 
@@ -100,7 +99,7 @@ public class ShippingOrderInterface {
                 .build();
 
         List<ShippingOrder.ProductEntry> productEntries = request.getProductEntriesList();
-        saveProductsIfNecessary(productEntries);
+        productEntries = saveProductsIfNecessary(productEntries);
 
         ShippingOrder shippingOrder = ShippingOrder.newBuilder()
                 .setStatus(status)
@@ -189,46 +188,27 @@ public class ShippingOrderInterface {
     @GET
     @Path("/query")
     public Response query(@QueryParam("customerId") final String customerId,
-                          @QueryParam("delivered") final boolean delivered,
                           @QueryParam("pageToken") final String pageTokenStr,
                           @QueryParam("limit") final int limit) {
         PageToken pageToken = PageToken.fromPageToken(pageTokenStr);
-
-        List<DbQuery> queries = new ArrayList<>();
+        PaginatedResults<ShippingOrder> results;
         if (StringUtils.isNotBlank(customerId)) {
-            queries.add(DbQuery.eq(FIELD_CUSTOMER_ID, customerId));
-        }
-        if (delivered) {
-            queries.add(DbQuery.eq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name()));
+            results = shippingOrderFacade.queryShippingOrdersByCustomerId(customerId, limit, pageToken);
         } else {
-            queries.add(DbQuery.notEq(FIELD_STATUS, ShippingOrder.Status.DELIVERED.name()));
+            results = shippingOrderFacade.queryAll(limit, pageToken);
         }
-        PaginatedResults<ShippingOrder> results = shippingOrderDbClient.queryInPagination(
-                DbQuery.and(queries),
-                limit,
-                pageToken);
         return Response.ok(results).build();
     }
 
-    private void saveProductsIfNecessary(final List<ShippingOrder.ProductEntry> entries) {
-        List<Product> toSave = new ArrayList<>(entries.size());
-        List<Integer> indexToReplace = new ArrayList<>();
-        for (int i = 0; i < entries.size(); i++) {
-            Product product = entries.get(i).getProduct();
+    private List<ShippingOrder.ProductEntry> saveProductsIfNecessary(final List<ShippingOrder.ProductEntry> entries) {
+        List<ShippingOrder.ProductEntry> toReturn = new ArrayList<>();
+        for (ShippingOrder.ProductEntry entry : entries) {
+            Product product = entry.getProduct();
             if (StringUtils.isBlank(product.getId())) {
-                toSave.add(product);
-                indexToReplace.add(i);
+                product = productFacade.create(product);
             }
+            toReturn.add(entry.toBuilder().setProduct(product).build());
         }
-        List<Product> afterSave = productFacade.create(toSave);
-        Iterator<Integer> indexItr = indexToReplace.iterator();
-        for (Product product : afterSave) {
-            int idx = indexItr.next();
-            ShippingOrder.ProductEntry updatedEntry = entries.get(idx)
-                    .toBuilder()
-                    .setProduct(product)
-                    .build();
-            entries.set(idx, updatedEntry);
-        }
+        return toReturn;
     }
 }

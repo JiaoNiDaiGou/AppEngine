@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -198,7 +199,12 @@ public class MemcacheDbClient<T> implements DbClient<T> {
     }
 
     @Override
-    public PaginatedResults<T> queryInPagination(DbQuery query, int limit, PageToken pageToken) {
+    public PaginatedResults<T> queryInPagination(@Nullable DbQuery query, int limit, @Nullable PageToken pageToken) {
+        return queryInPagination(query, null, limit, pageToken);
+    }
+
+    @Override
+    public PaginatedResults<T> queryInPagination(@Nullable DbQuery query, @Nullable DbSort sort, int limit, @Nullable PageToken pageToken) {
         boolean canQueryFromMemcache = canQueryFromMemcache(query);
         if (pageToken != null) {
             if (pageToken.isSourceInMemory() && !canQueryFromMemcache) {
@@ -206,7 +212,7 @@ public class MemcacheDbClient<T> implements DbClient<T> {
             }
         }
         if (!canQueryFromMemcache) {
-            return dbClient.queryInPagination(query, limit, pageToken);
+            return dbClient.queryInPagination(query, sort, limit, pageToken);
         }
 
         List<T> results = scan()

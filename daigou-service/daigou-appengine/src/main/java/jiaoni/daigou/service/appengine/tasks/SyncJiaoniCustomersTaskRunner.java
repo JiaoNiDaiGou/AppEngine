@@ -2,18 +2,18 @@ package jiaoni.daigou.service.appengine.tasks;
 
 import jiaoni.common.appengine.access.email.EmailClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
-import jiaoni.common.location.CnCity;
 import jiaoni.common.location.CnLocations;
-import jiaoni.common.location.CnRegion;
-import jiaoni.common.location.CnZone;
+import jiaoni.common.wiremodel.Address;
+import jiaoni.common.wiremodel.City;
+import jiaoni.common.wiremodel.PhoneNumber;
+import jiaoni.common.wiremodel.Region;
+import jiaoni.common.wiremodel.Zone;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.model.Receiver;
-import jiaoni.common.wiremodel.Address;
-import jiaoni.daigou.wiremodel.entity.Customer;
-import jiaoni.common.wiremodel.PhoneNumber;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
+import jiaoni.daigou.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
@@ -173,20 +173,20 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
     }
 
     private static boolean addAddress(Customer.Builder builder, String region, String city, String zone, String addr) {
-        List<CnRegion> cnRegions = CnLocations.getInstance().searchRegion(region);
+        List<Region> cnRegions = CnLocations.getInstance().searchRegion(region);
         if (cnRegions.size() != 1) {
             return false;
         }
-        CnRegion cnRegion = cnRegions.get(0);
+        Region cnRegion = cnRegions.get(0);
 
-        List<CnCity> cnCities = CnLocations.getInstance().searchCity(cnRegion, city);
+        List<City> cnCities = CnLocations.getInstance().searchCity(cnRegion, city);
         if (cnCities.size() != 1) {
             return false;
         }
-        CnCity cnCity = cnCities.get(0);
+        City cnCity = cnCities.get(0);
 
-        for (CnZone knownZone : cnCity.getZones()) {
-            if (knownZone.getAllPossibleNames().contains(zone)) {
+        for (Zone knownZone : cnCity.getZonesList()) {
+            if (CnLocations.getInstance().matchAnyName(knownZone, zone)) {
                 zone = knownZone.getName();
                 break;
             }

@@ -212,6 +212,11 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     public PaginatedResults<T> queryInPagination(final DbQuery query,
                                                  final int limit,
                                                  final PageToken pageToken) {
+        return queryInPagination(query, null, limit, pageToken);
+    }
+
+    @Override
+    public PaginatedResults<T> queryInPagination(DbQuery query, DbSort sort, int limit, @Nullable PageToken pageToken) {
         meterOn();
 
         Query theQuery = new Query(entityFactory.getKind());
@@ -220,17 +225,18 @@ public class DatastoreDbClient<T> implements DbClient<T> {
             theQuery.setFilter(convertQueryFilter(query));
             inMemoryPredicate = convertInMemoryPredicate(query);
         }
+        if (sort != null) {
+            theQuery.addSort(sort.getField(), convertSortDirection(sort.getDirection()));
+        }
 
-        FetchOptions fetchOptions = FetchOptions.Builder
-                .withDefaults()
-                .limit(limit);
+        FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
         if (pageToken != null) {
             checkState(pageToken.getSource() == PageToken.Source.DATASTORE);
             fetchOptions = fetchOptions.startCursor(Cursor.fromWebSafeString(pageToken.getToken()));
         }
         QueryResultList<Entity> results = service.prepare(theQuery).asQueryResultList(fetchOptions);
 
-        List<T> content = Streams.stream(results.iterator())
+        List<T> content = results.stream()
                 .map(this::toObj)
                 .filter(inMemoryPredicate)
                 .collect(Collectors.toList());
@@ -319,6 +325,17 @@ public class DatastoreDbClient<T> implements DbClient<T> {
                 .stream()
                 .map(this::convertQueryFilter)
                 .collect(Collectors.toList()));
+    }
+
+    private Query.SortDirection convertSortDirection(final DbSort.Direction direction) {
+        switch (direction) {
+            case ASC:
+                return Query.SortDirection.ASCENDING;
+            case DESC:
+                return Query.SortDirection.DESCENDING;
+            default:
+                throw new UnsupportedOperationException("unexpected direction " + direction);
+        }
     }
 
     /**
