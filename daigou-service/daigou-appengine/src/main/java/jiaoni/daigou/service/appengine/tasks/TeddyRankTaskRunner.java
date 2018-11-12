@@ -104,8 +104,6 @@ public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
         }
         List<Map.Entry<String, Long>> ranks = CollectionUtils2.rankDesc(cnt);
 
-        ranks.forEach(t -> System.out.println(t));
-
         int myRank = IntStream.range(0, ranks.size())
                 .filter(t -> JIAO_NI_SENDER_NAME.equalsIgnoreCase(ranks.get(t).getKey()))
                 .findFirst()
