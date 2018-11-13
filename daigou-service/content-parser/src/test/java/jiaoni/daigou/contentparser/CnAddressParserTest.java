@@ -8,6 +8,7 @@ import jiaoni.common.wiremodel.City;
 import jiaoni.common.wiremodel.Region;
 import jiaoni.common.wiremodel.Zone;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class CnAddressParserTest {
      * Use {@link #testParseSingleAddress()} to debug single address.
      */
     @Test
+    @Ignore
     public void testParseKnownAddress() throws Exception {
         List<String> lines = FileUtils.readLinesFromResource("cn_address.dat");
         for (String line : lines) {

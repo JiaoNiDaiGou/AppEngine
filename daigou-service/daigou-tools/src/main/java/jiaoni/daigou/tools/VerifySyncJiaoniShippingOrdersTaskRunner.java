@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 public class VerifySyncJiaoniShippingOrdersTaskRunner {
     public static void main(String[] args) throws Exception {
         try (RemoteApi remoteApi = RemoteApi.login()) {
-            TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
+            TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient(), null);
             ShippingOrderDbClient dbClient = new ShippingOrderDbClient(Env.DEV, remoteApi.getDatastoreService());
 
             dbClient.deleteItems(dbClient.scan().collect(Collectors.toList()));
 
             SyncJiaoniShippingOrdersTaskRunner taskRunner = new SyncJiaoniShippingOrdersTaskRunner(
                     teddyClient,
-                    new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()),
+                    new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient(), null),
                     dbClient,
                     new PopupPageEmailClient(),
                     new ConsoleSmsClient()

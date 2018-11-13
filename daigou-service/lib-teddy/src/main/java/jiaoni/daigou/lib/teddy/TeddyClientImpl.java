@@ -44,6 +44,8 @@ public class TeddyClientImpl implements TeddyClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeddyClientImpl.class);
 
     private static final String BASE_URL = "http://rnbex.us";
+    private static final String LOGIN_GUID_IMAGE_URL = BASE_URL + "/ValidateCode.aspx?GUID=GUID";
+    private static final String LOGIN_URL = BASE_URL + "/logincontent/";
     private static final String INDEX_URL = BASE_URL + "/index.aspx";
     private static final String MEMBER_URL = BASE_URL + "/Member/";
     private static final String MEMBER_RECEIVER_LIST_URL = MEMBER_URL + "ReceiverList.aspx";
@@ -56,16 +58,22 @@ public class TeddyClientImpl implements TeddyClient {
 
     private final Admin admin;
     private final BrowserClient client;
+    private final LoginGuidRecognizer loginGuidRecognizer;
     private final State curState;
 
-    public TeddyClientImpl(final String adminUsername, final BrowserClient client) {
-        this(TeddyAdmins.adminOf(adminUsername), client);
+    public TeddyClientImpl(final String adminUsername,
+                           final BrowserClient client,
+                           final LoginGuidRecognizer loginGuidRecognizer) {
+        this(TeddyAdmins.adminOf(adminUsername), client, loginGuidRecognizer);
     }
 
-    TeddyClientImpl(final Admin admin, final BrowserClient client) {
+    TeddyClientImpl(final Admin admin,
+                    final BrowserClient client,
+                    final LoginGuidRecognizer loginGuidRecognizer) {
         this.client = checkNotNull(client);
         this.admin = admin;
         this.curState = new State();
+        this.loginGuidRecognizer = loginGuidRecognizer;
     }
 
     @Override
@@ -286,6 +294,9 @@ public class TeddyClientImpl implements TeddyClient {
     private List<Product.Category> getCategories(final Document orderAddPage) {
         List<Product.Category> toReturn = new ArrayList<>();
         Element element = orderAddPage.selectFirst("select.LeiBie");
+
+        LOGGER.info("orderAddPage: " + orderAddPage);
+
         for (Element option : element.getElementsByTag("option")) {
             String name = option.val();
             if (StringUtils.isNotBlank(name)) {
@@ -501,6 +512,13 @@ public class TeddyClientImpl implements TeddyClient {
         return null;
     }
 
+    private byte[] getLoginGuidImage() {
+        return client.doGet()
+                .url(LOGIN_GUID_IMAGE_URL)
+                .request()
+                .callToBytes();
+    }
+
     /**
      * Make callAsString with auto login.
      */
@@ -650,25 +668,33 @@ public class TeddyClientImpl implements TeddyClient {
     }
 
     @VisibleForTesting
-    void login() {
+    public void login() {
         LOGGER.info("~~~ LOGIN [{}] ~~~", admin.getLoginUsername());
 
         curState.loggedIn = false;
 
-        // Access home page to get __VIEWSTATE
-        Document page = client.doGet()
-                .url(INDEX_URL)
+        // Go to login page
+        Document loginPage = client.doGet()
+                .url(LOGIN_URL)
                 .request()
                 .callToHtml();
-        String viewState = page.select("#__VIEWSTATE").val();
+
+        String viewState = loginPage.select("#__VIEWSTATE").val();
+        byte[] images = getLoginGuidImage();
+        String guidRecognized = loginGuidRecognizer.recognize(images);
+        if (guidRecognized == null) {
+            throw new RuntimeException("failed to parse login GUId!!!");
+        }
+        LOGGER.info("Login info: viewState={}, recognizedGUID={}, ", viewState, guidRecognized);
 
         // Login
         client.doPost()
-                .url(INDEX_URL)
+                .url(LOGIN_URL)
                 .formBodyParam("__VIEWSTATE", viewState)
                 .formBodyParam("txtEmail", admin.getLoginUsername())
                 .formBodyParam("txtPassword", admin.getLoginPassword())
-                .formBodyParam("btnLogin", "登录")
+                .formBodyParam("CheckCode", guidRecognized)
+                .formBodyParam("btnDl", "登录")
                 .request()
                 .callToString();
 

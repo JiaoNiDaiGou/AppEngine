@@ -11,7 +11,7 @@ import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 
 public class VerifyGetTeddyOrderById {
     public static void main(String[] args) throws Exception {
-        TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
+        TeddyClient teddyClient = new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient(), null);
         Order order = teddyClient.getOrderDetails(128287, true);
         ShippingOrder shippingOrder = TeddyUtils.convertToShippingOrder(order);
         System.out.println(ObjectMapperProvider.get().writerWithDefaultPrettyPrinter().writeValueAsString(shippingOrder));

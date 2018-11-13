@@ -95,4 +95,9 @@ public interface TeddyClient {
      * Load the latest categories.
      */
     List<Product.Category> getCategories();
+
+
+    interface LoginGuidRecognizer {
+        String recognize(byte[] bytes);
+    }
 }

@@ -18,7 +18,7 @@ public class VerifySyncJiaoniCustomersTaskRunner {
                             Env.DEV,
                             remoteApi.getDatastoreService(),
                             remoteApi.getMemcacheService()),
-                    new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient()),
+                    new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient(), null),
                     new PopupPageEmailClient()
             );
 

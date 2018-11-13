@@ -1,5 +1,6 @@
 package jiaoni.daigou.lib.teddy;
 
+import com.google.common.base.Charsets;
 import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.test.MockHttpClient;
 import jiaoni.daigou.lib.teddy.model.Admin;
@@ -28,10 +29,11 @@ public class TeddyClientImplTest {
     @Before
     public void setUp() {
         client = new MockHttpClient();
+        TeddyClient.LoginGuidRecognizer loginGuidRecognizer = bytes -> new String(bytes, Charsets.UTF_8);
         Admin admin = Admin.builder()
                 .withLoginUsername("test-admin")
                 .build();
-        underTest = new TeddyClientImpl(admin, new BrowserClient(client));
+        underTest = new TeddyClientImpl(admin, new BrowserClient(client), loginGuidRecognizer);
     }
 
     @Test
@@ -43,7 +45,7 @@ public class TeddyClientImplTest {
 
     @Test
     public void testAutoLogin() {
-        arrangeClient("ask_login_page", "home_page", "after_login_page");
+        arrangeClient("ask_login_page", "login_page", "after_login_page");
         underTest.login();
         assertTrue(underTest.isLoggedIn());
     }

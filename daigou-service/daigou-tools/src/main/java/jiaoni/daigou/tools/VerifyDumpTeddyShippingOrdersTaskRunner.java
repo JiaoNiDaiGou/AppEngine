@@ -18,7 +18,7 @@ public class VerifyDumpTeddyShippingOrdersTaskRunner {
                 new PopupPageEmailClient(),
                 new LocalFileStorageClient(),
                 LocalStaticTaskClient.instance(),
-                new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()));
+                new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient(), null));
         LocalStaticTaskClient.initialize(runner);
 
         Map<String, Object> obj = ImmutableMap

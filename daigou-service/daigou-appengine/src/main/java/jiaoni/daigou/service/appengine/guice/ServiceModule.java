@@ -37,6 +37,7 @@ import jiaoni.daigou.lib.wx.WxClient;
 import jiaoni.daigou.lib.wx.WxClientImpl;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.teddy.CallAwareTeddyClient;
+import jiaoni.daigou.service.appengine.impls.teddy.GOcrTeddyLoginGuidRecognizer;
 
 import java.io.IOException;
 import javax.inject.Named;
@@ -92,38 +93,38 @@ public class ServiceModule extends AbstractModule {
     @Provides
     @Singleton
     @Named(TeddyAdmins.JIAONI)
-    TeddyClient provideTeddyClientJiaoni(final MemcacheService memcache) {
-        return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient()), memcache);
+    TeddyClient provideTeddyClientJiaoni(final MemcacheService memcache, final GOcrTeddyLoginGuidRecognizer loginGuidRecognizer) {
+        return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient(), loginGuidRecognizer), memcache);
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.HACK)
-    TeddyClient provideTeddyClientHack(final MemcacheService memcache) {
-        return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()), memcache);
+    TeddyClient provideTeddyClientHack(final MemcacheService memcache, final GOcrTeddyLoginGuidRecognizer loginGuidRecognizer) {
+        return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient(), loginGuidRecognizer), memcache);
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.BY_ENV)
-    TeddyClient provideTeddyClientByEnv(final MemcacheService memcache) {
+    TeddyClient provideTeddyClientByEnv(final MemcacheService memcache, final GOcrTeddyLoginGuidRecognizer loginGuidRecognizer) {
         switch (AppEnvs.getEnv()) {
             case PROD:
-                return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient()), memcache);
+                return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient(), loginGuidRecognizer), memcache);
             default:
-                return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient()), memcache);
+                return new CallAwareTeddyClient(new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient(), loginGuidRecognizer), memcache);
         }
     }
 
     @Provides
     @Singleton
     @Named(TeddyAdmins.FOR_WARM_UP)
-    TeddyClient provideTeddyClientForWarmUp(final MemcacheService memcache) {
+    TeddyClient provideTeddyClientForWarmUp(final MemcacheService memcache, final GOcrTeddyLoginGuidRecognizer loginGuidRecognizer) {
         switch (AppEnvs.getEnv()) {
             case PROD:
-                return new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient());
+                return new TeddyClientImpl(TeddyAdmins.JIAONI, new BrowserClient(), loginGuidRecognizer);
             default:
-                return new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient());
+                return new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient(), loginGuidRecognizer);
         }
     }
 
