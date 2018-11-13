@@ -13,6 +13,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class CollectionUtils2 {
+    public static <T> T firstNotNull(T... ts) {
+        if (ts == null || ts.length == 0) {
+            return null;
+        }
+        for (T t : ts) {
+            if (t != null) {
+                return t;
+            }
+        }
+        return null;
+    }
+
     public static String firstNotBlank(String... strs) {
         if (strs == null || strs.length == 0) {
             return null;

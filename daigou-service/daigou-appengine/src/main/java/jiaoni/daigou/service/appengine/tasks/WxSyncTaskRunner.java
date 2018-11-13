@@ -15,7 +15,9 @@ import jiaoni.daigou.lib.wx.model.Message;
 import jiaoni.daigou.lib.wx.model.SyncCheck;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.db.WxWebSessionDbClient;
+import jiaoni.daigou.service.appengine.impls.wx.RichMessage;
 import jiaoni.daigou.service.appengine.impls.wx.WxAggregateMessageHandler;
+import jiaoni.daigou.service.appengine.impls.wx.WxMessageEnricher;
 import jiaoni.daigou.service.appengine.utils.RegistryFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -42,19 +44,22 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
     private final WxWebSessionDbClient dbClient;
     private final Registry registry;
     private final WxAggregateMessageHandler handler;
+    private final WxMessageEnricher messageEnricher;
 
     @Inject
     public WxSyncTaskRunner(final WxWebClient wxClient,
                             final PubSubClient pubSubClient,
                             final EmailClient emailClient,
                             final WxWebSessionDbClient dbClient,
-                            final WxAggregateMessageHandler handler) {
+                            final WxAggregateMessageHandler handler,
+                            final WxMessageEnricher messageEnricher) {
         this.wxClient = wxClient;
         this.pubSubClient = pubSubClient;
         this.emailClient = emailClient;
         this.dbClient = dbClient;
         this.handler = handler;
         this.registry = RegistryFactory.get();
+        this.messageEnricher = messageEnricher;
 
     }
 
@@ -132,7 +137,8 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
 
                     List<Message> messages = wxClient.sync(session);
                     for (Message message : messages) {
-                        handler.handle(session, message);
+                        RichMessage richMessage = messageEnricher.enrich(session, message);
+                        handler.handle(session, richMessage);
                         session.setLastReplyTimestampNow();
                     }
                 }
