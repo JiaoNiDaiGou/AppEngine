@@ -38,7 +38,7 @@ public class TeddyClientImplTest {
 
     @Test
     public void testLogin() {
-        arrangeClient("home_page", "after_login_page");
+        arrangeClient("login_page", "login_guid", "after_login_page");
         underTest.login();
         assertTrue(underTest.isLoggedIn());
     }

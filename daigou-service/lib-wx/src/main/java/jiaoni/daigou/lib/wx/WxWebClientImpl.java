@@ -41,8 +41,8 @@ import static jiaoni.daigou.lib.wx.WxUtils.nowMillisNegateToString;
 import static jiaoni.daigou.lib.wx.WxUtils.nowMillisToString;
 import static jiaoni.daigou.lib.wx.WxUtils.syncKeyToString;
 
-public class WxClientImpl implements WxClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WxClientImpl.class);
+public class WxWebClientImpl implements WxWebClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WxWebClientImpl.class);
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperProvider.get();
     private static final String LOGIN_URL_BASE = "https://login.web.wechat.com";
     private static final String LOGIN_URL_JSLOGIN = LOGIN_URL_BASE + "/jslogin";
@@ -53,7 +53,7 @@ public class WxClientImpl implements WxClient {
 
     private final BrowserClient client;
 
-    public WxClientImpl(final BrowserClient client) {
+    public WxWebClientImpl(final BrowserClient client) {
         this.client = client;
     }
 
@@ -199,10 +199,7 @@ public class WxClientImpl implements WxClient {
         if (response.getBaseResponse().hasError()) {
             throw new WxException("failed to init").withWxBaseResponse(response.getBaseResponse());
         }
-
-        if (response.getUser().getIsOwner() == 1) {
-            session.setMyself(response.getUser());
-        }
+        session.setMyself(response.getUser());
 
         session.setSyncKey(response.getSyncKey());
 

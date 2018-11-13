@@ -182,16 +182,25 @@ public class BrowserClient implements Closeable {
 
     private <T> T execute(final HttpUriRequest request, final HttpEntityHandle<T> handle) {
         try {
-            T toReturn = DEFAULT_RETRIER.call(() -> client.execute(request, responseHandler(handle)));
+            T toReturn = DEFAULT_RETRIER.call(() -> client.execute(request,
+                    responseHandler(request.getMethod(), request.getURI().toString(), handle)));
             return toReturn;
         } catch (Exception e) {
             throw new InternalIOException(e);
         }
     }
 
-    private <T> ResponseHandler<T> responseHandler(final HttpEntityHandle<T> handle) {
+    private <T> ResponseHandler<T> responseHandler(final String verb,
+                                                   final String url,
+                                                   final HttpEntityHandle<T> handle) {
         return response -> {
-            LOGGER.info("Parsing response {}", response.getStatusLine());
+            LOGGER.info("{}: {}. Response {}", verb, url, response.getStatusLine());
+            if (response.getStatusLine().getStatusCode() >= 400) {
+                String errorContent = EntityUtils.toString(response.getEntity());
+                LOGGER.error("{}:{}. Failed. ERROR: {}", verb, url, errorContent);
+                throw new RuntimeException("failed to " + verb + " " + url + ".");
+            }
+
             if (response.getEntity() == null) {
                 return null;
             }

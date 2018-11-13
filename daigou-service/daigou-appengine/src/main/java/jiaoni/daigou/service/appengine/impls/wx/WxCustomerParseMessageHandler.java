@@ -3,7 +3,7 @@ package jiaoni.daigou.service.appengine.impls.wx;
 import com.google.protobuf.ByteString;
 import jiaoni.daigou.contentparser.Conf;
 import jiaoni.daigou.lib.wx.Session;
-import jiaoni.daigou.lib.wx.WxClient;
+import jiaoni.daigou.lib.wx.WxWebClient;
 import jiaoni.daigou.lib.wx.WxReply;
 import jiaoni.daigou.lib.wx.model.Message;
 import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
@@ -20,12 +20,12 @@ import javax.inject.Singleton;
 public class WxCustomerParseMessageHandler implements WxMessageHandler {
     private final ParserFacade parserFacade;
     private final CustomerFacade customerFacade;
-    private final WxClient wxClient;
+    private final WxWebClient wxClient;
 
     @Inject
     public WxCustomerParseMessageHandler(final ParserFacade parserFacade,
                                          final CustomerFacade customerFacade,
-                                         final WxClient wxClient) {
+                                         final WxWebClient wxClient) {
         this.parserFacade = parserFacade;
         this.customerFacade = customerFacade;
         this.wxClient = wxClient;

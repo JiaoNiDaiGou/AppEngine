@@ -10,7 +10,7 @@ import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.utils.Envs;
 import jiaoni.common.utils.TimestampUtils;
 import jiaoni.daigou.lib.wx.Session;
-import jiaoni.daigou.lib.wx.WxClient;
+import jiaoni.daigou.lib.wx.WxWebClient;
 import jiaoni.daigou.lib.wx.model.Message;
 import jiaoni.daigou.lib.wx.model.SyncCheck;
 import jiaoni.daigou.service.appengine.AppEnvs;
@@ -36,7 +36,7 @@ import static jiaoni.daigou.service.appengine.utils.RegistryFactory.Keys.WxSyncT
 public class WxSyncTaskRunner implements Consumer<TaskMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WxSyncTaskRunner.class);
 
-    private final WxClient wxClient;
+    private final WxWebClient wxClient;
     private final PubSubClient pubSubClient;
     private final EmailClient emailClient;
     private final WxWebSessionDbClient dbClient;
@@ -44,7 +44,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
     private final WxAggregateMessageHandler handler;
 
     @Inject
-    public WxSyncTaskRunner(final WxClient wxClient,
+    public WxSyncTaskRunner(final WxWebClient wxClient,
                             final PubSubClient pubSubClient,
                             final EmailClient emailClient,
                             final WxWebSessionDbClient dbClient,
@@ -129,6 +129,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
                     // TODO:
                     // Currently we just handle message one by one
                     // Ideally, we should reply based on context
+
                     List<Message> messages = wxClient.sync(session);
                     for (Message message : messages) {
                         handler.handle(session, message);

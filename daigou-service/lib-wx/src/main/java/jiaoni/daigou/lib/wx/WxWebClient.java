@@ -7,7 +7,7 @@ import jiaoni.daigou.lib.wx.model.SyncCheck;
 import java.io.OutputStream;
 import java.util.List;
 
-public interface WxClient {
+public interface WxWebClient {
 
     /**
      * Fetches an UUID for login use.

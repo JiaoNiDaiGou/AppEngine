@@ -4,8 +4,8 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import jiaoni.common.httpclient.BrowserClient;
 import jiaoni.common.utils.Envs;
 import jiaoni.daigou.lib.wx.Session;
-import jiaoni.daigou.lib.wx.WxClient;
-import jiaoni.daigou.lib.wx.WxClientImpl;
+import jiaoni.daigou.lib.wx.WxWebClient;
+import jiaoni.daigou.lib.wx.WxWebClientImpl;
 import jiaoni.daigou.lib.wx.WxSyncer;
 import jiaoni.daigou.lib.wx.model.Contact;
 import jiaoni.daigou.lib.wx.model.LoginAnswer;
@@ -24,7 +24,7 @@ public class VerifyWx {
         // Login
         //
         String qrFile = Envs.getLocalTmpDir() + "wxqr.png";
-        WxClient client = new WxClientImpl(new BrowserClient());
+        WxWebClient client = new WxWebClientImpl(new BrowserClient());
         String uuid = client.fetchLoginUuid();
         try (FileOutputStream outputStream = new FileOutputStream(new File(qrFile))) {
             client.outputQrCode(uuid, outputStream);

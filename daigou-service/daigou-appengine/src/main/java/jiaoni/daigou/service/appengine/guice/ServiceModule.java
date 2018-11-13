@@ -33,8 +33,8 @@ import jiaoni.daigou.contentparser.CnPeopleNameParser;
 import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.lib.teddy.TeddyClientImpl;
-import jiaoni.daigou.lib.wx.WxClient;
-import jiaoni.daigou.lib.wx.WxClientImpl;
+import jiaoni.daigou.lib.wx.WxWebClient;
+import jiaoni.daigou.lib.wx.WxWebClientImpl;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.teddy.CallAwareTeddyClient;
 import jiaoni.daigou.service.appengine.impls.teddy.GOcrTeddyLoginGuidRecognizer;
@@ -146,7 +146,7 @@ public class ServiceModule extends AbstractModule {
 
     @Provides
     @Singleton
-    WxClient provideWxClient() {
-        return new WxClientImpl(new BrowserClient());
+    WxWebClient provideWxClient() {
+        return new WxWebClientImpl(new BrowserClient());
     }
 }

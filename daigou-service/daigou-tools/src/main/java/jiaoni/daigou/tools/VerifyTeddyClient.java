@@ -26,8 +26,8 @@ public class VerifyTeddyClient {
         GOcrTeddyLoginGuidRecognizer loginGuidRecognizer = new GOcrTeddyLoginGuidRecognizer(ocrClient);
         TeddyClientImpl client = new TeddyClientImpl(TeddyAdmins.HACK, new BrowserClient(), loginGuidRecognizer);
 
-        List<Product.Category> categories = client.getCategories();
-        System.out.println(categories);
+//        List<Product.Category> categories = client.getCategories();
+//        System.out.println(categories);
 
         Receiver receiver = Receiver.builder()
                 .withName("王大毛")

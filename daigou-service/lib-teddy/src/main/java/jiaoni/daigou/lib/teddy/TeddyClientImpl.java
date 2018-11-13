@@ -295,8 +295,6 @@ public class TeddyClientImpl implements TeddyClient {
         List<Product.Category> toReturn = new ArrayList<>();
         Element element = orderAddPage.selectFirst("select.LeiBie");
 
-        LOGGER.info("orderAddPage: " + orderAddPage);
-
         for (Element option : element.getElementsByTag("option")) {
             String name = option.val();
             if (StringUtils.isNotBlank(name)) {
@@ -592,6 +590,18 @@ public class TeddyClientImpl implements TeddyClient {
      */
     @VisibleForTesting
     static boolean loginExpired(final Document doc) {
+        // Sample expired page:
+        // <html>
+        //  <head>
+        //      <title>Object moved</title>
+        // </head>
+        // <body>
+        //  <h2>Object moved to <a href="/logincontent/">here</a>.</h2>
+        // </body>
+        // </html>
+        if (doc.toString().contains("Object moved to <a href=\"/logincontent/\">here</a>.")) {
+            return true;
+        }
         if (StringUtils.startsWith(doc.select("html body h2 a").attr("href"), "/sessionOut.aspx")) {
             return true;
         }

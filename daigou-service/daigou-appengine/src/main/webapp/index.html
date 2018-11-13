@@ -1,7 +1,78 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head></head>
+
+<head>
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.js"
+            integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+            crossorigin="anonymous"></script>
+    <script lang="javascript">
+        const BASE_URL = "/wx/web/";
+
+        function startLogin() {
+            log("Start Wechat Login!");
+            $.ajax({
+                url: BASE_URL + "startLogin",
+                success: uuid => {
+                    log("UUID: " + uuid);
+                    fetchQR(uuid);
+                }
+            });
+        }
+
+        function fetchQR(uuid) {
+            log("Fetcching QR code");
+            $('#qrimg').attr('src', BASE_URL + "fetchQR?uuid=" + uuid);
+            setTimeout(askLogin, 3000, uuid);
+        }
+
+        function askLogin(uuid) {
+            log("Ask Login for " + uuid);
+            $.ajax({
+                url: BASE_URL + "askLogin?uuid=" + uuid,
+                success: t => {
+                    log("Login status: " + t);
+                    if ("SUCCESS" === t) {
+                        log("Login SUCCESS!");
+                        $('#qrimg').attr('src', 'logged_in.png');
+                    } else {
+                        setTimeout(askLogin, 3000, uuid);
+                    }
+                },
+                error: t => {
+                    log("AskLogin ERROR: " + JSON.stringify(t));
+                    setTimeout(askLogin, 3000, uuid);
+                }
+            });
+        }
+
+        function log(message) {
+            var html = $("#logger").html();
+            $("#logger").html(html + "<br /> ---- <br />" + message);
+        }
+
+
+    </script>
+    <style>
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+    </style>
+</head>
+
 <body>
-    service is up!
+<button class="button" onclick="startLogin()" id="btn">Start Login</button>
+<img id="qrimg"/>
+<div id="logger"></div>
 </body>
+
 </html>

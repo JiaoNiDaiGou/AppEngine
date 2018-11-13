@@ -15,12 +15,12 @@ import static org.mockito.Mockito.spy;
 @Ignore
 public class WxClientImplTest {
     private MockHttpClient client;
-    private WxClientImpl underTest;
+    private WxWebClientImpl underTest;
 
     @Before
     public void setUp() {
         client = spy(new MockHttpClient());
-        underTest = new WxClientImpl(new BrowserClient(client));
+        underTest = new WxWebClientImpl(new BrowserClient(client));
     }
 
     @Test

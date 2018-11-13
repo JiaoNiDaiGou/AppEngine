@@ -3,13 +3,21 @@ package jiaoni.daigou.service.appengine.interfaces;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import jiaoni.common.appengine.access.taskqueue.PubSubClient;
+import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.appengine.auth.WxSessionDbClient;
 import jiaoni.common.appengine.auth.WxSessionTicket;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.utils.Secrets;
+import jiaoni.daigou.lib.wx.Session;
+import jiaoni.daigou.lib.wx.WxWebClient;
+import jiaoni.daigou.lib.wx.model.LoginAnswer;
+import jiaoni.daigou.lib.wx.model.LoginStatus;
 import jiaoni.daigou.service.appengine.AppEnvs;
+import jiaoni.daigou.service.appengine.impls.db.WxWebSessionDbClient;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
+import jiaoni.daigou.service.appengine.tasks.WxSyncTaskRunner;
 import jiaoni.daigou.wiremodel.api.WxLoginRequest;
 import jiaoni.daigou.wiremodel.api.WxLoginResponse;
 import org.apache.http.HttpResponse;
@@ -26,13 +34,16 @@ import java.util.Map;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import static jiaoni.common.appengine.auth.WxSessionTicket.DEFAULT_EXPIRATION_MILLIS;
 
@@ -43,10 +54,18 @@ import static jiaoni.common.appengine.auth.WxSessionTicket.DEFAULT_EXPIRATION_MI
 public class WxLoginInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(WxLoginInterface.class);
 
+    // Mini Program
     private final WxSessionDbClient dbClient;
     private final Map<String, WxAppInfo> wxAppInfos;
+
+    // Web WX
+    private final WxWebClient wxWebClient;
+    private final WxWebSessionDbClient wxWebSessionDbClient;
+
     private final HttpClient httpClient;
     private final TeddyWarmUp teddyWarmUp;
+    private final PubSubClient pubSubClient;
+
 
     private static class WxAppInfo {
         @JsonProperty
@@ -57,13 +76,19 @@ public class WxLoginInterface {
 
     @Inject
     public WxLoginInterface(final WxSessionDbClient dbClient,
-                            final TeddyWarmUp teddyWarmUp) {
+                            final TeddyWarmUp teddyWarmUp,
+                            final WxWebClient wxWebClient,
+                            final WxWebSessionDbClient wxWebSessionDbClient,
+                            final PubSubClient pubSubClient) {
         this.dbClient = dbClient;
         this.wxAppInfos = Secrets.of("wx.appinfo.json")
                 .getAsJson(new TypeReference<Map<String, WxAppInfo>>() {
                 });
         this.httpClient = HttpClientBuilder.create().build();
         this.teddyWarmUp = teddyWarmUp;
+        this.wxWebClient = wxWebClient;
+        this.wxWebSessionDbClient = wxWebSessionDbClient;
+        this.pubSubClient = pubSubClient;
     }
 
     @POST
@@ -117,5 +142,49 @@ public class WxLoginInterface {
                 .build();
         LOGGER.info("Wx.jscode2session result: {}", ticket);
         return ticket;
+    }
+
+    @GET
+    @Path("/web/askLogin")
+    public Response askLogin(@QueryParam("uuid") final String uuid) {
+        RequestValidator.validateNotBlank(uuid);
+
+        LoginAnswer loginAnswer = wxWebClient.askLogin(uuid);
+        if (loginAnswer.getStatus() == LoginStatus.SUCCESS) {
+            Session session = loginAnswer.getSession();
+            wxWebClient.initialize(session);
+            wxWebClient.statusNotify(session);
+            session.setLastReplyTimestampNow();
+            wxWebSessionDbClient.put(session);
+
+            LOGGER.info("start WX web task");
+            pubSubClient.submit(PubSubClient.QueueName.HIGH_FREQUENCY,
+                    TaskMessage.builder()
+                            .withHandler(WxSyncTaskRunner.class)
+                            .withPayloadJson(new WxSyncTaskRunner.WxSyncTicket(session.getSessionId(), 0))
+                            .build());
+        }
+
+        return Response.ok(loginAnswer.getStatus()).build();
+    }
+
+    @GET
+    @Path("/web/startLogin")
+    public Response login() {
+        String uuid = wxWebClient.fetchLoginUuid();
+        return Response.ok(uuid).build();
+    }
+
+    @GET
+    @Path("/web/fetchQR")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response fetchQr(@QueryParam("uuid") final String uuid) {
+        RequestValidator.validateNotBlank(uuid);
+
+        StreamingOutput stream = output -> wxWebClient.outputQrCode(uuid, output);
+
+        return Response.ok(stream, MediaType.APPLICATION_OCTET_STREAM_TYPE)
+                .header("content-disposition", "attachment; filename = qrcode.png")
+                .build();
     }
 }

@@ -9,13 +9,13 @@ import java.util.concurrent.TimeUnit;
 
 public class WxSyncer implements Runnable {
     private final Session session;
-    private final WxClient client;
+    private final WxWebClient client;
     private final BlockingQueue<Message> messages;
     private int count = 0;
     private volatile boolean keepLive;
 
     public WxSyncer(final Session session,
-                    final WxClient client,
+                    final WxWebClient client,
                     final BlockingQueue<Message> messages) {
         this.session = session;
         this.client = client;
