@@ -1,5 +1,7 @@
 package jiaoni.daigou.service.appengine.tasks;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import jiaoni.common.appengine.access.email.EmailClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.location.CnLocations;
@@ -15,15 +17,12 @@ import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -56,10 +55,9 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
 
         LOGGER.info("task message: {}", taskMessage);
 
-        // Pair[name, phone]
-        Map<Pair<String, String>, Customer> existingCustomers = new HashMap<>();
-        customerDbClient.scan().forEach(t ->
-                existingCustomers.put(Pair.of(t.getName(), t.getPhone().getPhone()), t));
+        // Table [ name, phone, customer ]
+        Table<String, String, Customer> existingCustomers = HashBasedTable.create();
+        customerDbClient.scan().forEach(t -> existingCustomers.put(t.getName(), t.getPhone().getPhone(), t));
 
         // A list of customer to update to DB.
         List<Customer> toUpdate = new ArrayList<>();
@@ -70,6 +68,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
                 .append("\n\n")
                 .append("Sync receivers:")
                 .append("\n\n");
+
         for (int i = 1; i <= MAX_PAGES_TO_LOAD_FROM_TEDDY; i++) {
             logger.append("Page ").append(i).append(": start\n");
             List<Receiver> receivers = teddyClient.getReceivers(i);
@@ -110,7 +109,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
      * Get customers to update by checking existing customers.
      */
     private static List<Customer> getCustomersToUpdate(final StringBuilder logger,
-                                                       final Map<Pair<String, String>, Customer> existingCustomers,
+                                                       final Table<String, String, Customer> existingCustomers,
                                                        final List<Receiver> newReceivers) {
         List<Customer> toReturn = new ArrayList<>();
 
@@ -125,14 +124,14 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
     }
 
     private static Customer getCustomerToUpdate(final StringBuilder logger,
-                                                final Map<Pair<String, String>, Customer> existingCustomers,
+                                                final Table<String, String, Customer> existingCustomers,
                                                 final Receiver receiver) {
         String name = receiver.getName();
         String phone = receiver.getPhone();
         String userId = receiver.getUserId();
-        Pair<String, String> key = Pair.of(name, phone);
 
-        Customer existingCustomer = existingCustomers.get(key);
+        Customer existingCustomer = existingCustomers.get(name, phone);
+
         Customer.Builder builder = existingCustomer == null ? newCustomer(userId, name) : existingCustomer.toBuilder();
 
         addIdCard(builder, receiver.getIdCardNumber());
@@ -155,7 +154,7 @@ public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
         if (newCustomer.equals(existingCustomer)) {
             return null; // no need to change.
         }
-        existingCustomers.put(key, newCustomer);
+        existingCustomers.put(name, phone, newCustomer);
         return newCustomer;
     }
 

@@ -6,8 +6,8 @@ public interface PubSubClient {
     void submit(final QueueName name, final long countdownMills, final TaskMessage taskMessage);
 
     enum QueueName {
-        HIGH_FREQUENCY,
-        LOW_FREQUENCY;
+        PROD_QUEUE,
+        DEV_QUEUE;
 
         public String queueName() {
             return name().toLowerCase().replace('_', '-');

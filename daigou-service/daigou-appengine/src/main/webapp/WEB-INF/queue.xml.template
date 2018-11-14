@@ -18,4 +18,12 @@ Here is a queue that will be present.
         <target>prod-dot-daigou</target>
         <bucket-size>100</bucket-size>
     </queue>
+
+    <queue>
+        <name>dev-queue</name>
+        <rate>10/s</rate>
+        <target>dev-dot-daigou</target>
+        <bucket-size>100</bucket-size>
+    </queue>
+
 </queue-entries>

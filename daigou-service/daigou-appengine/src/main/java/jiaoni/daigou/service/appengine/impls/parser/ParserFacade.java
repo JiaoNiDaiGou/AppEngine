@@ -8,7 +8,6 @@ import jiaoni.daigou.contentparser.Answers;
 import jiaoni.daigou.contentparser.CnAddressParser;
 import jiaoni.daigou.contentparser.Conf;
 import jiaoni.daigou.contentparser.Parser;
-import jiaoni.daigou.service.appengine.impls.db.DbEnhancedCustomerParser;
 import jiaoni.daigou.wiremodel.api.ParseRequest;
 import jiaoni.daigou.wiremodel.api.ParseResponse;
 import jiaoni.daigou.wiremodel.api.ParsedObject;

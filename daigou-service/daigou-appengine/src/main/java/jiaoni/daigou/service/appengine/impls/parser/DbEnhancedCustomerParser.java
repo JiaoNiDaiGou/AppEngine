@@ -1,10 +1,11 @@
-package jiaoni.daigou.service.appengine.impls.db;
+package jiaoni.daigou.service.appengine.impls.parser;
 
 import jiaoni.daigou.contentparser.Answer;
 import jiaoni.daigou.contentparser.Answers;
 import jiaoni.daigou.contentparser.CnCustomerContactParser;
 import jiaoni.daigou.contentparser.Conf;
 import jiaoni.daigou.contentparser.Parser;
+import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
 

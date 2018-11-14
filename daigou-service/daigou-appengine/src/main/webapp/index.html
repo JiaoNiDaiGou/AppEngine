@@ -7,21 +7,22 @@
             integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
             crossorigin="anonymous"></script>
     <script lang="javascript">
-        const BASE_URL = "/api/wx/web/";
+        const BASE_URL = "https://dev-dot-daigou-dot-fluid-crane-200921.appspot.com/api/wx/web/";
 
         function startLogin() {
             log("Start Wechat Login!");
             $.ajax({
                 url: BASE_URL + "startLogin",
+                dataType: "text",
                 success: uuid => {
-                    log("UUID: " + uuid);
-                    fetchQR(uuid);
+                    log('UUID: ' + uuid)
+                    fetchQR(uuid)
                 }
             });
         }
 
         function fetchQR(uuid) {
-            log("Fetcching QR code");
+            log("Fetching QR code");
             $('#qrimg').attr('src', BASE_URL + "fetchQR?uuid=" + uuid);
             setTimeout(askLogin, 3000, uuid);
         }
@@ -30,6 +31,7 @@
             log("Ask Login for " + uuid);
             $.ajax({
                 url: BASE_URL + "askLogin?uuid=" + uuid,
+                dataType: "text",
                 success: t => {
                     log("Login status: " + t);
                     if ("SUCCESS" === t) {
@@ -52,6 +54,9 @@
         }
 
 
+
+
+
     </script>
     <style>
 .button {
@@ -66,6 +71,9 @@
     margin: 4px 2px;
     cursor: pointer;
 }
+
+
+
     </style>
 </head>
 

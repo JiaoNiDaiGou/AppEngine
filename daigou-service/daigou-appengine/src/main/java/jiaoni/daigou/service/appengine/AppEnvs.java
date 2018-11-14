@@ -43,6 +43,10 @@ public class AppEnvs extends Envs {
         return ENV;
     }
 
+    public static boolean isProd() {
+        return getEnv() == Env.PROD;
+    }
+
     private static Env determineEnv() {
         if (ApiProxy.getCurrentEnvironment() == null) {
             return Env.LOCAL;

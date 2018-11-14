@@ -158,7 +158,7 @@ public class WxLoginInterface {
             wxWebSessionDbClient.put(session);
 
             LOGGER.info("start WX web task");
-            pubSubClient.submit(PubSubClient.QueueName.HIGH_FREQUENCY,
+            pubSubClient.submit(PubSubClient.QueueName.PROD_QUEUE,
                     TaskMessage.builder()
                             .withHandler(WxSyncTaskRunner.class)
                             .withPayloadJson(new WxSyncTaskRunner.WxSyncTicket(session.getSessionId(), 0))

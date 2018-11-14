@@ -50,7 +50,7 @@ public class WxWebSessionDbClient extends BaseDbClient<Session> {
 
         @Override
         public KeyType getKeyType() {
-            return KeyType.LONG_ID;
+            return KeyType.STRING_NAME;
         }
 
         @Override

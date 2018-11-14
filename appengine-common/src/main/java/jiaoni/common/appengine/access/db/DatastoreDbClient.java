@@ -21,6 +21,8 @@ import jiaoni.common.appengine.access.db.DbQuery.SimpleQuery;
 import jiaoni.wiremodel.common.entity.PaginatedResults;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +52,8 @@ import static jiaoni.common.utils.LocalMeter.meterOn;
  * @param <T> Type of entity
  */
 public class DatastoreDbClient<T> implements DbClient<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatastoreDbClient.class);
+
     private static final String KEY_PROP = "__key__";
 
     private final DatastoreEntityFactory<T> entityFactory;
@@ -161,12 +165,17 @@ public class DatastoreDbClient<T> implements DbClient<T> {
 
     @Override
     public void delete(final List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+
         ids.forEach(t -> checkState(StringUtils.isNotBlank(t)));
         meterOn();
 
         List<Key> keys = ids.stream()
                 .map(this::buildKey)
                 .collect(Collectors.toList());
+        LOGGER.info("delete ids: {}", ids);
         service.delete(keys);
 
         meterOff();

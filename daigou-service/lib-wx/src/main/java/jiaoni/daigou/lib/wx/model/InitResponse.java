@@ -2,6 +2,7 @@ package jiaoni.daigou.lib.wx.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
 
@@ -106,5 +107,10 @@ public class InitResponse {
 
     public long getClickReportInterval() {
         return clickReportInterval;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

@@ -5,12 +5,9 @@ import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
-import jiaoni.daigou.service.appengine.tasks.AdminReportTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.TeddyRankTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.WxSyncTaskRunner;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -41,21 +38,15 @@ public class TaskQueueInterface {
 
     @Inject
     public TaskQueueInterface(final SyncJiaoniCustomersTaskRunner syncJiaoniCustomersTaskRunner,
-                              final DumpTeddyShippingOrdersTaskRunner dumpJiaoniShippingOrderTaskRunner,
                               final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
                               final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
-                              final AdminReportTaskRunner notifyFeedbackTaskRunner,
                               final TeddyWarmUp teddyWarmUp,
-                              final TeddyRankTaskRunner teddyRankTaskRunner,
                               final WxSyncTaskRunner wxSyncTaskRunner) {
         this.consumers = buildConsumerMap(Arrays.asList(
                 syncJiaoniCustomersTaskRunner,
-                dumpJiaoniShippingOrderTaskRunner,
                 syncJiaoniShippingOrdersTaskRunner,
                 buildProductHintsTaskRunner,
-                notifyFeedbackTaskRunner,
                 teddyWarmUp,
-                teddyRankTaskRunner,
                 wxSyncTaskRunner
         ));
         LOGGER.info("Register following Tasks: {}", consumers.keySet());

@@ -28,6 +28,8 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// Teddy is no longer working
+@Deprecated
 @Singleton
 public class TeddyRankTaskRunner implements Consumer<TaskMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeddyRankTaskRunner.class);

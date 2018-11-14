@@ -41,7 +41,10 @@ import javax.inject.Named;
 
 /**
  * What other people send.
+ *
+ * @deprecated this is no longer working as Teddy block our call.
  */
+@Deprecated
 public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> {
     private static final String DUMP_DIR = AppEnvs.Dir.SHIPPING_ORDERS_DUMP;
     private static final String ARCHIEVE_DIR = AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE;
@@ -202,7 +205,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
         if (hasNext) {
             LOGGER.info("Arrange next task with order id {}", message.id);
             pubSubClient.submit(
-                    TaskQueueClient.QueueName.HIGH_FREQUENCY,
+                    TaskQueueClient.QueueName.PROD_QUEUE,
                     taskMessage.toBuilder()
                             .withPayloadJson(message)
                             .increaseReachCount()
@@ -224,7 +227,7 @@ public class DumpTeddyShippingOrdersTaskRunner implements Consumer<TaskMessage> 
 
             // In the end, kick off rank task
             LOGGER.info("Schedule Teddy Rank task");
-            pubSubClient.submit(PubSubClient.QueueName.HIGH_FREQUENCY,
+            pubSubClient.submit(PubSubClient.QueueName.PROD_QUEUE,
                     TaskMessage.newEmptyMessage(TeddyRankTaskRunner.class));
         }
     }

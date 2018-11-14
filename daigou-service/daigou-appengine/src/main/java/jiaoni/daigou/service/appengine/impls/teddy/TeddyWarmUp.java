@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.HIGH_FREQUENCY;
+import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.PROD_QUEUE;
 import static jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils.LAST_CALL_TS_MEMCACHE_KEY;
 import static jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils.LAST_WARM_UP_TS_MEMCACHE_KEY;
 
@@ -54,7 +54,7 @@ public class TeddyWarmUp implements Consumer<TaskMessage> {
         if (lastWarmup == null || now.minus(COLD_TIME).isAfter(lastWarmup)) {
             // No call before, start warm up
             LOGGER.info("WarmUp Teddy!");
-            pubSubClient.submit(HIGH_FREQUENCY,
+            pubSubClient.submit(PROD_QUEUE,
                     TaskMessage.newEmptyMessage(TeddyWarmUp.class));
         }
     }
@@ -81,7 +81,7 @@ public class TeddyWarmUp implements Consumer<TaskMessage> {
         }
         if (nextWarmupCountdownSec > 0) {
             LOGGER.info("Schedule next Teddy warm up in {} seconds", nextWarmupCountdownSec);
-            pubSubClient.submit(HIGH_FREQUENCY,
+            pubSubClient.submit(PROD_QUEUE,
                     nextWarmupCountdownSec,
                     taskMessage.toBuilder().increaseReachCount().build());
         }

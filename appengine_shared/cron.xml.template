@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
 
-<!--
-
     <cron>
         <url>/cron/syncJiaoniCustomers</url>
         <description>Sync JiaoNiDaiGou customers</description>
@@ -11,6 +9,7 @@
         <timezone>America/Los_Angeles</timezone>
     </cron>
 
+<!--
     <cron>
         <url>/cron/dumpTeddyShippingOrders?limit=10</url>
         <description>Teddy full shipping orders dump</description>

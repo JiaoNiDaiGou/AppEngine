@@ -31,6 +31,8 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.DEV_QUEUE;
+import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.PROD_QUEUE;
 import static jiaoni.daigou.service.appengine.utils.RegistryFactory.Keys.WxSyncTaskRunner_ALLOW_NEXT_TASK;
 import static jiaoni.daigou.service.appengine.utils.RegistryFactory.Keys.WxSyncTaskRunner_RUN_FOREVER;
 
@@ -169,8 +171,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
                 dbClient.put(session);
 
                 LOGGER.info("Schedule next WxSyncTask");
-                pubSubClient.submit(
-                        PubSubClient.QueueName.HIGH_FREQUENCY,
+                pubSubClient.submit(AppEnvs.isProd() ? PROD_QUEUE : DEV_QUEUE,
                         task.toBuilder().increaseReachCount().build()
                 );
                 return;

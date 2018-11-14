@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class TeddyUtils {
-    public static final String LAST_WARM_UP_TS_MEMCACHE_KEY = "Teddy.lastwarmup";
-    public static final String LAST_CALL_TS_MEMCACHE_KEY = "Teddy.lastcall";
+    static final String LAST_WARM_UP_TS_MEMCACHE_KEY = "Teddy.lastwarmup";
+    static final String LAST_CALL_TS_MEMCACHE_KEY = "Teddy.lastcall";
 
     private static Set<String> KNOWN_SHIPPING_CARRIERS = ImmutableSet.of("邮政平邮", "圆通速递", "邮政包裹");
 
@@ -220,7 +220,7 @@ public class TeddyUtils {
                 .collect(Collectors.toList());
     }
 
-    public static jiaoni.daigou.lib.teddy.model.Product convertToTeddyProduct(
+    private static jiaoni.daigou.lib.teddy.model.Product convertToTeddyProduct(
             final ShippingOrder.ProductEntry productEntry) {
         return jiaoni.daigou.lib.teddy.model.Product.builder()
                 .withBrand(productEntry.getProduct().getBrand())
@@ -231,7 +231,7 @@ public class TeddyUtils {
                 .build();
     }
 
-    public static jiaoni.daigou.lib.teddy.model.Product.Category convertToTeddyProductCategory(
+    private static jiaoni.daigou.lib.teddy.model.Product.Category convertToTeddyProductCategory(
             final ProductCategory category) {
         switch (category) {
             case BAGS:

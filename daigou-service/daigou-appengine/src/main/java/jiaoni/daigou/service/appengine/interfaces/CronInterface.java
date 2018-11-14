@@ -3,9 +3,7 @@ package jiaoni.daigou.service.appengine.interfaces;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
 import jiaoni.common.appengine.auth.Roles;
-import jiaoni.daigou.service.appengine.tasks.AdminReportTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.DumpTeddyShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import org.jvnet.hk2.annotations.Service;
@@ -18,11 +16,10 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.HIGH_FREQUENCY;
+import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.PROD_QUEUE;
 
 @Path("/cron")
 @Produces(MediaType.APPLICATION_JSON)
@@ -36,21 +33,6 @@ public class CronInterface {
     @Inject
     public CronInterface(final TaskQueueClient taskQueueClient) {
         this.taskQueueClient = taskQueueClient;
-    }
-
-    @Path("/dumpTeddyShippingOrders")
-    @GET
-    public Response dumpTeddyShippingOrders(@QueryParam("id") final long id,
-                                            @QueryParam("limit") final int limit,
-                                            @QueryParam("backward") final boolean backward) {
-        taskQueueClient.submit(
-                HIGH_FREQUENCY,
-                TaskMessage.builder()
-                        .withHandler(DumpTeddyShippingOrdersTaskRunner.class)
-                        .withPayloadJson(new DumpTeddyShippingOrdersTaskRunner.Message(id, limit, backward))
-                        .build()
-        );
-        return Response.ok().build();
     }
 
     @Path("/syncJiaoniCustomers")
@@ -71,15 +53,9 @@ public class CronInterface {
         return sendEmptyTaskMessage(BuildProductHintsTaskRunner.class);
     }
 
-    @Path("/notifyFeedback")
-    @GET
-    public Response buildNotifyFeedback() {
-        return sendEmptyTaskMessage(AdminReportTaskRunner.class);
-    }
-
     private Response sendEmptyTaskMessage(final Class<? extends Consumer<TaskMessage>> handleType) {
         taskQueueClient.submit(
-                HIGH_FREQUENCY,
+                PROD_QUEUE,
                 TaskMessage.builder()
                         .withHandler(handleType)
                         .build()

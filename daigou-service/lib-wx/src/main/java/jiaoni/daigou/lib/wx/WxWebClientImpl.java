@@ -197,6 +197,7 @@ public class WxWebClientImpl implements WxWebClient {
                 .callToJson(InitResponse.class);
 
         if (response.getBaseResponse().hasError()) {
+            LOGGER.error("init wx error: " + response.getBaseResponse() + ", init response: " + response);
             throw new WxException("failed to init").withWxBaseResponse(response.getBaseResponse());
         }
         session.setMyself(response.getUser());
