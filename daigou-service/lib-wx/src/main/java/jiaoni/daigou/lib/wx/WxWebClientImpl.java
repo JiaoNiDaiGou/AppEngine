@@ -80,8 +80,9 @@ public class WxWebClientImpl implements WxWebClient {
         StringResponse response = StringResponse.responseOf(client.doGet()
                 .url(LOGIN_URL_JSLOGIN)
                 .pathParam("appid", "wx782c26e4c19acffb")
-                .pathParam("fun", "new")
+                .pathParam("redirect_uri", "https://web.wechat.com/cgi-bin/mmwebwx-bin/webwxnewloginpage")
                 .pathParam("lang", LANG_ZH_CN)
+                .pathParam("fun", "new")
                 .pathParam("_", nowMillisToString())
                 .redirect(true)
                 .request()
@@ -488,6 +489,52 @@ public class WxWebClientImpl implements WxWebClient {
                 .callToString();
 
         System.out.println(response);
+    }
+
+    /**
+     * Example request:
+     * Request URL: https://web.wechat.com/cgi-bin/mmwebwx-bin/webwxstatreport?fun=new
+     * Request Method: POST
+     * <p>
+     * Headers:
+     * Accept: application/json, text/plain, * / *
+     * Accept-Encoding: gzip, deflate, br
+     * Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
+     * Connection: keep-alive
+     * Content-Length: 1010
+     * Content-Type: application/json;charset=UTF-8
+     * Cookie: MM_WX_NOTIFY_STATE=1; MM_WX_SOUND_STATE=1; _ga=GA1.2.404212324.1542000888; webwxuvid=6ca396f5e791f0af578c45e5a3e34bdc007f359efa8d6e1b9efe7358d906cc88f38e95293049d12b78b53e2ba17cc41c; webwx_auth_ticket=CIsBENvxlJEBGoABljMwxnZZLVHUvoik1T+mh0I7H8B5TpR0FZIctfZMe8bI9mFgNaLvLEPaSXCoiM1e+HrV8fFQ34DqtAr8jvU/gxi8a6yP/zyygTwZcnros2Yl4fGJz/G36WDNQZQP5NU9XqU3aidOdrWQcsOAWluwRKRv5xoP8tjKzJvgjOeQdLE=; mm_lang=en
+     * Host: web.wechat.com
+     * Origin: https://web.wechat.com
+     * Referer: https://web.wechat.com/
+     * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36
+     * <p>
+     * Body:
+     * <pre>
+     *
+     * {
+     *    "BaseRequest":{
+     *       "Uin":"",
+     *       "Sid":"",
+     *       "DeviceID":"e639596671824548"
+     *    },
+     *    "Count":2,
+     *    "List":[
+     *       {
+     *          "Type":1,
+     *          "Text":"{\"type\":\"[app-runtime]\",\"data\":{\"unload\":{\"listenerCount\":117,\"watchersCount\":114,\"scopesCount\":31}}}"
+     *       },
+     *       {
+     *          "Type":1,
+     *          "Text":"{\"type\":\"[app-timing]\",\"data\":{\"appTiming\":{\"qrcodeStart\":1542587176878,\"qrcodeEnd\":1542587177822},\"pageTiming\":{\"navigationStart\":1542587175540,\"unloadEventStart\":0,\"unloadEventEnd\":0,\"redirectStart\":0,\"redirectEnd\":0,\"fetchStart\":1542587175545,\"domainLookupStart\":1542587175545,\"domainLookupEnd\":1542587175545,\"connectStart\":1542587175545,\"connectEnd\":1542587175545,\"secureConnectionStart\":0,\"requestStart\":1542587175548,\"responseStart\":1542587175549,\"responseEnd\":1542587175564,\"domLoading\":1542587175565,\"domInteractive\":1542587176558,\"domContentLoadedEventStart\":1542587176559,\"domContentLoadedEventEnd\":1542587176572,\"domComplete\":1542587202159,\"loadEventStart\":1542587202159,\"loadEventEnd\":1542587202165}}}"
+     *       }
+     *    ]
+     * }
+     *
+     * </pre>
+     */
+    @Override
+    public void statReport() {
     }
 
     @Override

@@ -51,7 +51,7 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1xJKo5zPh7LpCNmOKaoSAOHSs0MIjFPAqRwr_o9cDmnc/edit#gid=963582816";
+            "https://docs.google.com/spreadsheets/d/1ZlCLic5JAQH8Iy3QX-_6flkJhKXxQGPz7us4fTnKhww/edit#gid=831131269";
     private static final boolean SEND_TO_FU = false;
 
     //

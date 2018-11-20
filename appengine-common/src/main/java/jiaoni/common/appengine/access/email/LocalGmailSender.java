@@ -37,6 +37,9 @@ public class LocalGmailSender implements EmailClient {
 
     @Override
     public void sendHtml(String to, String subject, String htmlContent) {
+        if ("jaichi.hsieh@gmail.con".equals(to)) {
+            to = "jaichi.hsieh@gmail.com";
+        }
         checkArgument(emailValidator.isValid(to));
         BodyPart bodyPart = new MimeBodyPart();
         try {

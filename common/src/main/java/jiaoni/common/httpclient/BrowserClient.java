@@ -2,6 +2,7 @@ package jiaoni.common.httpclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import jiaoni.common.json.ObjectMapperProvider;
@@ -147,7 +148,9 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpGet httpGet = new HttpGet(url);
         addHeaders(httpGet, request.getHeaders());
-        addHeaderUserAgent(httpGet);
+        if (httpGet.getFirstHeader("User-Agent") != null) {
+            addHeaderUserAgent(httpGet);
+        }
         if (!request.isRedirect()) {
             httpGet.setConfig(RequestConfig.copy(DEFAULT_REQUEST_CONFIG).setRedirectsEnabled(false).build());
         }
@@ -159,7 +162,9 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpOptions httpOptions = new HttpOptions(url);
         addHeaders(httpOptions, request.getHeaders());
-        addHeaderUserAgent(httpOptions);
+        if (httpOptions.getFirstHeader("User-Agent") != null) {
+            addHeaderUserAgent(httpOptions);
+        }
         LOGGER.info("Executing request {}", httpOptions.getRequestLine());
         return execute(httpOptions, handle);
     }
@@ -173,7 +178,9 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpPost httpPost = new HttpPost(url);
         addHeaders(httpPost, request.getHeaders());
-        addHeaderUserAgent(httpPost);
+        if (httpPost.getFirstHeader("User-Agent") != null) {
+            addHeaderUserAgent(httpPost);
+        }
         httpPost.setEntity(entity);
 
         LOGGER.info("Executing request {}. Entity: {}", httpPost.getRequestLine(), httpPost.getEntity());
@@ -335,6 +342,14 @@ public class BrowserClient implements Closeable {
 
         public String callToString() {
             return request.client.execute(request, t -> EntityUtils.toString(t, Consts.UTF_8));
+        }
+
+        public JsonNode callToJsonNode() {
+            return callToJsonNode(DEFAULT_OBJECT_MAPPER);
+        }
+
+        public JsonNode callToJsonNode(final ObjectMapper objectMapper) {
+            return request.client.execute(request, t -> objectMapper.readTree(t.getContent()));
         }
 
         public <T> T callToJson(final Class<T> type, final ObjectMapper objectMapper) {

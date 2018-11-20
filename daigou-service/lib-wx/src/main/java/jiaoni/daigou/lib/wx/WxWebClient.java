@@ -72,5 +72,7 @@ public interface WxWebClient {
     /**
      * Get group contacts.
      */
-    public void batchGetContacts(final Session session, final List<String> groupChatUserNames);
+    void batchGetContacts(final Session session, final List<String> groupChatUserNames);
+
+    void statReport();
 }

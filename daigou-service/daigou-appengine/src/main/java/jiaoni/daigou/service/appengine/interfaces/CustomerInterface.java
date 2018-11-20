@@ -79,6 +79,9 @@ public class CustomerInterface {
         return Response.ok(toReturn).build();
     }
 
+    /**
+     * This is used by delete address
+     */
     @POST
     @Path("/update")
     public Response updateCustomer(final Customer customer) {
