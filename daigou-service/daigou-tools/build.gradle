@@ -7,7 +7,6 @@ dependencies {
     compile project(":content-template")
     compile project(":common")
     compile project(":common-test")
-
     compile project(":daigou-service:daigou-appengine")
 
     compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"

@@ -4,6 +4,8 @@ import jiaoni.daigou.lib.wx.model.Contact;
 import jiaoni.daigou.lib.wx.model.Message;
 import jiaoni.daigou.lib.wx.model.MessageType;
 
+import java.util.Arrays;
+
 /**
  * Wrapping WX {@link Message} with rich metadata.
  */
@@ -37,7 +39,7 @@ public class RichMessage {
     }
 
     public byte[] getImageBytes() {
-        return imageBytes;
+        return Arrays.copyOf(imageBytes, imageBytes.length);
     }
 
     public String getImageMediaId() {
@@ -77,7 +79,7 @@ public class RichMessage {
         }
 
         public Builder withImageBytes(byte[] imageBytes) {
-            this.imageBytes = imageBytes;
+            this.imageBytes = Arrays.copyOf(imageBytes, imageBytes.length);
             return this;
         }
 
@@ -97,7 +99,7 @@ public class RichMessage {
         }
 
         public Builder withFromMyself(boolean fromMyself) {
-            this.fromContact = fromContact;
+            this.fromMyself = fromMyself;
             return this;
         }
 

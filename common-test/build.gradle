@@ -4,10 +4,8 @@ dependencies {
     compile project(':common')
     compile project(':appengine-common')
 
-    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
-    compile "com.google.guava:guava:$guava_ver"
-    compile "junit:junit:$junit_ver"
-    compile "org.apache.commons:commons-collections4:$commons_collections4_ver"
-    compile "org.apache.commons:commons-lang3:$commons_lang3_ver"
-    compile "org.mockito:mockito-core:$mockito_ver"
+    compile junit
+    compile hamcrest_all
+    compile mockito_core
+    compile google_appengine_remote_api
 }

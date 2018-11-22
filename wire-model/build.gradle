@@ -22,11 +22,11 @@ sourceSets {
 }
 
 dependencies {
-    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
-    compile "com.fasterxml.jackson.core:jackson-core:$jackson_ver"
-    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"
-    compile "com.google.guava:guava:$guava_ver"
-    compile "com.google.protobuf:protobuf-java:$protobuf_ver"
+    compile jackson_annotations
+    compile jackson_core
+    compile jackson_databind
+    compile guava
+    compile protobuf_java
 }
 
 protobuf {

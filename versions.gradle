@@ -49,3 +49,77 @@ ext {
     junit_ver = '4.12'
 }
 
+def deps = [
+        ['commons_collections4', "org.apache.commons:commons-collections4:$commons_collections4_ver"],
+        ['commons_csv', "org.apache.commons:commons-csv:$commons_csv_ver"],
+        ['commons_io', "commons-io:commons-io:$commons_io_ver"],
+        ['commons_lang3', "org.apache.commons:commons-lang3:$commons_lang3_ver"],
+        ['commons_validator', "commons-validator:commons-validator:$commons_validator_ver"],
+        ['freemarker', "org.freemarker:freemarker:$freemarker_ver"],
+        ['google_api_client', "com.google.api-client:google-api-client:$google_http_client_ver"],
+        ['google_apis_oauth2', "com.google.apis:google-api-services-oauth2:$google_apis_oauth2_ver"],
+        ['google_apis_sheets', "com.google.apis:google-api-services-sheets:$google_apis_sheets_ver"],
+        ['google_appengine_api_labs', "com.google.appengine:appengine-api-labs:$appengine_testing_ver"],
+        ['google_appengine_api_sdk', "com.google.appengine:appengine-api-1.0-sdk:$appengine_sdk_ver"],
+        ['google_appengine_api_stubs', "com.google.appengine:appengine-api-stubs:$appengine_testing_ver"],
+        ['google_appengine_testing', "com.google.appengine:appengine-testing:$appengine_testing_ver"],
+        ['google_appengine_tools_ask', "com.google.appengine:appengine-tools-sdk:$appengine_testing_ver"],
+        ['google_appengine_remote_api', "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"],
+        ['google_cloud_storage', "com.google.cloud:google-cloud-storage:$google_cloud_ver"],
+        ['google_cloud_vision', "com.google.cloud:google-cloud-vision:$google_cloud_ver"],
+        ['google_oauth_client_jetty', "com.google.oauth-client:google-oauth-client-jetty:$google_http_client_ver"],
+        ['guava', "com.google.guava:guava:$guava_ver"],
+        ['guice', "com.google.inject:guice:$guice_ver"],
+        ['httpcomponents_httpclient', "org.apache.httpcomponents:httpclient:$httpcomponents_httpclient_ver"],
+        ['httpcomponents_httpcore', "org.apache.httpcomponents:httpcore:$httpcomponents_httpcore_ver"],
+        ['httpcomponents_httpmime', "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"],
+        ['jackson_annotations', "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"],
+        ['jackson_core', "com.fasterxml.jackson.core:jackson-core:$jackson_ver"],
+        ['jackson_databind', "com.fasterxml.jackson.core:jackson-databind:$jackson_ver"],
+        ['jackson_datatype_guava', "com.fasterxml.jackson.datatype:jackson-datatype-guava:$jackson_ver"],
+        ['jackson_datatype_joda', "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jackson_ver"],
+        ['jackson_jaxrs_json_provider', "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jackson_ver"],
+        ['javax_inject', "javax.inject:javax.inject:$javax_inject_ver"],
+        ['javax_mail', "javax.mail:mail:$javax_mail_ver"],
+        ['javax_wx_rs_api', "javax.ws.rs:javax.ws.rs-api:$javax_ws_rs_ver"],
+        ['jersey_container_servlet_core', "org.glassfish.jersey.containers:jersey-container-servlet-core:$jersey_ver"],
+        ['jersey_core_common', "org.glassfish.jersey.core:jersey-common:$jersey_ver"],
+        ['jersey_core_server', "org.glassfish.jersey.core:jersey-server:$jersey_ver"],
+        ['jersey_media_json_jackson', "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey_ver"],
+        ['jersey_media_multipart', "org.glassfish.jersey.media:jersey-media-multipart:$jersey_ver"],
+        ['joda_time', "joda-time:joda-time:$jodatime_ver"],
+        ['jsoup', "org.jsoup:jsoup:$jsoup_ver"],
+        ['protobuf_java', "com.google.protobuf:protobuf-java:$protobuf_ver"],
+        ['protobuf_java_util', "com.google.protobuf:protobuf-java-util:$protobuf_ver"],
+        ['qcloud_sms', "com.github.qcloudsms:qcloudsms:$qcloudsms_ver"],
+        ['reflections', "org.reflections:reflections:$reflections_ver"],
+        ['slf4j_api', "org.slf4j:slf4j-api:$slf4j_ver"],
+        ['slf4j_jdk14', "org.slf4j:slf4j-jdk14:$slf4j_ver"],
+        ['twilio_sdk', "com.twilio.sdk:twilio:$twilio_sdk_ver"],
+
+        ['junit', "junit:junit:$junit_ver"],
+        ['hamcrest_all', "org.hamcrest:hamcrest-all:$hamcrest_ver"],
+        ['mockito_core', "org.mockito:mockito-core:$mockito_ver"]
+]
+
+configurations {
+    allowedRewrittenDependencies
+}
+
+dependencies {
+    for (depspec in deps) {
+        def (name, mvnspec, closure, depdeps) = depspec
+        def dep = closure ? create(mvnspec, closure) : create(mvnspec)
+        if (depdeps) {
+            def resolvedDepDeps = depdeps.collect { project.ext."$it" }
+            project.ext."$name" = [dep, *resolvedDepDeps]
+        } else {
+            project.ext."$name" = dep
+        }
+
+        for (depdep in depdeps) {
+            allowedRewrittenDependencies project.ext."$depdep"
+        }
+    }
+}
+
