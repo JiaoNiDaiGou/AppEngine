@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import jiaoni.common.model.InternalIOException;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -16,7 +17,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -77,8 +81,33 @@ public class TestUtils {
             ExpectedHttpRequest expected = requests[i];
             HttpUriRequest actual = requestsExecuted.get(i);
 
+            // Verify method
             assertEquals(expected.getMethod(), actual.getMethod());
+
+            // Verify URL
             assertEquals(expected.getUrl(), actual.getURI().toString());
+
+            // Verify headers
+            assertEquals(expected.getHeaders().size(), actual.getAllHeaders().length);
+            for (Map.Entry<String, Collection<String>> entry : expected.getHeaders().asMap().entrySet()) {
+                String headerName = entry.getKey();
+                List<String> expectedHeaderValues = entry.getValue()
+                        .stream()
+                        .map(String::trim)
+                        .sorted()
+                        .collect(Collectors.toList());
+                List<String> actualHeaderValues = Arrays.stream(actual.getHeaders(headerName))
+                        .map(NameValuePair::getValue)
+                        .map(String::trim)
+                        .sorted()
+                        .collect(Collectors.toList());
+                assertEquals(expectedHeaderValues, actualHeaderValues);
+            }
+
+//            // Verify Cookie
+//            if (expected.getCookie() != null) {
+//                assertEquals(expected.getCookie(), actual.getRequestLine().);
+//            }
         }
     }
 }

@@ -1,2 +1,13 @@
 GET
 https://login.web.wechat.com/jslogin?appid=wx782c26e4c19acffb&redirect_uri=https%3A%2F%2Fweb.wechat.com%2Fcgi-bin%2Fmmwebwx-bin%2Fwebwxnewloginpage&fun=new&lang=zh_CN&_=1541372698751
+
+Host: login.web.wechat.com
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36
+Accept: */*
+Referer: https://web.wechat.com/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
+#Cookie: _ga=GA1.2.404212324.1542000888; webwxuvid=6ca396f5e791f0af578c45e5a3e34bdc007f359efa8d6e1b9efe7358d906cc88f38e95293049d12b78b53e2ba17cc41c; webwx_auth_ticket=CIsBENvxlJEBGoABljMwxnZZLVHUvoik1T+mh0I7H8B5TpR0FZIctfZMe8bI9mFgNaLvLEPaSXCoiM1e+HrV8fFQ34DqtAr8jvU/gxi8a6yP/zyygTwZcnros2Yl4fGJz/G36WDNQZQP5NU9XqU3aidOdrWQcsOAWluwRKRv5xoP8tjKzJvgjOeQdLE=; mm_lang=en
+
+ Cookie: _ga=GA1.2.404212324.1542000888; webwxuvid=6ca396f5e791f0af578c45e5a3e34bdc007f359efa8d6e1b9efe7358d906cc88f38e95293049d12b78b53e2ba17cc41c; webwx_auth_ticket=CIsBENvxlJEBGoABljMwxnZZLVHUvoik1T+mh0I7H8B5TpR0FZIctfZMe8bI9mFgNaLvLEPaSXCoiM1e+HrV8fFQ34DqtAr8jvU/gxi8a6yP/zyygTwZcnros2Yl4fGJz/G36WDNQZQP5NU9XqU3aidOdrWQcsOAWluwRKRv5xoP8tjKzJvgjOeQdLE=; mm_lang=en

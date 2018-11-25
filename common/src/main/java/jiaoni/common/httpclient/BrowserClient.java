@@ -5,10 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.InternalIOException;
 import jiaoni.common.utils.Retrier;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.OrderedMap;
+import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
@@ -93,9 +97,9 @@ public class BrowserClient implements Closeable {
         httpMessage.setHeader("User-Agent", USER_AGENT);
     }
 
-    private static void addHeaders(final HttpMessage httpMessage, final Map<String, String> headers) {
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            httpMessage.setHeader(entry.getKey(), entry.getValue());
+    private static void addHeaders(final HttpMessage httpMessage, final Multimap<String, String> headers) {
+        for (Map.Entry<String, String> entry : headers.entries()) {
+            httpMessage.addHeader(entry.getKey(), entry.getValue());
         }
     }
 
@@ -148,7 +152,7 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpGet httpGet = new HttpGet(url);
         addHeaders(httpGet, request.getHeaders());
-        if (httpGet.getFirstHeader("User-Agent") != null) {
+        if (httpGet.getFirstHeader("User-Agent") == null) {
             addHeaderUserAgent(httpGet);
         }
         if (!request.isRedirect()) {
@@ -162,7 +166,7 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpOptions httpOptions = new HttpOptions(url);
         addHeaders(httpOptions, request.getHeaders());
-        if (httpOptions.getFirstHeader("User-Agent") != null) {
+        if (httpOptions.getFirstHeader("User-Agent") == null) {
             addHeaderUserAgent(httpOptions);
         }
         LOGGER.info("Executing request {}", httpOptions.getRequestLine());
@@ -178,7 +182,7 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpPost httpPost = new HttpPost(url);
         addHeaders(httpPost, request.getHeaders());
-        if (httpPost.getFirstHeader("User-Agent") != null) {
+        if (httpPost.getFirstHeader("User-Agent") == null) {
             addHeaderUserAgent(httpPost);
         }
         httpPost.setEntity(entity);
@@ -276,8 +280,8 @@ public class BrowserClient implements Closeable {
 
     public static class DoHttp<T extends DoHttp<T>> {
         private final BrowserClient client;
-        private final Map<String, Object> pathParams = new HashMap<>();
-        private final Map<String, String> headers = new HashMap<>();
+        private final OrderedMap<String, Object> pathParams = new ListOrderedMap<>();
+        private final Multimap<String, String> headers = HashMultimap.create();
         private String url;
         private boolean redirect;
 
@@ -312,7 +316,7 @@ public class BrowserClient implements Closeable {
             return new HttpCallback(this);
         }
 
-        Map<String, String> getHeaders() {
+        Multimap<String, String> getHeaders() {
             return headers;
         }
 

@@ -21,8 +21,9 @@ ext {
     google_apis_sheets_ver = "v4-rev539-$google_http_client_ver"
     google_apis_storage_ver = "v1-rev136-$google_http_client_ver"
     google_cloud_ver = '1.45.0'
-    guava_ver = '25.1-jre'
+    guava_ver = '27.0.1-jre'
     guice_ver = '4.2.0'
+    httpcomponents_fluent_hc_ver = '4.5.6'
     httpcomponents_httpclient_ver = '4.5.6'
     httpcomponents_httpcore_ver = '4.4.10'
     httpcomponents_httpmime_ver = '4.5.6'
@@ -69,7 +70,9 @@ def deps = [
         ['google_cloud_vision', "com.google.cloud:google-cloud-vision:$google_cloud_ver"],
         ['google_oauth_client_jetty', "com.google.oauth-client:google-oauth-client-jetty:$google_http_client_ver"],
         ['guava', "com.google.guava:guava:$guava_ver"],
+        ['guava_testlib', "com.google.guava:guava-testlib:$guava_ver"],
         ['guice', "com.google.inject:guice:$guice_ver"],
+        ['httpcomponents_fluent_hc', "org.apache.httpcomponents:fluent-hc:$httpcomponents_fluent_hc_ver"],
         ['httpcomponents_httpclient', "org.apache.httpcomponents:httpclient:$httpcomponents_httpclient_ver"],
         ['httpcomponents_httpcore', "org.apache.httpcomponents:httpcore:$httpcomponents_httpcore_ver"],
         ['httpcomponents_httpmime', "org.apache.httpcomponents:httpmime:$httpcomponents_httpmime_ver"],

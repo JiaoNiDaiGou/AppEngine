@@ -5,6 +5,7 @@ dependencies {
     compile project(':appengine-common')
 
     compile junit
+    compile guava_testlib
     compile hamcrest_all
     compile mockito_core
     compile google_appengine_remote_api

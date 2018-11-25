@@ -1,9 +1,7 @@
 package jiaoni.daigou.lib.wx;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import jiaoni.common.httpclient.BrowserClient;
-import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.daigou.lib.wx.model.Contact;
 import jiaoni.daigou.lib.wx.model.GetContactResponse;
 import jiaoni.daigou.lib.wx.model.InitResponse;
@@ -19,6 +17,7 @@ import jiaoni.daigou.lib.wx.model.SyncResponse;
 import jiaoni.daigou.lib.wx.model.WxException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpClient;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,15 +42,17 @@ import static jiaoni.daigou.lib.wx.WxUtils.syncKeyToString;
 
 public class WxWebClientImpl implements WxWebClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(WxWebClientImpl.class);
-    private static final ObjectMapper OBJECT_MAPPER = ObjectMapperProvider.get();
     private static final String LOGIN_URL_BASE = "https://login.web.wechat.com";
     private static final String LOGIN_URL_JSLOGIN = LOGIN_URL_BASE + "/jslogin";
     private static final String LOGIN_URL_QRCODE = LOGIN_URL_BASE + "/qrcode";
     private static final String LOGIN_URL_ASK_LOGIN = LOGIN_URL_BASE + "/cgi-bin/mmwebwx-bin/login";
     private static final String LANG_ZH_CN = "zh_CN";
     private static final int SUCCESS_CODE = 200;
+    private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36";
 
     private final BrowserClient client;
+
+    private HttpClient httpClient;
 
     public WxWebClientImpl(final BrowserClient client) {
         this.client = client;
@@ -81,9 +82,22 @@ public class WxWebClientImpl implements WxWebClient {
                 .url(LOGIN_URL_JSLOGIN)
                 .pathParam("appid", "wx782c26e4c19acffb")
                 .pathParam("redirect_uri", "https://web.wechat.com/cgi-bin/mmwebwx-bin/webwxnewloginpage")
-                .pathParam("lang", LANG_ZH_CN)
                 .pathParam("fun", "new")
+                .pathParam("lang", LANG_ZH_CN)
                 .pathParam("_", nowMillisToString())
+                .header("Host", "login.web.wechat.com")
+                .header("Connection", "keep-alive")
+                .header("User-Agent", USER_AGENT)
+                .header("Accept", "*/*")
+                .header("Referer", "https://web.wechat.com/")
+                .header("Accept-Encoding", "gzip")
+                .header("Accept-Encoding", "deflate")
+                .header("Accept-Encoding", "br")
+                .header("Accept-Language", "en-US")
+                .header("Accept-Language", "en;q=0.9")
+                .header("Accept-Language", "zh-CN;q=0.8")
+                .header("Accept-Language", "zh;q=0.7")
+                .header("Accept-Language", "zh-TW;q=0.6")
                 .redirect(true)
                 .request()
                 .callToString());

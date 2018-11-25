@@ -1,11 +1,13 @@
 package jiaoni.daigou.lib.wx;
 
+import com.google.common.base.Ticker;
 import jiaoni.daigou.lib.wx.model.SyncKey;
+import org.joda.time.DateTime;
 
 import java.security.SecureRandom;
 import java.util.Random;
 
-public class WxUtils {
+class WxUtils {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /**
@@ -23,7 +25,7 @@ public class WxUtils {
     }
 
     static String nowMillisToString() {
-        return String.valueOf(System.currentTimeMillis());
+        return String.valueOf(DateTime.now().getMillis());
     }
 
     static String nowMillisNegateToString() {
@@ -35,5 +37,9 @@ public class WxUtils {
                 .map(t -> t.getKey() + "_" + t.getVal())
                 .reduce((a, b) -> a + "|" + b)
                 .orElse(null);
+    }
+
+    private static long nanosToMillis(long nano) {
+        return nano / 1000000L;
     }
 }

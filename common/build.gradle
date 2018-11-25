@@ -9,6 +9,7 @@ dependencies {
     compile commons_lang3
     compile commons_validator
     compile guava
+    compile httpcomponents_fluent_hc
     compile httpcomponents_httpclient
     compile httpcomponents_httpcore
     compile httpcomponents_httpmime
