@@ -193,7 +193,7 @@ public class ShippingOrderInterface {
         PageToken pageToken = PageToken.fromPageToken(pageTokenStr);
         PaginatedResults<ShippingOrder> results;
         if (StringUtils.isNotBlank(customerId)) {
-            results = shippingOrderFacade.queryShippingOrdersByCustomerId(customerId, limit, pageToken);
+            results = shippingOrderFacade.queryByCustomerId(customerId, limit, pageToken);
         } else {
             results = shippingOrderFacade.queryAll(limit, pageToken);
         }

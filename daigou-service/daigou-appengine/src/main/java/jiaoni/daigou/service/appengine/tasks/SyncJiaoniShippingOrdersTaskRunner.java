@@ -14,6 +14,7 @@ import jiaoni.daigou.lib.teddy.TeddyAdmins;
 import jiaoni.daigou.lib.teddy.TeddyClient;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
+import jiaoni.daigou.service.appengine.impls.shippingorders.ShippingOrderFacade;
 import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
 import jiaoni.daigou.service.appengine.utils.ShippingOrderUtils;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
@@ -44,6 +45,9 @@ import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.EXTERNAL_SHPPI
 import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.INIT;
 import static jiaoni.daigou.wiremodel.entity.ShippingOrder.Status.PACKED;
 
+/**
+ * This task is to sync JiaoNi's Teddy shipping orders.
+ */
 @Singleton
 public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncJiaoniShippingOrdersTaskRunner.class);
@@ -56,6 +60,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 
     private final TeddyClient jiaoniTeddyClient;
     private final TeddyClient hackTeddyClient;
+    private final ShippingOrderFacade shippingOrderFacade;
     private final ShippingOrderDbClient shippingOrderDbClient;
     private final EmailClient emailClient;
     private final SmsClient smsClient;
@@ -64,6 +69,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
     public SyncJiaoniShippingOrdersTaskRunner(@Named(TeddyAdmins.JIAONI) final TeddyClient jiaoniTeddyClient,
                                               @Named(TeddyAdmins.HACK) final TeddyClient hackTeddyClient,
                                               final ShippingOrderDbClient shippingOrderDbClient,
+                                              final ShippingOrderFacade shippingOrderFacade,
                                               final EmailClient emailClient,
                                               final SmsClient smsClient) {
         this.jiaoniTeddyClient = jiaoniTeddyClient;
@@ -71,6 +77,7 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
         this.shippingOrderDbClient = shippingOrderDbClient;
         this.emailClient = emailClient;
         this.smsClient = smsClient;
+        this.shippingOrderFacade = shippingOrderFacade;
     }
 
     private static boolean determineNotifyCustomer(final ShippingOrder shippingOrder) {
@@ -151,35 +158,35 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
         return unitStr + valStr;
     }
 
-    private void syncFromPreview() {
+    /**
+     * Sync shipping orders from preview page.
+     */
+    private void syncFromPreview(final Report report) {
         List<ShippingOrder> toSave = new ArrayList<>();
 
         // Load preview first.
         for (int i = 1; i <= MAX_ORDER_PREVIEWS_TO_CHECK; i++) {
+            LOGGER.info("Get teddy shipping order preview page {}", i);
+
             List<ShippingOrder> toSaveInThisPage = new ArrayList<>();
 
-            LOGGER.info("teddy preview page {}", i);
-            Map<Long, ShippingOrder> fromPreview = jiaoniTeddyClient.getOrderPreviews(i).entrySet()
+            Map<Long, ShippingOrder> fromPreview = jiaoniTeddyClient.getOrderPreviews(i)
+                    .entrySet()
                     .stream()
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            t -> TeddyUtils.convertToShippingOrderFromOrderPreview(t.getValue())
-                    ));
-
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            t -> TeddyUtils.convertToShippingOrderFromOrderPreview(t.getValue())));
             if (MapUtils.isEmpty(fromPreview)) {
-                LOGGER.info("Load 0 order previews from page {}. break!", i);
+                LOGGER.info("Load 0 order previews from page {}. BREAK!", i);
                 break;
             }
 
             long minTeddyOrderId = fromPreview.keySet().stream().min(Long::compare).get();
             long maxTeddyOrderId = fromPreview.keySet().stream().max(Long::compare).get();
 
-            Map<Long, ShippingOrder> fromDb = shippingOrderDbClient.queryByTeddyOrderIdRange(minTeddyOrderId, maxTeddyOrderId)
+            Map<Long, ShippingOrder> fromDb = shippingOrderFacade.queryAllByTeddyOrderIdRange(minTeddyOrderId, maxTeddyOrderId)
                     .stream()
-                    .collect(Collectors.toMap(
-                            t -> Long.parseLong(t.getTeddyOrderId()),
-                            t -> t
-                    ));
+                    .collect(Collectors.toMap(t -> Long.parseLong(t.getTeddyOrderId()), t -> t));
+
             LOGGER.info("Load {} orders from DB. minTeddyId={}, maxTeddyId={}.", fromDb.size(), minTeddyOrderId, maxTeddyOrderId);
 
             for (Map.Entry<Long, ShippingOrder> entry : fromPreview.entrySet()) {
@@ -189,8 +196,10 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
                     toSaveInThisPage.add(previewOrder);
                     continue;
                 }
-                boolean canUpdate = dbOrder.getStatus() == EXTERNAL_SHPPING_PENDING || StringUtils.isBlank(dbOrder.getTrackingNumber());
-                if (canUpdate && StringUtils.isNotBlank(previewOrder.getTrackingNumber())) {
+
+                boolean needUpdate = (dbOrder.getStatus() == EXTERNAL_SHPPING_PENDING || StringUtils.isBlank(dbOrder.getTrackingNumber()))
+                        && StringUtils.isNotBlank(previewOrder.getTrackingNumber());
+                if (needUpdate) {
                     ShippingOrder toUpdate = dbOrder.toBuilder()
                             .setTrackingNumber(previewOrder.getTrackingNumber())
                             .setShippingCarrier(previewOrder.getShippingCarrier())
@@ -212,10 +221,10 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
         shippingOrderDbClient.put(toSave);
     }
 
-    private void syncFromDb(final Report report) {
-        List<ShippingOrder> toCheck = shippingOrderDbClient.queryNonDeliveredShippingOrders();
+    private void syncFromDetails(final Report report) {
+        List<ShippingOrder> toCheck = shippingOrderFacade.queryAllNonDelivered();
         List<ShippingOrder> toSave = new ArrayList<>();
-        List<ShippingOrder> toNotifyCustomer = new ArrayList<>();
+        List<ShippingOrder> toDelete = new ArrayList<>();
 
         for (ShippingOrder order : toCheck) {
             if (StringUtils.isBlank(order.getTeddyOrderId())) {
@@ -231,26 +240,16 @@ public class SyncJiaoniShippingOrdersTaskRunner implements Consumer<TaskMessage>
 
             report.orderByStatus.put(order.getStatus(), order);
 
-            boolean notifyCustomer = determineNotifyCustomer(order);
-            if (notifyCustomer) {
-                toNotifyCustomer.add(order);
-            }
-
             toSave.add(order);
         }
         shippingOrderDbClient.put(toSave);
-
-        for (ShippingOrder order : toNotifyCustomer) {
-            notifyCustomer(order);
-            report.customerNotifiedIds.add(order.getId());
-        }
     }
 
     @Override
     public void accept(TaskMessage taskMessage) {
         Report report = new Report();
-        syncFromPreview();
-        syncFromDb(report);
+        syncFromPreview(report);
+        syncFromDetails(report);
         notifyAdmin(report);
     }
 

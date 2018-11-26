@@ -30,6 +30,9 @@ import javax.inject.Singleton;
 
 import static jiaoni.common.utils.LocalMeter.meterOn;
 
+/**
+ * This task is to sync Teddy JiaoNi all customers.
+ */
 @Singleton
 public class SyncJiaoniCustomersTaskRunner implements Consumer<TaskMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncJiaoniCustomersTaskRunner.class);

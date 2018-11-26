@@ -1,6 +1,7 @@
 package jiaoni.daigou.lib.teddy.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jiaoni.common.utils.Secrets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;

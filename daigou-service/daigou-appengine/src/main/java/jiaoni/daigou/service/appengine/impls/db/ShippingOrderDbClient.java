@@ -33,18 +33,6 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
     }
 
     @Deprecated
-    public List<ShippingOrder> queryByTeddyOrderIdRange(final long minTeddyIdInclusive,
-                                                        final long maxTeddyIdInclusive) {
-        DbQuery query = DbQuery.and(
-                DbQuery.ge(FIELD_TEDDY_ORDER_ID, minTeddyIdInclusive),
-                DbQuery.le(FIELD_TEDDY_ORDER_ID, maxTeddyIdInclusive)
-        );
-        return this.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
-    }
-
-    @Deprecated
     public List<ShippingOrder> queryNonDeliveredShippingOrders() {
         DbQuery query = DbQuery.notEq(FIELD_STATUS_NUM, ShippingOrder.Status.DELIVERED_VALUE);
         return this.queryInStream(query)

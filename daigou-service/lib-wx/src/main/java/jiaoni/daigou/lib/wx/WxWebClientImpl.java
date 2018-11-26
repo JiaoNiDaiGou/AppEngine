@@ -17,7 +17,7 @@ import jiaoni.daigou.lib.wx.model.SyncResponse;
 import jiaoni.daigou.lib.wx.model.WxException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpClient;
+import org.apache.http.HttpHeaders;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -48,14 +49,26 @@ public class WxWebClientImpl implements WxWebClient {
     private static final String LOGIN_URL_ASK_LOGIN = LOGIN_URL_BASE + "/cgi-bin/mmwebwx-bin/login";
     private static final String LANG_ZH_CN = "zh_CN";
     private static final int SUCCESS_CODE = 200;
-    private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36";
-
     private final BrowserClient client;
-
-    private HttpClient httpClient;
 
     public WxWebClientImpl(final BrowserClient client) {
         this.client = client;
+    }
+
+    private static <T extends BrowserClient.DoHttp> Consumer<T> addCommonHeaders() {
+        return t -> t
+                .header(HttpHeaders.ACCEPT, "*/*")
+                .header(HttpHeaders.CONNECTION, "keep-alive")
+                .header(HttpHeaders.CONNECTION, "keep-alive")
+                .header(HttpHeaders.REFERER, "https://web.wechat.com/")
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                .header(HttpHeaders.ACCEPT_ENCODING, "deflate")
+                .header(HttpHeaders.ACCEPT_ENCODING, "br")
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "en-US")
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "en;q=0.9")
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN;q=0.8")
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh;q=0.7")
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-TW;q=0.6");
     }
 
     /**
@@ -85,23 +98,13 @@ public class WxWebClientImpl implements WxWebClient {
                 .pathParam("fun", "new")
                 .pathParam("lang", LANG_ZH_CN)
                 .pathParam("_", nowMillisToString())
-                .header("Host", "login.web.wechat.com")
-                .header("Connection", "keep-alive")
-                .header("User-Agent", USER_AGENT)
-                .header("Accept", "*/*")
-                .header("Referer", "https://web.wechat.com/")
-                .header("Accept-Encoding", "gzip")
-                .header("Accept-Encoding", "deflate")
-                .header("Accept-Encoding", "br")
-                .header("Accept-Language", "en-US")
-                .header("Accept-Language", "en;q=0.9")
-                .header("Accept-Language", "zh-CN;q=0.8")
-                .header("Accept-Language", "zh;q=0.7")
-                .header("Accept-Language", "zh-TW;q=0.6")
-                .redirect(true)
+                .header(HttpHeaders.HOST, "login.web.wechat.com")
+                .consume(addCommonHeaders())
+//                .consume(addCommonCookies())
                 .request()
                 .callToString());
 
+        LOGGER.info("Fetch UUID response: {}", response);
         int code = response.getAsInteger("window.QRLogin.code", -1);
         if (SUCCESS_CODE == code) {
             String uuid = response.getAsString("window.QRLogin.uuid");
@@ -109,7 +112,6 @@ public class WxWebClientImpl implements WxWebClient {
             meterOff();
             return uuid;
         }
-
         meterOff();
         throw new WxException("failed to fetch login uuid. status=" + code);
     }
@@ -123,7 +125,7 @@ public class WxWebClientImpl implements WxWebClient {
 
         client.doGet()
                 .url(LOGIN_URL_QRCODE + "/" + loginUuid)
-                .redirect(true)
+                .header(HttpHeaders.REFERER, "https://web.wechat.com/")
                 .request()
                 .callToOutputSteam(outputStream);
 
@@ -145,6 +147,8 @@ public class WxWebClientImpl implements WxWebClient {
                 .pathParam("tip", "0")
                 .pathParam("r", nowMillisNegateToString())
                 .pathParam("_", nowMillisToString())
+                .header(HttpHeaders.HOST, "login.web.wechat.com")
+                .consume(addCommonHeaders())
                 .request()
                 .callToString());
 
@@ -631,6 +635,7 @@ public class WxWebClientImpl implements WxWebClient {
                         .build())
                 .request()
                 .callToJson(SendMsgResponse.class);
+        LOGGER.info("send text message response: {}", response);
 
         boolean success = true;
         if (response.getBaseResponse().hasError()) {
@@ -704,6 +709,9 @@ public class WxWebClientImpl implements WxWebClient {
 
         String response = client.doGet()
                 .url(redirectUri)
+                .header(HttpHeaders.HOST, "web.wechat.com")
+                .consume(addCommonHeaders())
+//                .consume(addCommonCookies())
                 .request()
                 .callToString();
 

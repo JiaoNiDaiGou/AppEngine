@@ -34,7 +34,7 @@ public class WxCustomerParseMessageHandler implements WxMessageHandler {
         switch (message.type()) {
             case TEXT:
                 return ParseRequest.newBuilder()
-                        .addTexts(message.getContent())
+                        .addTexts(message.getTextContent())
                         .build();
             case IMAGE: {
                 return ParseRequest.newBuilder()
@@ -72,7 +72,7 @@ public class WxCustomerParseMessageHandler implements WxMessageHandler {
                     customer.getAddresses(0).getZone(),
                     customer.getAddresses(0).getAddress());
             customerFacade.putCustomer(customer);
-            wxClient.sendReply(session, WxReply.builder().text(message.getMessage().getFromUserName(), prompt).build());
+            wxClient.sendReply(session, WxReply.builder().text(message.getOriginalMessage().getFromUserName(), prompt).build());
         }
     }
 

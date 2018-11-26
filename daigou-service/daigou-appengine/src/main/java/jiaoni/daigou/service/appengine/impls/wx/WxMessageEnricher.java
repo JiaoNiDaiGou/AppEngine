@@ -5,6 +5,7 @@ import jiaoni.daigou.lib.wx.WxWebClient;
 import jiaoni.daigou.lib.wx.model.Contact;
 import jiaoni.daigou.lib.wx.model.Message;
 import jiaoni.daigou.lib.wx.model.MessageType;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,7 +26,8 @@ public class WxMessageEnricher {
             return null;
         }
 
-        RichMessage.Builder builder = RichMessage.builder();
+        RichMessage.Builder builder = RichMessage.builder()
+                .withTextContent(message.getContent());
 
         // Image
         if (message.getMessageType() == MessageType.IMAGE) {
@@ -33,11 +35,26 @@ public class WxMessageEnricher {
             builder.withImageBytes(bytes);
         }
 
-        // From & To contact
+        // From contact
         Contact fromContact = findContact(session, message.getFromUserName());
-        builder.withFromContact(fromContact)
-                .withFromMyself(fromContact != null && fromContact.getUserName().equals(session.getMyself().getUserName()))
-                .withToCustomer(findContact(session, message.getToUserName()));
+        builder.withFromContact(fromContact);
+        if (fromContact != null) {
+            if (fromContact.getUserName().equals(session.getMyself().getUserName())) {
+                builder.withFromMyself(true);
+            } else if (fromContact.getType() == Contact.Type.GROUP_CHAT_ACCOUNT) {
+                builder.withIsGroupMessage(true);
+                // For group message, the fromContact is the group name.
+                // The contant is in format of 'speakerUserName:content';
+                String speakerUsername = StringUtils.substringBefore(message.getContent(), ":");
+                if (StringUtils.isNotBlank(speakerUsername)) {
+                    builder.withSpeakerContactInGroup(findContact(session, speakerUsername))
+                            .withTextContent(StringUtils.substringAfter(message.getContent(), ":"));
+                }
+            }
+        }
+
+        // To contact
+        builder.withToContact(findContact(session, message.getToUserName()));
 
         return builder.build();
     }

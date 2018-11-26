@@ -13,10 +13,14 @@ import jiaoni.common.utils.Retrier;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.OrderedMap;
 import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.CookieSpecs;
@@ -26,11 +30,16 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie2;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,16 +49,18 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A new implementation for Browser client.
+ * A wrapper of {@link HttpClient} to make it looks like a browser client.
  */
 public class BrowserClient implements Closeable {
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = ObjectMapperProvider.get();
@@ -61,17 +72,21 @@ public class BrowserClient implements Closeable {
             .exponentialJitteredBackOffWaiting(100, 5000)
             .stopWithMaxAttempts(5)
             .build();
-    private static final RequestConfig DEFAULT_REQUEST_CONFIG = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+    private static final RequestConfig DEFAULT_REQUEST_CONFIG = RequestConfig.custom()
+            .setCookieSpec(CookieSpecs.STANDARD)
+            .build();
     private final PoolingHttpClientConnectionManager connectionManager;
     private final HttpClient client;
+    private final CookieStore cookieStore;
 
     public BrowserClient() {
         connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(20);
+        cookieStore = new BasicCookieStore();
         client = HttpClients.custom()
                 .setConnectionManager(connectionManager)
-                .setDefaultRequestConfig(RequestConfig.DEFAULT)
-                .setDefaultCookieStore(new BasicCookieStore()) // in memory
+                .setDefaultRequestConfig(DEFAULT_REQUEST_CONFIG)
+                .setDefaultCookieStore(cookieStore) // in memory
                 .build();
     }
 
@@ -79,6 +94,7 @@ public class BrowserClient implements Closeable {
     public BrowserClient(final HttpClient client) {
         connectionManager = null;
         this.client = checkNotNull(client);
+        this.cookieStore = new BasicCookieStore();
     }
 
     public DoGet doGet() {
@@ -94,13 +110,18 @@ public class BrowserClient implements Closeable {
     }
 
     private static void addHeaderUserAgent(final HttpMessage httpMessage) {
-        httpMessage.setHeader("User-Agent", USER_AGENT);
+        httpMessage.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
     }
 
     private static void addHeaders(final HttpMessage httpMessage, final Multimap<String, String> headers) {
         for (Map.Entry<String, String> entry : headers.entries()) {
             httpMessage.addHeader(entry.getKey(), entry.getValue());
         }
+    }
+
+    private static boolean hasHeader(final HttpMessage httpMessage, final String headerName) {
+        Header header = httpMessage.getFirstHeader(headerName);
+        return header != null && StringUtils.isNotBlank(header.getValue());
     }
 
     private static String appendPathParams(final String url,
@@ -129,14 +150,16 @@ public class BrowserClient implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (connectionManager != null) {
             connectionManager.close();
         }
     }
 
-    @VisibleForTesting
-    public <T> T execute(final DoHttp request, final HttpEntityHandle<T> handle) {
+    /**
+     * Executes HTTP method.
+     */
+    private <T> T execute(final DoHttp request, final HttpEntityHandle<T> handle) {
         if (request instanceof DoGet) {
             return execute((DoGet) request, handle);
         } else if (request instanceof DoPost) {
@@ -148,29 +171,44 @@ public class BrowserClient implements Closeable {
         }
     }
 
+    /**
+     * Executes HTTP GET method.
+     */
     private <T> T execute(final DoGet request, final HttpEntityHandle<T> handle) {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpGet httpGet = new HttpGet(url);
         addHeaders(httpGet, request.getHeaders());
-        if (httpGet.getFirstHeader("User-Agent") == null) {
+        if (!hasHeader(httpGet, HttpHeaders.USER_AGENT)) {
             addHeaderUserAgent(httpGet);
         }
         if (!request.isRedirect()) {
             httpGet.setConfig(RequestConfig.copy(DEFAULT_REQUEST_CONFIG).setRedirectsEnabled(false).build());
         }
+        HttpContext context = null;
+        if (CollectionUtils.isNotEmpty(request.getCookies())) {
+            context = new BasicHttpContext();
+            request.getCookies().forEach(cookieStore::addCookie);
+            context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
+        }
         LOGGER.info("Executing request {}", httpGet.getRequestLine());
-        return execute(httpGet, handle);
+        return execute(httpGet, handle, context);
     }
 
     private <T> T execute(final DoOptions request, final HttpEntityHandle<T> handle) {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpOptions httpOptions = new HttpOptions(url);
         addHeaders(httpOptions, request.getHeaders());
-        if (httpOptions.getFirstHeader("User-Agent") == null) {
+        if (!hasHeader(httpOptions, HttpHeaders.USER_AGENT)) {
             addHeaderUserAgent(httpOptions);
         }
+        HttpContext context = null;
+        if (CollectionUtils.isNotEmpty(request.getCookies())) {
+            context = new BasicHttpContext();
+            request.getCookies().forEach(cookieStore::addCookie);
+            context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
+        }
         LOGGER.info("Executing request {}", httpOptions.getRequestLine());
-        return execute(httpOptions, handle);
+        return execute(httpOptions, handle, context);
     }
 
     private <T> T execute(final DoPost request, final HttpEntityHandle<T> handle) {
@@ -182,20 +220,27 @@ public class BrowserClient implements Closeable {
         String url = appendPathParams(request.getUrl(), request.getPathParams());
         HttpPost httpPost = new HttpPost(url);
         addHeaders(httpPost, request.getHeaders());
-        if (httpPost.getFirstHeader("User-Agent") == null) {
+        if (!hasHeader(httpPost, HttpHeaders.USER_AGENT)) {
             addHeaderUserAgent(httpPost);
+        }
+        HttpContext context = null;
+        if (CollectionUtils.isNotEmpty(request.getCookies())) {
+            context = new BasicHttpContext();
+            request.getCookies().forEach(cookieStore::addCookie);
+            context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
         }
         httpPost.setEntity(entity);
 
         LOGGER.info("Executing request {}. Entity: {}", httpPost.getRequestLine(), httpPost.getEntity());
-        return execute(httpPost, handle);
+        return execute(httpPost, handle, context);
     }
 
-    private <T> T execute(final HttpUriRequest request, final HttpEntityHandle<T> handle) {
+    private <T> T execute(final HttpUriRequest request, final HttpEntityHandle<T> handle, final HttpContext context) {
         try {
-            T toReturn = DEFAULT_RETRIER.call(() -> client.execute(request,
-                    responseHandler(request.getMethod(), request.getURI().toString(), handle)));
-            return toReturn;
+            return DEFAULT_RETRIER.call(() -> client.execute(
+                    request,
+                    responseHandler(request.getMethod(), request.getURI().toString(), handle),
+                    context));
         } catch (Exception e) {
             throw new InternalIOException(e);
         }
@@ -284,6 +329,7 @@ public class BrowserClient implements Closeable {
         private final Multimap<String, String> headers = HashMultimap.create();
         private String url;
         private boolean redirect;
+        private List<Cookie> cookies = new ArrayList<>();
 
         DoHttp(final BrowserClient client) {
             this.client = checkNotNull(client);
@@ -312,6 +358,21 @@ public class BrowserClient implements Closeable {
             return (T) this;
         }
 
+        public T addCookie(final Cookie cookie) {
+            cookies.add(cookie);
+            return (T) this;
+        }
+
+        public T addCookie(final String cookieName, final String cookieVal) {
+            Cookie cookie = new BasicClientCookie2(cookieName, cookieVal);
+            return addCookie(cookie);
+        }
+
+        public T consume(final Consumer<T> consumer) {
+            consumer.accept((T) this);
+            return (T) this;
+        }
+
         public HttpCallback request() {
             return new HttpCallback(this);
         }
@@ -331,8 +392,15 @@ public class BrowserClient implements Closeable {
         boolean isRedirect() {
             return redirect;
         }
+
+        List<Cookie> getCookies() {
+            return cookies;
+        }
     }
 
+    /**
+     * Http response handling.
+     */
     public static class HttpCallback {
         private final DoHttp request;
 

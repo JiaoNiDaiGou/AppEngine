@@ -46,7 +46,6 @@ public class TeddyClientImpl implements TeddyClient {
     private static final String BASE_URL = "http://rnbex.us";
     private static final String LOGIN_GUID_IMAGE_URL = BASE_URL + "/ValidateCode.aspx?GUID=GUID";
     private static final String LOGIN_URL = BASE_URL + "/logincontent/";
-    private static final String INDEX_URL = BASE_URL + "/index.aspx";
     private static final String MEMBER_URL = BASE_URL + "/Member/";
     private static final String MEMBER_RECEIVER_LIST_URL = MEMBER_URL + "ReceiverList.aspx";
     private static final String MEMBER_ORDER_ADD_URL = MEMBER_URL + "OrderAdd.aspx";
@@ -62,7 +61,7 @@ public class TeddyClientImpl implements TeddyClient {
     private final State curState;
 
     public TeddyClientImpl(final String adminUsername,
-                           final BrowserClient client,
+                           @Deprecated final BrowserClient client,
                            final LoginGuidRecognizer loginGuidRecognizer) {
         this(TeddyAdmins.adminOf(adminUsername), client, loginGuidRecognizer);
     }

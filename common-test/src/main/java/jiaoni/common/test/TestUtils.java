@@ -9,6 +9,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.protocol.HttpContext;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Stubber;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -72,7 +74,8 @@ public class TestUtils {
                                          final ExpectedHttpRequest... requests) {
         ArgumentCaptor<HttpUriRequest> argumentCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
         try {
-            verify(client, times(requests.length)).execute(argumentCaptor.capture(), any(ResponseHandler.class));
+            verify(client, times(requests.length))
+                    .execute(argumentCaptor.capture(), any(ResponseHandler.class), nullable(HttpContext.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -103,11 +106,6 @@ public class TestUtils {
                         .collect(Collectors.toList());
                 assertEquals(expectedHeaderValues, actualHeaderValues);
             }
-
-//            // Verify Cookie
-//            if (expected.getCookie() != null) {
-//                assertEquals(expected.getCookie(), actual.getRequestLine().);
-//            }
         }
     }
 }
