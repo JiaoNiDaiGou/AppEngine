@@ -5,7 +5,6 @@ import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.wiremodel.Address;
 import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
 import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
-import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.jvnet.hk2.annotations.Service;
 
@@ -29,20 +28,17 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
-@RolesAllowed({ Roles.ADMIN })
+@RolesAllowed( {Roles.ADMIN})
 public class CustomerInterface {
     private final CustomerFacade customerFacade;
     @Deprecated
     private final CustomerDbClient customerDbClient;
-    private final TeddyWarmUp teddyWarmUp;
 
     @Inject
     public CustomerInterface(final CustomerDbClient customerDbClient,
-                             final CustomerFacade customerFacade,
-                             final TeddyWarmUp teddyWarmUp) {
+                             final CustomerFacade customerFacade) {
         this.customerDbClient = customerDbClient;
         this.customerFacade = customerFacade;
-        this.teddyWarmUp = teddyWarmUp;
     }
 
     @GET
@@ -50,7 +46,6 @@ public class CustomerInterface {
     public Response getAllCustomer(@Deprecated @QueryParam("nextToken") final String nextToken,
                                    @Deprecated @QueryParam("limit") final int limit) {
         List<Customer> customers = customerDbClient.scan().collect(Collectors.toList());
-        teddyWarmUp.warmUpAsyncIfNeeded();
         return Response.ok(customers).build();
     }
 

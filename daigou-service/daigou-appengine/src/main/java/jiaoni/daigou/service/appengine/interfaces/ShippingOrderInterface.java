@@ -5,15 +5,10 @@ import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.appengine.utils.RequestValidator;
 import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.wiremodel.Price;
-import jiaoni.daigou.lib.teddy.TeddyAdmins;
-import jiaoni.daigou.lib.teddy.TeddyClient;
-import jiaoni.daigou.lib.teddy.model.Order;
 import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
 import jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient;
 import jiaoni.daigou.service.appengine.impls.products.ProductFacade;
 import jiaoni.daigou.service.appengine.impls.shippingorders.ShippingOrderFacade;
-import jiaoni.daigou.service.appengine.impls.teddy.TeddyUtils;
-import jiaoni.daigou.wiremodel.api.ExternalCreateShippingOrderRequest;
 import jiaoni.daigou.wiremodel.api.InitShippingOrderRequest;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.daigou.wiremodel.entity.Product;
@@ -28,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -45,7 +39,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Service
 @Singleton
-@RolesAllowed({ Roles.ADMIN })
+@RolesAllowed( {Roles.ADMIN})
 public class ShippingOrderInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShippingOrderInterface.class);
 
@@ -53,19 +47,16 @@ public class ShippingOrderInterface {
     private final ProductFacade productFacade;
     private final ShippingOrderDbClient shippingOrderDbClient;
     private final ShippingOrderFacade shippingOrderFacade;
-    private final TeddyClient teddyClient;
 
     @Inject
     public ShippingOrderInterface(final CustomerFacade customerFacade,
                                   final ProductFacade productFacade,
                                   final ShippingOrderDbClient shippingOrderDbClient,
-                                  final ShippingOrderFacade shippingOrderFacade,
-                                  @Named(TeddyAdmins.BY_ENV) final TeddyClient teddyClient) {
+                                  final ShippingOrderFacade shippingOrderFacade) {
         this.customerFacade = customerFacade;
         this.productFacade = productFacade;
         this.shippingOrderDbClient = shippingOrderDbClient;
         this.shippingOrderFacade = shippingOrderFacade;
-        this.teddyClient = teddyClient;
     }
 
     @POST
@@ -113,56 +104,37 @@ public class ShippingOrderInterface {
 
         shippingOrder = shippingOrderDbClient.put(shippingOrder);
 
-        if (status == ShippingOrder.Status.PACKED) {
-            LOGGER.info("Call teddy for {}", shippingOrder.getId());
-
-            Order order = teddyClient.makeOrder(
-                    TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
-                    TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
-                    shippingOrder.getTotalWeightLb()
-            );
-
-            shippingOrder = shippingOrder.toBuilder()
-                    .setTeddyOrderId(String.valueOf(order.getId()))
-                    .setTeddyFormattedId(order.getFormattedId())
-                    .setCustomerNotified(false)
-                    .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
-                    .build();
-
-            shippingOrder = shippingOrderDbClient.put(shippingOrder);
-        }
-
         return Response.ok(shippingOrder).build();
     }
 
-    @POST
-    @Path("/{id}/externalCreate")
-    public Response externalCreateShippingOrder(@PathParam("id") final String id,
-                                                final ExternalCreateShippingOrderRequest request) {
-        RequestValidator.validateNotBlank(id, "shippingOrderId");
-        RequestValidator.validateRequest(request.getTotalWeightLb() >= 0);
-
-        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
-        if (shippingOrder == null) {
-            throw new NotFoundException();
-        }
-
-        Order order = teddyClient.makeOrder(
-                TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
-                TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
-                request.getTotalWeightLb()
-        );
-
-        shippingOrder = shippingOrder.toBuilder()
-                .setTeddyOrderId(String.valueOf(order.getId()))
-                .setTeddyFormattedId(order.getFormattedId())
-                .setCustomerNotified(false)
-                .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
-                .build();
-
-        shippingOrder = shippingOrderDbClient.put(shippingOrder);
-        return Response.ok(shippingOrder).build();
-    }
+//    @POST
+//    @Path("/{id}/externalCreate")
+//    public Response externalCreateShippingOrder(@PathParam("id") final String id,
+//                                                final ExternalCreateShippingOrderRequest request) {
+//        RequestValidator.validateNotBlank(id, "shippingOrderId");
+//        RequestValidator.validateRequest(request.getTotalWeightLb() >= 0);
+//
+//        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
+//        if (shippingOrder == null) {
+//            throw new NotFoundException();
+//        }
+//
+//        OrderDetails order = teddyClient.makeOrder(
+//                TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
+//                TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
+//                request.getTotalWeightLb()
+//        );
+//
+//        shippingOrder = shippingOrder.toBuilder()
+//                .setTeddyOrderId(String.valueOf(order.getId()))
+//                .setTeddyFormattedId(order.getFormattedId())
+//                .setCustomerNotified(false)
+//                .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
+//                .build();
+//
+//        shippingOrder = shippingOrderDbClient.put(shippingOrder);
+//        return Response.ok(shippingOrder).build();
+//    }
 
     @GET
     @Path("/get/{id}")

@@ -68,6 +68,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
     @Override
     public T put(T obj) {
         checkNotNull(obj);
+        validateStringKeyPut(obj);
         meterOn();
 
         Entity entity = toEntity(obj);
@@ -90,6 +91,7 @@ public class DatastoreDbClient<T> implements DbClient<T> {
         meterOn();
 
         List<Entity> entities = objs.stream()
+                .peek(this::validateStringKeyPut)
                 .map(this::toEntity)
                 .collect(Collectors.toList());
         List<Key> keys = service.put(entities);
@@ -266,6 +268,15 @@ public class DatastoreDbClient<T> implements DbClient<T> {
                 .withResults(content)
                 .withPageToken(newPageTokenStr)
                 .build();
+    }
+
+    private void validateStringKeyPut(T toPut) {
+        if (entityFactory.getKeyType() == DatastoreEntityFactory.KeyType.STRING_NAME) {
+            String id = entityFactory.getId(toPut);
+            if (StringUtils.isBlank(id)) {
+                throw new IllegalStateException("Cannot put since it must assign ID first. obj=" + toPut);
+            }
+        }
     }
 
     private T toObj(final Entity entity) {

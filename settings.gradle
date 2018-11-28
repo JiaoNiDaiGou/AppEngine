@@ -14,7 +14,6 @@ include 'daigou-service:content-parser'
 include 'daigou-service:daigou-appengine'
 include 'daigou-service:daigou-integration-test'
 include 'daigou-service:daigou-tools'
-include 'daigou-service:lib-teddy'
 include 'daigou-service:lib-wx'
 
 // SongFan

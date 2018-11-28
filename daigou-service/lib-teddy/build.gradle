@@ -1,6 +1,0 @@
-apply from: "$rootDir/standard-java.gradle"
-
-dependencies {
-    compile project(":common")
-    testCompile project(":common-test")
-}

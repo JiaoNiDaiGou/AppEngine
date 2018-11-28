@@ -11,7 +11,6 @@ import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.model.Env;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.ShippingOrder;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +23,6 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
     private static final String FIELD_DATA = "data";
     public static final String FIELD_CREATION_TIME = "creation_time";
     public static final String FIELD_CUSTOMER_ID = "customer_id";
-    public static final String FIELD_TEDDY_ORDER_ID = "teddy_order_id";
     public static final String FIELD_STATUS_NUM = "status_num";
 
     @Inject
@@ -60,7 +58,6 @@ public class ShippingOrderDbClient extends DatastoreDbClient<ShippingOrder> {
             return partialBuilder
                     .indexedLong(FIELD_CREATION_TIME, obj.getCreationTime())
                     .indexedString(FIELD_CUSTOMER_ID, obj.getReceiver().getId())
-                    .indexedLong(FIELD_TEDDY_ORDER_ID, StringUtils.isNotBlank(obj.getTeddyOrderId()) ? Long.parseLong(obj.getTeddyOrderId()) : 0)
                     .indexedInteger(FIELD_STATUS_NUM, obj.getStatusValue())
                     .unindexedProto(FIELD_DATA, obj)
                     .unindexedLastUpdatedTimestampAsNow()

@@ -24,7 +24,6 @@ dependencies {
     compile project(':wire-model')
 
     compile project(':daigou-service:content-parser')
-    compile project(':daigou-service:lib-teddy')
     compile project(':daigou-service:lib-wx')
 
     testCompile junit

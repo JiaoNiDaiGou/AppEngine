@@ -27,6 +27,7 @@ public class WxMessageEnricher {
         }
 
         RichMessage.Builder builder = RichMessage.builder()
+                .withOriginalMessage(message)
                 .withTextContent(message.getContent());
 
         // Image
@@ -42,12 +43,12 @@ public class WxMessageEnricher {
             if (fromContact.getUserName().equals(session.getMyself().getUserName())) {
                 builder.withFromMyself(true);
             } else if (fromContact.getType() == Contact.Type.GROUP_CHAT_ACCOUNT) {
-                builder.withIsGroupMessage(true);
+                builder.withGroupMessage(true);
                 // For group message, the fromContact is the group name.
                 // The contant is in format of 'speakerUserName:content';
                 String speakerUsername = StringUtils.substringBefore(message.getContent(), ":");
                 if (StringUtils.isNotBlank(speakerUsername)) {
-                    builder.withSpeakerContactInGroup(findContact(session, speakerUsername))
+                    builder.withGroupSpeakerContact(findContact(session, speakerUsername))
                             .withTextContent(StringUtils.substringAfter(message.getContent(), ":"));
                 }
             }

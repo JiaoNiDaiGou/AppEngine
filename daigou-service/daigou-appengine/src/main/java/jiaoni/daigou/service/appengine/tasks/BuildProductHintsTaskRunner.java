@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+@Deprecated
 @Singleton
 public class BuildProductHintsTaskRunner implements Consumer<TaskMessage> {
     private final ProductHintsFacade productHintsFacade;

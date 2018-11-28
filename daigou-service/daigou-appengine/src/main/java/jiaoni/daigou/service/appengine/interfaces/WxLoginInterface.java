@@ -16,7 +16,6 @@ import jiaoni.daigou.lib.wx.model.LoginAnswer;
 import jiaoni.daigou.lib.wx.model.LoginStatus;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.service.appengine.impls.db.WxWebSessionDbClient;
-import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
 import jiaoni.daigou.service.appengine.tasks.WxSyncTaskRunner;
 import jiaoni.daigou.wiremodel.api.WxLoginRequest;
 import jiaoni.daigou.wiremodel.api.WxLoginResponse;
@@ -63,7 +62,6 @@ public class WxLoginInterface {
     private final WxWebSessionDbClient wxWebSessionDbClient;
 
     private final HttpClient httpClient;
-    private final TeddyWarmUp teddyWarmUp;
     private final PubSubClient pubSubClient;
 
 
@@ -76,7 +74,6 @@ public class WxLoginInterface {
 
     @Inject
     public WxLoginInterface(final WxSessionDbClient dbClient,
-                            final TeddyWarmUp teddyWarmUp,
                             final WxWebClient wxWebClient,
                             final WxWebSessionDbClient wxWebSessionDbClient,
                             final PubSubClient pubSubClient) {
@@ -85,7 +82,6 @@ public class WxLoginInterface {
                 .getAsJson(new TypeReference<Map<String, WxAppInfo>>() {
                 });
         this.httpClient = HttpClientBuilder.create().build();
-        this.teddyWarmUp = teddyWarmUp;
         this.wxWebClient = wxWebClient;
         this.wxWebSessionDbClient = wxWebSessionDbClient;
         this.pubSubClient = pubSubClient;
@@ -104,7 +100,6 @@ public class WxLoginInterface {
         WxSessionTicket ticket = getWxSessionTicket(appInfo, loginRequest.getCode());
 
         dbClient.put(ticket);
-        teddyWarmUp.warmUpAsyncIfNeeded();
 
         WxLoginResponse response = WxLoginResponse.newBuilder().setTicketId(ticket.getTicketId()).build();
         return Response.ok(response).build();

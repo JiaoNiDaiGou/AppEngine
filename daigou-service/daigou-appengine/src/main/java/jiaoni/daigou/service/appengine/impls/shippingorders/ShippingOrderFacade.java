@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_CREATION_TIME;
 import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_CUSTOMER_ID;
 import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_STATUS_NUM;
-import static jiaoni.daigou.service.appengine.impls.db.ShippingOrderDbClient.FIELD_TEDDY_ORDER_ID;
 
 /**
  * Facade to {@link ShippingOrder}s.
@@ -50,48 +49,10 @@ public class ShippingOrderFacade {
         return shippingOrderDbClient.queryInPagination(dbQuery, limit, pageToken);
     }
 
-    public List<ShippingOrder> queryAllByTeddyOrderIdRange(final long minTeddyIdInclusive,
-                                                           final long maxTeddyIdInclusive) {
-        DbQuery query = DbQuery.and(
-                DbQuery.ge(FIELD_TEDDY_ORDER_ID, minTeddyIdInclusive),
-                DbQuery.le(FIELD_TEDDY_ORDER_ID, maxTeddyIdInclusive)
-        );
-        return shippingOrderDbClient.queryInStream(query)
-                .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
-                .collect(Collectors.toList());
-    }
-
     public List<ShippingOrder> queryAllNonDelivered() {
         DbQuery query = DbQuery.notEq(FIELD_STATUS_NUM, ShippingOrder.Status.DELIVERED_VALUE);
         return shippingOrderDbClient.queryInStream(query)
                 .sorted((a, b) -> Long.compare(b.getCreationTime(), a.getCreationTime()))
                 .collect(Collectors.toList());
     }
-
-//    public List<ShippingOrder> getTeddyAllArchivedShippingOrders() {
-//        LOGGER.info("Load all archived shipping orders");
-//
-//        List<String> paths = storageClient.listAll(AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE);
-//        if (paths.isEmpty()) {
-//            return ImmutableList.of();
-//        }
-//
-//        List<ShippingOrder> shippingOrders = new ArrayList<>();
-//        for (String path : paths) {
-//            LOGGER.info("Load archived shipping from {}", path);
-//            shippingOrders.addAll(loadShippingOrders(path));
-//        }
-//
-//        return shippingOrders;
-//    }
-//
-//    private List<ShippingOrder> loadShippingOrders(final String path) {
-//        byte[] bytes = storageClient.read(path);
-//        try {
-//            return ObjectMapperProvider.get().readValue(bytes, new TypeReference<List<ShippingOrder>>() {
-//            });
-//        } catch (IOException e) {
-//            throw new InternalIOException(e);
-//        }
-//    }
 }

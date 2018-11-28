@@ -2,8 +2,8 @@
 <cronentries>
 
     <cron>
-        <url>/cron/syncJiaoniCustomers</url>
-        <description>Sync JiaoNiDaiGou customers</description>
+        <url>/cron/syncTeddyCustomers</url>
+        <description>Sync Teddy customers</description>
         <schedule>every day 03:00</schedule>
         <target>prod-dot-daigou</target>
         <timezone>America/Los_Angeles</timezone>

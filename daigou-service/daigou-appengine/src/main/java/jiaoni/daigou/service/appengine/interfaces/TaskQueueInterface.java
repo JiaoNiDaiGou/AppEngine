@@ -4,10 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.common.json.ObjectMapperProvider;
-import jiaoni.daigou.service.appengine.impls.teddy.TeddyWarmUp;
-import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import jiaoni.daigou.service.appengine.tasks.WxSyncTaskRunner;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -30,23 +26,15 @@ import javax.ws.rs.core.Response;
 @Path("/tasks")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
-@RolesAllowed({ Roles.ADMIN, Roles.SYS_TASK_QUEUE_OR_CRON })
+@RolesAllowed( {Roles.ADMIN, Roles.SYS_TASK_QUEUE_OR_CRON})
 public class TaskQueueInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskQueueInterface.class);
 
     private final Map<String, Consumer<TaskMessage>> consumers;
 
     @Inject
-    public TaskQueueInterface(final SyncJiaoniCustomersTaskRunner syncJiaoniCustomersTaskRunner,
-                              final SyncJiaoniShippingOrdersTaskRunner syncJiaoniShippingOrdersTaskRunner,
-                              final BuildProductHintsTaskRunner buildProductHintsTaskRunner,
-                              final TeddyWarmUp teddyWarmUp,
-                              final WxSyncTaskRunner wxSyncTaskRunner) {
+    public TaskQueueInterface(final WxSyncTaskRunner wxSyncTaskRunner) {
         this.consumers = buildConsumerMap(Arrays.asList(
-                syncJiaoniCustomersTaskRunner,
-                syncJiaoniShippingOrdersTaskRunner,
-                buildProductHintsTaskRunner,
-                teddyWarmUp,
                 wxSyncTaskRunner
         ));
         LOGGER.info("Register following Tasks: {}", consumers.keySet());

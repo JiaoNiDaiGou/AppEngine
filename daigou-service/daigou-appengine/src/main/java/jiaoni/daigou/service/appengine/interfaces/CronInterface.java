@@ -4,8 +4,6 @@ import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.appengine.access.taskqueue.TaskQueueClient;
 import jiaoni.common.appengine.auth.Roles;
 import jiaoni.daigou.service.appengine.tasks.BuildProductHintsTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.SyncJiaoniCustomersTaskRunner;
-import jiaoni.daigou.service.appengine.tasks.SyncJiaoniShippingOrdersTaskRunner;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ import static jiaoni.common.appengine.access.taskqueue.PubSubClient.QueueName.PR
 @Path("/cron")
 @Produces(MediaType.APPLICATION_JSON)
 @Service
-@RolesAllowed({ Roles.ADMIN, Roles.SYS_TASK_QUEUE_OR_CRON })
+@RolesAllowed( {Roles.ADMIN, Roles.SYS_TASK_QUEUE_OR_CRON})
 public class CronInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(CronInterface.class);
 
@@ -33,18 +31,6 @@ public class CronInterface {
     @Inject
     public CronInterface(final TaskQueueClient taskQueueClient) {
         this.taskQueueClient = taskQueueClient;
-    }
-
-    @Path("/syncJiaoniCustomers")
-    @GET
-    public Response syncJiaoniCustomers() {
-        return sendEmptyTaskMessage(SyncJiaoniCustomersTaskRunner.class);
-    }
-
-    @Path("/syncJiaoniShippingOrders")
-    @GET
-    public Response dumpJiaoniShippingOrders() {
-        return sendEmptyTaskMessage(SyncJiaoniShippingOrdersTaskRunner.class);
     }
 
     @Path("/buildProductHints")

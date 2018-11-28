@@ -238,7 +238,7 @@ public class CnAddressParser implements Parser<Address> {
                 .setTarget(Address.newBuilder()
                         .setRegion(foundCity.getRegionName())
                         .setCity(foundCity.getName())
-                        .setZone(foundZone == null ? trimToEmpty(foundCity.getName()) : trimToEmpty(foundZone))
+                        .setZone(foundZone == null ? trimToEmpty(foundCity.getName()) : trimToEmpty(StringUtils.replace(foundZone, " ", "")))
                         .setAddress(trimToEmpty(StringUtils.replace(foundAddress, " ", "")))
                         .setPostalCode(foundPostalCode)
                         .build(), conf);

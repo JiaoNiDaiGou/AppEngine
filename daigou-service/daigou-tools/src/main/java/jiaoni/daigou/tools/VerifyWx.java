@@ -3,7 +3,6 @@ package jiaoni.daigou.tools;
 import com.google.common.util.concurrent.Uninterruptibles;
 import jiaoni.common.appengine.access.ocr.GoogleVisionOcrClient;
 import jiaoni.common.httpclient.BrowserClient;
-import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.model.Env;
 import jiaoni.common.test.RemoteApi;
 import jiaoni.common.utils.Envs;
@@ -18,12 +17,14 @@ import jiaoni.daigou.lib.wx.model.Contact;
 import jiaoni.daigou.lib.wx.model.LoginAnswer;
 import jiaoni.daigou.lib.wx.model.LoginStatus;
 import jiaoni.daigou.lib.wx.model.Message;
+import jiaoni.daigou.service.appengine.impls.customer.CustomerFacade;
 import jiaoni.daigou.service.appengine.impls.db.CustomerDbClient;
 import jiaoni.daigou.service.appengine.impls.parser.DbEnhancedCustomerParser;
 import jiaoni.daigou.service.appengine.impls.parser.ParserFacade;
+import jiaoni.daigou.service.appengine.impls.wx.RichMessage;
+import jiaoni.daigou.service.appengine.impls.wx.WxMessageEnricher;
 import jiaoni.daigou.wiremodel.api.ParseRequest;
 import jiaoni.daigou.wiremodel.api.ParseResponse;
-import jiaoni.daigou.wiremodel.api.ParsedObject;
 import jiaoni.daigou.wiremodel.entity.Customer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,6 +32,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+//
+// When speak to group, to contact is the group.
+//
+
+// unless its my speaking
+// toContact is always me.
+// from is group
+// speaker is the speaker.
 
 public class VerifyWx {
     public static void main(String[] args) throws Exception {
@@ -41,6 +51,7 @@ public class VerifyWx {
                     new DbEnhancedCustomerParser(new CnCustomerContactParser(), customerDbClient),
                     new GoogleVisionOcrClient()
             );
+            CustomerFacade customerFacade = new CustomerFacade(customerDbClient);
 
             //
             // Login
@@ -69,76 +80,72 @@ public class VerifyWx {
             client.initialize(session);
             client.syncContacts(session);
 
+            WxMessageEnricher enricher = new WxMessageEnricher(client);
+
             //
             // Start syncing
             //
             boolean startSync = true;
-            if (startSync) {
-                LinkedBlockingQueue<Message> messages = new LinkedBlockingQueue<>();
-                WxSyncer syncer = new WxSyncer(session, client, messages);
-                new Thread(syncer).start();
+            LinkedBlockingQueue<Message> messages = new LinkedBlockingQueue<>();
+            WxSyncer syncer = new WxSyncer(session, client, messages);
+            new Thread(syncer).start();
 
-                // Main thread wait
-                while (true) {
-                    try {
+            // Main thread wait
+            while (true) {
+                try {
 
-                        while (!messages.isEmpty()) {
-                            Message message = messages.poll();
-                            String fromUserName = message.getFromUserName();
+                    while (!messages.isEmpty()) {
+                        Message msg = messages.poll();
+                        RichMessage message = enricher.enrich(session, msg);
 
-                            Contact contact = null;
-                            if (session.getMyself().getUserName().equals(fromUserName)) {
-                                contact = session.getMyself();
-                            }
-                            if (contact == null) {
-                                contact = session.getPersonalAccounts().get(message.getFromUserName());
-                            }
-                            if (contact == null) {
-                                contact = session.getGroupChatAccounts().get(message.getFromUserName());
-                            }
-                            String senderName = contact == null ? "unknown" : contact.getNickName();
-
-                            System.out.println("get message: from :" + senderName + ":\n" + message.getContent());
-
-                            if (!senderName.contains("代购奔小康") && !senderName.equals("Tutu")) {
-                                continue;
-                            }
-
-                            if (StringUtils.isNotBlank(message.getContent())) {
-                                ParseResponse parseResponse = parserFacade.parse(ParseRequest.newBuilder()
-                                        .addTexts(message.getContent())
-                                        .setDomain(ParseRequest.Domain.CUSTOMER)
-                                        .build());
-                                System.out.println(ObjectMapperProvider.prettyToJson(parseResponse));
-                                if (parseResponse.getResultsCount() > 0) {
-                                    ParsedObject res = parseResponse.getResults(0);
-                                    if (res.hasCustomer()) {
-                                        Customer customer = res.getCustomer();
-                                        if (customer.getAddressesCount() > 0 && StringUtils.isNoneBlank(
-                                                customer.getName(),
-                                                customer.getPhone().getPhone(),
-                                                customer.getAddresses(0).getRegion(),
-                                                customer.getAddresses(0).getCity(),
-                                                customer.getAddresses(0).getZone(),
-                                                customer.getAddresses(0).getAddress()
-                                        )) {
-                                            String key = customerDbClient.computeKey(customer.getPhone(), customer.getName());
-//                                            if (customerDbClient.getById(key) == null) {
-//                                                customerDbClient.put(customer);
-//                                            }
-                                            client.sendReply(session, WxReply.builder()
-                                                    .text(message.getFromUserName(), "我发现了一个新的客户。我记录在案了." + ObjectMapperProvider.compactToJson(customer))
-                                                    .build());
-                                        }
-                                    }
-                                }
-
-                            }
+                        String content = message.getTextContent();
+                        if (StringUtils.isBlank(content)) {
+                            continue;
                         }
-                    } catch (Exception e) {
+
+                        if (message.isFromMyself() || !message.isGroupMessage()) {
+                            continue;
+                        }
+
+                        Contact fromContact = message.getFromContact();
+                        if (fromContact == null || !fromContact.getNickName().contains("代购奔小康")) {
+                            continue;
+                        }
+
+                        ParseResponse parseResponse = parserFacade.parse(ParseRequest.newBuilder()
+                                .setDomain(ParseRequest.Domain.CUSTOMER)
+                                .addTexts(content)
+                                .build());
+                        if (parseResponse.getResultsCount() == 0 || !parseResponse.getResults(0).hasCustomer()) {
+                            continue;
+                        }
+                        Customer customer = parseResponse.getResults(0).getCustomer();
+                        if (customer.getAddressesCount() == 0 || StringUtils.isAnyBlank(
+                                customer.getName(),
+                                customer.getPhone().getPhone(),
+                                customer.getAddresses(0).getRegion(),
+                                customer.getAddresses(0).getCity(),
+                                customer.getAddresses(0).getZone(),
+                                customer.getAddresses(0).getAddress())) {
+                            continue;
+                        }
+
+                        customer = customerFacade.createOrUpdateCustomer(customer);
+                        String reply = String.format("我发现了客户。name:%s, phone:%s, %s|%s|%s|%s",
+                                customer.getName(),
+                                customer.getPhone().getPhone(),
+                                customer.getAddresses(0).getRegion(),
+                                customer.getAddresses(0).getCity(),
+                                customer.getAddresses(0).getZone(),
+                                customer.getAddresses(0).getAddress());
+                        System.out.println(reply);
+                        client.sendReply(session, WxReply.builder()
+                                .text(message.getOriginalMessage().getFromUserName(), reply)
+                                .build());
                     }
-                    Uninterruptibles.sleepUninterruptibly(2000L, TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
                 }
+                Uninterruptibles.sleepUninterruptibly(2000L, TimeUnit.MILLISECONDS);
             }
         }
     }
