@@ -73,8 +73,6 @@ message ShippingOrder {
     ShippingEnding shipping_ending = 34;
     repeated ShippingHistoryEntry shipping_history = 40;
 
-    string teddy_order_id = 100;
-    string teddy_formatted_id = 101;
     string sender_name = 110;
 
     jiaoni.common.wiremodel.Price total_price = 130;
