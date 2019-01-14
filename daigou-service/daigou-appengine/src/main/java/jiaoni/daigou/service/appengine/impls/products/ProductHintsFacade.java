@@ -1,31 +1,21 @@
 package jiaoni.daigou.service.appengine.impls.products;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.net.MediaType;
 import jiaoni.common.appengine.access.storage.StorageClient;
-import jiaoni.common.json.ObjectMapperProvider;
 import jiaoni.common.utils.StringUtils2;
 import jiaoni.daigou.service.appengine.AppEnvs;
 import jiaoni.daigou.wiremodel.entity.Product;
 import jiaoni.daigou.wiremodel.entity.ProductCategory;
 import jiaoni.daigou.wiremodel.entity.ProductHint;
 import jiaoni.daigou.wiremodel.entity.ProductHints;
-import jiaoni.daigou.wiremodel.entity.ShippingOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -81,7 +71,6 @@ public class ProductHintsFacade {
     public ProductHints buildHints() {
         Set<ProductHint> hints = new HashSet<>();
         addHintsFromDb(hints);
-        addHintsFromArchives(hints);
         ProductHints toReturn = ProductHints.newBuilder().addAllHints(hints).build();
         saveHintsIntoGcs(toReturn);
         return toReturn;
@@ -102,62 +91,6 @@ public class ProductHintsFacade {
                     .setName(product.getName())
                     .setSuggestedUnitPrice(product.getSuggestedUnitPrice())
                     .build());
-        }
-    }
-
-    private void addHintsFromArchives(final Set<ProductHint> hints) {
-        List<ShippingOrder> shippingOrders = loadAllArchivedShippingOrders();
-
-        List<Product> products = shippingOrders.stream()
-                .map(ShippingOrder::getProductEntriesList)
-                .flatMap(Collection::stream)
-                .map(ShippingOrder.ProductEntry::getProduct)
-                .filter(t -> StringUtils.isNotBlank(t.getName()))
-                .collect(Collectors.toList());
-
-        List<Product> unknownCategoryProducts = new ArrayList<>();
-        Map<String, ProductCategory> brandToCategory = new HashMap<>();
-
-        Table<ProductCategory, String, Set<String>> table = HashBasedTable.create();
-
-        for (Product product : products) {
-            ProductCategory category = product.getCategory();
-            if (category == ProductCategory.UNKNOWN) {
-                unknownCategoryProducts.add(product);
-                continue;
-            }
-
-            addProduct(table, category, product.getBrand(), product.getName());
-            brandToCategory.put(product.getBrand(), category);
-        }
-
-        for (Product product : unknownCategoryProducts) {
-            String brand = normBrand(product.getBrand());
-            String name = product.getName();
-
-            ProductCategory category = brandToCategory.get(brand);
-            if (category != null) {
-                addProduct(table, category, brand, name);
-            }
-        }
-
-        for (Table.Cell<ProductCategory, String, Set<String>> cell : table.cellSet()) {
-            ProductCategory category = cell.getRowKey();
-            String brand = cell.getColumnKey();
-            Set<String> names = cell.getValue();
-            if (category == ProductCategory.UNKNOWN
-                    || category == ProductCategory.UNRECOGNIZED
-                    || StringUtils.isBlank(brand)
-                    || names.size() < 10) {
-                continue;
-            }
-            for (String name : cell.getValue()) {
-                hints.add(ProductHint.newBuilder()
-                        .setCategory(category)
-                        .setBrand(brand)
-                        .setName(name)
-                        .build());
-            }
         }
     }
 
@@ -182,22 +115,5 @@ public class ProductHintsFacade {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private List<ShippingOrder> loadAllArchivedShippingOrders() {
-        List<ShippingOrder> toReturn = new ArrayList<>();
-        List<String> paths = storageClient.listAll(AppEnvs.Dir.SHIPPING_ORDERS_ARCHIVE);
-        for (String path : paths) {
-            LOGGER.info("Load {}", path);
-            List<ShippingOrder> shippingOrders = new ArrayList<>();
-            try {
-                shippingOrders = ObjectMapperProvider.get().readValue(storageClient.read(path), new TypeReference<List<ShippingOrder>>() {
-                });
-            } catch (IOException e) {
-                LOGGER.error("Failed read {}. SKIP!", path, e);
-            }
-            toReturn.addAll(shippingOrders);
-        }
-        return toReturn;
     }
 }

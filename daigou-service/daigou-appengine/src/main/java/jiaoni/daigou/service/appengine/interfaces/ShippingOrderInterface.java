@@ -107,35 +107,6 @@ public class ShippingOrderInterface {
         return Response.ok(shippingOrder).build();
     }
 
-//    @POST
-//    @Path("/{id}/externalCreate")
-//    public Response externalCreateShippingOrder(@PathParam("id") final String id,
-//                                                final ExternalCreateShippingOrderRequest request) {
-//        RequestValidator.validateNotBlank(id, "shippingOrderId");
-//        RequestValidator.validateRequest(request.getTotalWeightLb() >= 0);
-//
-//        ShippingOrder shippingOrder = shippingOrderDbClient.getById(id);
-//        if (shippingOrder == null) {
-//            throw new NotFoundException();
-//        }
-//
-//        OrderDetails order = teddyClient.makeOrder(
-//                TeddyUtils.convertToTeddyReceiver(shippingOrder.getReceiver()),
-//                TeddyUtils.convertToTeddyProducts(shippingOrder.getProductEntriesList()),
-//                request.getTotalWeightLb()
-//        );
-//
-//        shippingOrder = shippingOrder.toBuilder()
-//                .setTeddyOrderId(String.valueOf(order.getId()))
-//                .setTeddyFormattedId(order.getFormattedId())
-//                .setCustomerNotified(false)
-//                .setStatus(ShippingOrder.Status.EXTERNAL_SHIPPING_CREATED)
-//                .build();
-//
-//        shippingOrder = shippingOrderDbClient.put(shippingOrder);
-//        return Response.ok(shippingOrder).build();
-//    }
-
     @GET
     @Path("/get/{id}")
     public Response getShippingOrderById(@PathParam("id") final String id) {

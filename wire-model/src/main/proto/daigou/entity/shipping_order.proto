@@ -19,7 +19,7 @@ message ShippingOrder {
         // totoal weight assigned.
         PACKED = 1;
 
-        // We have create a shipping order on some external service. E.g. Teddy.
+        // We have create a shipping order on some external service.
         EXTERNAL_SHIPPING_CREATED = 2;
 
         // External shipping service is processing the shipping order.

@@ -65,8 +65,6 @@ public class AppEnvs extends Envs {
     }
 
     public interface Dir {
-        String SHIPPING_ORDERS_DUMP = GCS_ROOT + "teddy_orders_dump/";
-        String SHIPPING_ORDERS_ARCHIVE = GCS_ROOT + "teddy_orders_archive/";
         String PRODUCTS_HINTS = GCS_ROOT + "products_hints/";
     }
 }
