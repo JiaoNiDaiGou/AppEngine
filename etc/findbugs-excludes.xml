@@ -12,6 +12,10 @@
         <Bug pattern="UCF_USELESS_CONTROL_FLOW,SE_BAD_FIELD"/>
     </Match>
     <Match>
+        <Class name="~jiaoni.daigou.v2.*"/>
+        <Bug pattern="UCF_USELESS_CONTROL_FLOW,SE_BAD_FIELD"/>
+    </Match>
+    <Match>
         <Package name="~jiaoni.songfan.tools.*"/>
     </Match>
     <Match>

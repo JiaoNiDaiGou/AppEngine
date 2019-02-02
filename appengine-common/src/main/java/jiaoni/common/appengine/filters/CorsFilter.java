@@ -23,13 +23,15 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
             // Move to properties
             //
             // Add trusted clients.
+            "*",
             "http://localhost:3000",
             "https://localhost:3000",
             "https://songfan-page-dot-fluid-crane-200921.appspot.com");
 
     private static final List<String> ALLOWED_CONTROL_HEADERS = ImmutableList.of(
             "Authorization",
-            "Content-Type"
+            "Content-Type",
+            "X-JNDG-SEC"
     );
 
     private static void putIfNotPresent(MultivaluedMap<String, Object> h, String header, String value) {

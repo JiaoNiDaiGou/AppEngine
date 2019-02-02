@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class BaseDbClient<T> implements DbClient<T> {
     private final DbClient<T> client;
 
-    public BaseDbClient(final DbClient client) {
+    protected BaseDbClient(final DbClient client) {
         this.client = checkNotNull(client);
     }
 

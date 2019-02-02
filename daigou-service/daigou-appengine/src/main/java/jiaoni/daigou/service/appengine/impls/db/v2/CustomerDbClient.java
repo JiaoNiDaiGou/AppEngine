@@ -1,4 +1,4 @@
-package jiaoni.daigou.service.appengine.impls.db;
+package jiaoni.daigou.service.appengine.impls.db.v2;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
@@ -11,16 +11,14 @@ import jiaoni.common.appengine.access.db.DbClientBuilder;
 import jiaoni.common.appengine.guice.ENV;
 import jiaoni.common.model.Env;
 import jiaoni.common.utils.EncryptUtils;
-import jiaoni.common.wiremodel.PhoneNumber;
 import jiaoni.daigou.service.appengine.AppEnvs;
-import jiaoni.daigou.wiremodel.entity.Customer;
+import jiaoni.daigou.v2.entity.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static jiaoni.common.utils.Preconditions2.checkNotBlank;
 
 @Singleton
@@ -46,19 +44,12 @@ public class CustomerDbClient extends BaseDbClient<Customer> {
         );
     }
 
-    public static String computeKey(final PhoneNumber phone, final String name) {
-        checkNotNull(phone);
-        checkNotBlank(phone.getCountryCode());
-        checkNotBlank(phone.getPhone());
+    public static String computeKey(final String name, final String phone) {
         checkNotBlank(name);
-
-        String key = EncryptUtils.base64Encode(phone.getCountryCode() + "|" + phone.getPhone() + "|" + name);
-        LOGGER.info("Compute key: from {}|{}|{} to {}", phone.getCountryCode(), phone.getPhone(), name, key);
+        checkNotBlank(phone);
+        String key = EncryptUtils.base64Encode(name + "|" + phone);
+        LOGGER.info("Compute key: from {}|{} to {}", name, phone, key);
         return key;
-    }
-
-    public Customer putAndUpdateTimestamp(final Customer customer) {
-        return put(customer.toBuilder().setLastUpdatedTime(System.currentTimeMillis()).build());
     }
 
     private static class EntityFactory extends BaseEntityFactory<Customer> {

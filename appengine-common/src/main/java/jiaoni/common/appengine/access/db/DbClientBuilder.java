@@ -6,76 +6,135 @@ import com.google.protobuf.Parser;
 import jiaoni.common.model.BiTransform;
 import jiaoni.common.model.JsonBytesBiTransform;
 import jiaoni.common.model.ProtoBytesBiTransform;
-import org.apache.commons.lang3.StringUtils;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static jiaoni.common.utils.Preconditions2.checkNotBlank;
 
 public class DbClientBuilder<T> {
-    private DatastoreService datastoreService;
-    private DatastoreEntityFactory<T> entityFactory;
+    private static final Set<String> KNOWN_MEMCACHE_NAMESPACES = new HashSet<>();
 
-    // Memcache settings
-    private boolean useMemcache = false;
-    private String memcacheNamespace;
-    private BiTransform<T, byte[]> memcacheTransform;
-    private MemcacheService memcacheService;
-    private boolean memcacheAll = false;
+    private DatastoreSettings<T> datastoreSettings;
+    private MemcacheSettings<T> memcacheSettings;
 
-    public DbClientBuilder<T> entityFactory(final DatastoreEntityFactory<T> entityFactory) {
-        this.entityFactory = entityFactory;
+    public DbClientBuilder<T> datastore(final DatastoreSettings<T> datastoreSettings) {
+        this.datastoreSettings = datastoreSettings;
         return this;
     }
 
-    public DbClientBuilder<T> datastoreService(final DatastoreService datastoreService) {
-        this.datastoreService = datastoreService;
+    public DbClientBuilder<T> memcache(final MemcacheSettings<T> memcacheSettings) {
+        this.memcacheSettings = memcacheSettings;
         return this;
     }
 
-    public DbClientBuilder<T> memcacheService(final MemcacheService memcacheService) {
-        this.memcacheService = memcacheService;
-        return this;
+    public static <T> DatastoreSettings<T> datastoreSettings() {
+        return new DatastoreSettings<>();
     }
 
-    public DbClientBuilder<T> memcache(final String memcacheNamespace,
-                                       final BiTransform<T, byte[]> memcacheTransform) {
-        this.memcacheNamespace = memcacheNamespace;
-        this.memcacheTransform = memcacheTransform;
-        this.useMemcache = true;
-        return this;
-    }
-
-    public DbClientBuilder<T> memcacheJsonTransform(final String memcacheNamespace, final Class<T> type) {
-        return memcache(memcacheNamespace, new JsonBytesBiTransform<>(type));
-    }
-
-    @SuppressWarnings("unchecked")
-    public DbClientBuilder<T> memcacheProtoTransform(final String memcacheNamespace, final Parser<T> parser) {
-        return memcache(memcacheNamespace, new ProtoBytesBiTransform(parser));
-    }
-
-    /**
-     * Use memcache to cache all items (scan())
-     */
-    public DbClientBuilder<T> memcacheAll() {
-        this.memcacheAll = true;
-        return this;
+    public static <T> MemcacheSettings<T> memcacheSettings() {
+        return new MemcacheSettings<>();
     }
 
     public DbClient<T> build() {
-        checkNotNull(datastoreService);
-        checkNotNull(entityFactory);
+        checkNotNull(datastoreSettings);
+        checkNotNull(datastoreSettings.datastoreService);
+        checkNotNull(datastoreSettings.entityFactory);
 
-        DbClient.IdGetter<T> idGetter = t -> entityFactory.getId(t);
+        DbClient<T> toReturn = new DatastoreDbClient<>(datastoreSettings.datastoreService, datastoreSettings.entityFactory);
 
-        DbClient<T> toReturn = new DatastoreDbClient<>(datastoreService, entityFactory);
-        if (useMemcache) {
-            checkArgument(StringUtils.isNotBlank(memcacheNamespace));
-            checkNotNull(memcacheTransform);
-            checkNotNull(memcacheService);
-            toReturn = new MemcacheDbClient<>(memcacheNamespace, memcacheService, toReturn, idGetter, memcacheTransform, memcacheAll);
+        if (memcacheSettings != null) {
+            checkNotBlank(memcacheSettings.namespace);
+//            checkState(KNOWN_MEMCACHE_NAMESPACES.add(memcacheSettings.namespace), "Duplicated Memcache namespace " + memcacheSettings.namespace);
+            checkNotNull(memcacheSettings.memcacheService);
+            checkNotNull(memcacheSettings.transform);
+
+            DbClient.IdGetter<T> idGetter = t -> datastoreSettings.entityFactory.getId(t);
+
+            toReturn = new MemcacheDbClient<>(
+                    memcacheSettings.namespace,
+                    memcacheSettings.memcacheService,
+                    toReturn,
+                    idGetter,
+                    memcacheSettings.transform,
+                    memcacheSettings.cacheAllData
+            );
         }
 
         return toReturn;
+    }
+
+    /**
+     * Datastore settings.
+     *
+     * @param <T> Type of object.
+     */
+    public static class DatastoreSettings<T> {
+        private DatastoreService datastoreService;
+        private DatastoreEntityFactory<T> entityFactory;
+
+        private DatastoreSettings() {
+        }
+
+        public DatastoreSettings<T> entityFactory(final DatastoreEntityFactory<T> entityFactory) {
+            this.entityFactory = entityFactory;
+            return this;
+        }
+
+        public DatastoreSettings<T> datastoreService(final DatastoreService datastoreService) {
+            this.datastoreService = datastoreService;
+            return this;
+        }
+    }
+
+    /**
+     * Memcache settings.
+     *
+     * @param <T> Type of object.
+     */
+    public static class MemcacheSettings<T> {
+        private String namespace;
+
+        /**
+         * If true, will cache all data using bucket.
+         * It is suitable for caching small amount of data.
+         */
+        private boolean cacheAllData;
+
+        /**
+         * Transform object to bytes, to be stored in memcache.
+         */
+        private BiTransform<T, byte[]> transform;
+
+        private MemcacheService memcacheService;
+
+        private MemcacheSettings() {
+        }
+
+        public MemcacheSettings<T> memcacheService(final MemcacheService memcacheService) {
+            this.memcacheService = memcacheService;
+            return this;
+        }
+
+        public MemcacheSettings<T> jsonTransform(final Class<T> type) {
+            return transform(new JsonBytesBiTransform<>(type));
+        }
+
+        @SuppressWarnings("unchecked")
+        public MemcacheSettings<T> protoTransform(final Parser<T> parser) {
+            return transform(new ProtoBytesBiTransform(parser));
+        }
+
+        public MemcacheSettings<T> transform(final BiTransform<T, byte[]> transform) {
+            this.transform = transform;
+            return this;
+        }
+
+        public MemcacheSettings<T> namespace(final String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
     }
 }

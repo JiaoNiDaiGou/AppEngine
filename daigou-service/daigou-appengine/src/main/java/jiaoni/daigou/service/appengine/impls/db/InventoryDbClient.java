@@ -32,12 +32,11 @@ public class InventoryDbClient extends BaseDbClient<Triple<String, Integer, Long
                              final DatastoreService datastoreService,
                              final MemcacheService memcacheService) {
         super(new DbClientBuilder<Triple<String, Integer, Long>>()
-                .datastoreService(datastoreService)
-                .entityFactory(new EntityFactory(env))
-                .memcache(TABLE_NAME, new MemcacheTransform())
-                .memcacheService(memcacheService)
-                .memcacheAll()
-                .build());
+                .datastore(DbClientBuilder.<Triple<String, Integer, Long>>datastoreSettings()
+                        .datastoreService(datastoreService)
+                        .entityFactory(new EntityFactory(env)))
+                .build()
+        );
     }
 
     private static class MemcacheTransform implements BiTransform<Triple<String, Integer, Long>, byte[]> {

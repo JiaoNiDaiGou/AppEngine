@@ -4,6 +4,8 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import jiaoni.common.appengine.auth.Authenticator;
 import jiaoni.common.appengine.auth.BypassAuthenticator;
 import jiaoni.common.appengine.auth.CustomSecretAuthenticator;
@@ -26,6 +28,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/")
@@ -37,6 +40,10 @@ public class ApiApplication extends ResourceConfig {
     private static final String INTERFACE_PACKAGE = "jiaoni.daigou.service.appengine.interfaces";
 
     public ApiApplication() {
+        this(null);
+    }
+
+    public ApiApplication(@Nullable final Module overrideModule) {
         register(JacksonJaxbJsonProvider.class);
         register(ObjectMapperContextResolver.class);
         register(RolesAllowedDynamicFeature.class);
@@ -51,7 +58,11 @@ public class ApiApplication extends ResourceConfig {
         register(WireLogFilter.class);
 
         packages(PACKAGES);
-        Injector injector = Guice.createInjector(new ServiceModule());
+        Module module = new ServiceModule();
+        if (overrideModule != null) {
+            module = Modules.override(module).with(overrideModule);
+        }
+        Injector injector = Guice.createInjector(module);
         HK2toGuiceModule hk2Module = new HK2toGuiceModule(INTERFACE_PACKAGE, injector);
         register(hk2Module);
     }

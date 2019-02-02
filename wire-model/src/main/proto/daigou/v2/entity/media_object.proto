@@ -1,0 +1,21 @@
+syntax = "proto3";
+package jiaoni.daigou.v2.entity;;
+
+option java_package = "jiaoni.daigou.v2.entity";
+option java_multiple_files = true;
+
+message MediaObject {
+    // Id of the object.
+    string id = 1;
+
+    // Path to the bucket storage
+    string full_path = 2;
+
+    string signed_upload_url = 3;
+
+    string signed_download_url = 4;
+
+    string media_type = 5;
+
+    bytes bytes = 6;
+}

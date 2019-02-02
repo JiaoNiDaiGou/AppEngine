@@ -59,11 +59,11 @@ public class ServiceModule extends AbstractModule {
     @Singleton
     WxSessionDbClient provideWxSessionDbClient(final DatastoreService datastoreService,
                                                final MemcacheService memcacheService) {
+
         return new WxSessionDbClient(
                 AppEnvs.getServiceName(),
                 AppEnvs.getEnv(),
-                datastoreService,
-                memcacheService);
+                datastoreService);
     }
 
     @Provides

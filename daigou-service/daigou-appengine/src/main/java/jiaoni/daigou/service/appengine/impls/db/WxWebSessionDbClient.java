@@ -26,11 +26,16 @@ public class WxWebSessionDbClient extends BaseDbClient<Session> {
                                 final DatastoreService datastoreService,
                                 final MemcacheService memcacheService) {
         super(new DbClientBuilder<Session>()
-                .datastoreService(datastoreService)
-                .entityFactory(new EntityFactory(env))
-                .memcacheService(memcacheService)
-                .memcacheJsonTransform(TABLE_NAME, Session.class)
-                .build());
+                .datastore(DbClientBuilder.<Session>datastoreSettings()
+                        .datastoreService(datastoreService)
+                        .entityFactory(new EntityFactory(env)))
+                .memcache(DbClientBuilder.<Session>memcacheSettings()
+                        .memcacheService(memcacheService)
+                        .namespace(TABLE_NAME)
+                        .jsonTransform(Session.class)
+                )
+                .build()
+        );
     }
 
     private static class EntityFactory extends BaseEntityFactory<Session> {

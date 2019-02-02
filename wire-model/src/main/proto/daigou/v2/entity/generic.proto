@@ -1,0 +1,17 @@
+syntax = "proto3";
+package jiaoni.daigou.v2.entity;
+
+option java_package = "jiaoni.daigou.v2.entity";
+option java_multiple_files = true;
+
+message BytesMap {
+    map<string, bytes> value = 1;
+}
+
+message StringArray {
+    repeated string value = 1;
+}
+
+message BytesArray {
+    repeated bytes value = 1;
+}

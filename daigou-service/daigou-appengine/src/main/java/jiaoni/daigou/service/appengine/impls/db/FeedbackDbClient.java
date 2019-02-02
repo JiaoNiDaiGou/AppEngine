@@ -27,11 +27,13 @@ public class FeedbackDbClient extends BaseDbClient<Feedback> {
 
     @Inject
     public FeedbackDbClient(@ENV final Env env,
-                            final DatastoreService service) {
+                            final DatastoreService datastoreService) {
         super(new DbClientBuilder<Feedback>()
-                .datastoreService(service)
-                .entityFactory(new EntityFactory(env))
-                .build());
+                .datastore(DbClientBuilder.<Feedback>datastoreSettings()
+                        .datastoreService(datastoreService)
+                        .entityFactory(new EntityFactory(env)))
+                .build()
+        );
     }
 
     public List<Feedback> getAllOpenFeedbacks() {

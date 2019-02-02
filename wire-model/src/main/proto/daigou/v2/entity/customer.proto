@@ -1,0 +1,19 @@
+syntax = "proto3";
+package jiaoni.daigou.v2.entity;
+
+option java_package = "jiaoni.daigou.v2.entity";
+option java_multiple_files = true;
+
+import "daigou/v2/entity/address.proto";
+
+message Customer {
+    string id = 1;
+    string name = 2;
+    string phone = 3;
+    string id_card = 4;
+    repeated Address addresses = 5;
+    int32 default_address_index = 6;
+
+    int64 creation_time = 10;
+    int64 last_update_time = 11;
+}

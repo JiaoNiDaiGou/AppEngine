@@ -26,7 +26,7 @@ public class CustomerIntegrationTest {
     private final ApiClient apiClient = new ApiClient(AppEnvs.getHostname(Env.DEV));
 
     @Test
-    public void testGetCustomers() {
+    public void testGetAllCustomers() {
         List<Customer> customers = apiClient.newTarget()
                 .path("api/customers/all")
                 .request()

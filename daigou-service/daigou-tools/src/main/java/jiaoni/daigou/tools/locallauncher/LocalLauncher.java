@@ -1,5 +1,9 @@
 package jiaoni.daigou.tools.locallauncher;
 
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import jiaoni.common.appengine.access.db.DoNothingMemcache;
 import jiaoni.common.model.Env;
 import jiaoni.daigou.service.appengine.ApiApplication;
 import jiaoni.daigou.service.appengine.AppEnvs;
@@ -9,6 +13,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import java.net.URI;
+import javax.inject.Singleton;
 import javax.ws.rs.core.UriBuilder;
 
 /**
@@ -23,7 +28,7 @@ public class LocalLauncher {
             int port = Integer.parseInt(StringUtils.substringAfterLast(AppEnvs.getHostname(Env.LOCAL), ":"));
 
             URI baseUri = UriBuilder.fromUri(uri).port(port).build();
-            ResourceConfig resourceConfig = new ApiApplication();
+            ResourceConfig resourceConfig = new ApiApplication(new LocalModule());
             server = GrizzlyHttpServerFactory.createHttpServer(baseUri, resourceConfig);
             server.start();
             System.out.println("Service started. Listened to port " + port + "...");
@@ -40,6 +45,19 @@ public class LocalLauncher {
                 System.out.println("Shutdown server");
                 server.shutdownNow();
             }
+        }
+    }
+
+    private static class LocalModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            super.configure();
+        }
+
+        @Provides
+        @Singleton
+        MemcacheService provideMemcacheService() {
+            return new DoNothingMemcache();
         }
     }
 }

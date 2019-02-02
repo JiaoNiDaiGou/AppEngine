@@ -2,7 +2,6 @@ package jiaoni.common.appengine.auth;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.memcache.MemcacheService;
 import jiaoni.common.appengine.access.db.BaseDbClient;
 import jiaoni.common.appengine.access.db.BaseEntityFactory;
 import jiaoni.common.appengine.access.db.DatastoreEntityBuilder;
@@ -19,13 +18,11 @@ public class WxSessionDbClient extends BaseDbClient<WxSessionTicket> {
 
     public WxSessionDbClient(final String serviceName,
                              final Env env,
-                             final DatastoreService datastoreService,
-                             final MemcacheService memcacheService) {
+                             final DatastoreService datastoreService) {
         super(new DbClientBuilder<WxSessionTicket>()
-                .datastoreService(datastoreService)
-                .memcacheService(memcacheService)
-                .entityFactory(new EntityFactory(serviceName, env))
-                .memcacheJsonTransform("wx.sessionTicket", WxSessionTicket.class)
+                .datastore(DbClientBuilder.<WxSessionTicket>datastoreSettings()
+                        .datastoreService(datastoreService)
+                        .entityFactory(new EntityFactory(serviceName, env)))
                 .build());
     }
 

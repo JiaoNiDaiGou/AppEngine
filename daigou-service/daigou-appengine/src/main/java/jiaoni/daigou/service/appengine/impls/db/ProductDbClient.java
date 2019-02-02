@@ -39,12 +39,16 @@ public class ProductDbClient extends BaseDbClient<Product> {
                            final DatastoreService datastoreService,
                            final MemcacheService memcacheService) {
         super(new DbClientBuilder<Product>()
-                .datastoreService(datastoreService)
-                .entityFactory(new EntityFactory(env))
-                .memcacheService(memcacheService)
-                .memcacheProtoTransform(TABLE_NAME, Product.parser())
-                .memcacheAll()
-                .build());
+                .datastore(DbClientBuilder.<Product>datastoreSettings()
+                        .datastoreService(datastoreService)
+                        .entityFactory(new EntityFactory(env)))
+                .memcache(DbClientBuilder.<Product>memcacheSettings()
+                        .memcacheService(memcacheService)
+                        .namespace(TABLE_NAME)
+                        .jsonTransform(Product.class)
+                )
+                .build()
+        );
     }
 
     public List<Product> getProductsByCategory(final ProductCategory category) {

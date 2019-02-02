@@ -1,7 +1,6 @@
 package jiaoni.common.appengine.auth;
 
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import jiaoni.common.appengine.access.db.DbClient;
 import jiaoni.common.model.Env;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +26,7 @@ public class WxAuthenticator implements Authenticator {
         this.dbClient = new WxSessionDbClient(
                 serviceName,
                 env,
-                DatastoreServiceFactory.getDatastoreService(),
-                MemcacheServiceFactory.getMemcacheService("sys.wx"));
+                DatastoreServiceFactory.getDatastoreService());
     }
 
     @Override
