@@ -51,7 +51,7 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1KhjjI7y4D75hPtYUXSAekPdBFfPHU37_5Eb4IGi2NrU/edit#gid=1279622501";
+            "https://docs.google.com/spreadsheets/d/1idS2QWF683wTHWYwdK_VYm9So6umqrg4qxQtq9Y4VpE/edit#gid=296382217";
     private static final boolean SEND_TO_FU = false;
 
     //
@@ -145,12 +145,12 @@ public class SendEmail2 {
                 } else if (raw.contains("電話")) {
                     System.out.println("Parse " + raw + "as phone.");
                     schema.phoneIndex = i;
-                } else if ((raw.contains("取貨") && raw.contains("時間")) || (raw.equals("取貨時間"))) {
-//                } else if (i == 2) {
+//                } else if ((raw.contains("取貨") && raw.contains("時間")) || (raw.equals("取貨時間"))) {
+                } else if (i == 3) {
                     System.out.println("Parse " + raw + " as DeliveryTime.");
                     schema.deliveryTimeIndex = i;
-                } else if (raw.contains("取貨") && raw.contains("地點")) {
-//                } else if (i == 3) {
+//                } else if (raw.contains("取貨") && raw.contains("地點")) {
+                } else if (i == 2) {
                     System.out.println("Parse " + raw + " as DeliveryLocation.");
                     schema.deliveryLocationIndex.put(i, raw);
                 } else if (!raw.equals("$") && raw.contains("$")) { // '$' may used as total price.
