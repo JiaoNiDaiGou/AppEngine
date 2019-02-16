@@ -1,0 +1,45 @@
+syntax = "proto3";
+package jiaoni.daigou.v2.entity;
+
+option java_package = "jiaoni.daigou.v2.entity";
+option java_multiple_files = true;
+
+import "daigou/v2/entity/price.proto";
+
+message Product {
+    string id = 1;
+    ProductCategory category = 2;
+    string name = 3;
+    string brand = 4;
+    string description = 5;
+
+    repeated string media_ids = 21;
+
+    Price estimated_buying_price = 30;
+    Price suggested_selling_price = 31;
+}
+
+message ProductBrand {
+    string id = 1;
+    string name = 2;
+    repeated string alias = 3;
+}
+
+enum ProductCategory {
+    UNKNOWN = 0;
+    ACCESSORIES = 1;
+    BABY_PRODUCTS = 2;
+    BAGS = 3;
+    CLOTHES = 4;
+    DAILY_NECESSITIES = 5;
+    FOOD = 6;
+    HEALTH_SUPPLEMENTS = 7;
+    LARGE_COMMERCIAL_GOODS = 8;
+    LARGE_ITEMS = 9;
+    MAKE_UP = 10;
+    MILK_POWDER = 11;
+    SHOES = 12;
+    SMALL_APPLIANCES = 13;
+    TOYS = 14;
+    WATCHES = 15;
+}

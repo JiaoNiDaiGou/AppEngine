@@ -16,11 +16,9 @@ import jiaoni.common.wiremodel.Price;
 import jiaoni.contenttemplate.TemplateData;
 import jiaoni.contenttemplate.Templates;
 import jiaoni.contenttemplate.TemplatesFactory;
-import jiaoni.daigou.wiremodel.entity.Customer;
 import jiaoni.daigou.wiremodel.entity.Delivery;
 import jiaoni.daigou.wiremodel.entity.Order;
 import jiaoni.daigou.wiremodel.entity.OrderEntry;
-import jiaoni.daigou.wiremodel.entity.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
@@ -51,8 +49,8 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1idS2QWF683wTHWYwdK_VYm9So6umqrg4qxQtq9Y4VpE/edit#gid=296382217";
-    private static final boolean SEND_TO_FU = false;
+            "https://docs.google.com/spreadsheets/d/1Pk_V_YkZfIt16fUsqus22o4PxVbMVnaghvdcrljckYA/edit#gid=1090810918";
+    private static final boolean SEND_TO_FU = true;
 
     //
     //
@@ -132,43 +130,43 @@ public class SendEmail2 {
 
         for (int i = 0; i < headers.size(); i++) {
             String raw = StringUtils.trimToEmpty(headers.get(i));
-            if (StringUtils.isNotBlank(raw)) {
-                if (raw.equals("時間戳記")) {
-                    System.out.println("Parse " + raw + " as Timestamp");
-                    schema.datetimeIndex = i;
-                } else if (raw.contains("電子郵件")) {
-                    System.out.println("Parse " + raw + " as email.");
-                    schema.emailIndex = i;
-                } else if (raw.contains("聯絡名稱")) {
-                    System.out.println("Parse " + raw + " as name.");
-                    schema.nameIndex = i;
-                } else if (raw.contains("電話")) {
-                    System.out.println("Parse " + raw + "as phone.");
-                    schema.phoneIndex = i;
+//            if (StringUtils.isNotBlank(raw)) {
+            if (raw.equals("時間戳記")) {
+                System.out.println("Parse " + raw + " as Timestamp");
+                schema.datetimeIndex = i;
+            } else if (raw.contains("電子郵件")) {
+                System.out.println("Parse " + raw + " as email.");
+                schema.emailIndex = i;
+            } else if (raw.contains("聯絡名稱")) {
+                System.out.println("Parse " + raw + " as name.");
+                schema.nameIndex = i;
+            } else if (raw.contains("電話")) {
+                System.out.println("Parse " + raw + "as phone.");
+                schema.phoneIndex = i;
 //                } else if ((raw.contains("取貨") && raw.contains("時間")) || (raw.equals("取貨時間"))) {
-                } else if (i == 3) {
-                    System.out.println("Parse " + raw + " as DeliveryTime.");
-                    schema.deliveryTimeIndex = i;
+            } else if (i == 3) {
+                System.out.println("Parse " + raw + " as DeliveryTime.");
+                schema.deliveryTimeIndex = i;
 //                } else if (raw.contains("取貨") && raw.contains("地點")) {
-                } else if (i == 2) {
-                    System.out.println("Parse " + raw + " as DeliveryLocation.");
-                    schema.deliveryLocationIndex.put(i, raw);
-                } else if (!raw.equals("$") && raw.contains("$")) { // '$' may used as total price.
-                    String productPriceStr = parsePrice(raw);
-                    double productPrice = Double.parseDouble(productPriceStr);
-                    productPriceStr = "$" + productPriceStr;
-                    String productName = (StringUtils.substringBeforeLast(raw, productPriceStr).trim()
-                            + " "
-                            + StringUtils.substringAfterLast(raw, productPriceStr).trim()).trim();
+            } else if (i == 2) {
+                System.out.println("Parse " + raw + " as DeliveryLocation.");
+                schema.deliveryLocationIndex.put(i, raw);
+            } else if (!raw.equals("$") && raw.contains("$")) { // '$' may used as total price.
+                String productPriceStr = parsePrice(raw);
+                double productPrice = Double.parseDouble(productPriceStr);
+                productPriceStr = "$" + productPriceStr;
+                String productName = (StringUtils.substringBeforeLast(raw, productPriceStr).trim()
+                        + " "
+                        + StringUtils.substringAfterLast(raw, productPriceStr).trim()).trim();
 
-                    Product product = Product.newBuilder()
-                            .setName(productName)
-                            .setSuggestedUnitPrice(Price.newBuilder().setValue(productPrice))
-                            .build();
-                    System.out.println("Parse (" + i + ") '" + raw + "' as Product:\n  name:[" + productName + "]\n  price:$[ " + productPrice + " ]");
-                    schema.productsIndex.put(i, product);
-                }
+                Product product = Product.newBuilder()
+                        .setName(productName)
+                        .setSuggestedUnitPrice(Price.newBuilder().setValue(productPrice))
+                        .build();
+                System.out.println("Parse (" + i + ") '" + raw + "' as Product:\n  name:[" + productName + "]\n  price:$[ " + productPrice + " ]");
+                schema.productsIndex.put(i, product);
             }
+//            }
         }
 
         checkArgument(schema.maxRowCount > 0, "The spreadsheet has no row");
