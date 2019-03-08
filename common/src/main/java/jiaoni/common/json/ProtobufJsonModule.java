@@ -2,7 +2,6 @@ package jiaoni.common.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -30,7 +29,8 @@ public class ProtobufJsonModule extends SimpleModule {
     private static final String[] KNOWN_PROTO_PACKAGES = {
             "jiaoni.common.wiremodel",
             "jiaoni.daigou.wiremodel",
-            "jiaoni.songfan.wiremodel"
+            "jiaoni.songfan.wiremodel",
+            "jiaoni.daigou.v2"
     };
 
     @SuppressWarnings("unchecked")
@@ -61,7 +61,7 @@ public class ProtobufJsonModule extends SimpleModule {
 
         @Override
         public void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException, JsonProcessingException {
+                throws IOException {
             String raw = printer.print(value);
 
             // Remove beginning '{' and end '}', since we will writeStart/EndObject around it.
@@ -85,7 +85,7 @@ public class ProtobufJsonModule extends SimpleModule {
         @Override
         @SuppressWarnings("unchecked")
         public T deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+                throws IOException {
             String raw = p.getCodec().readTree(p).toString();
             Message.Builder builder = defaultInstance.toBuilder();
             parser.merge(raw, builder);

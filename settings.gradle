@@ -1,17 +1,14 @@
 rootProject.name = 'AppEngine'
 
-// Common
 include 'appengine-common'
 include 'common'
 include 'common-test'
 include 'content-template'
 
-// Wire model
 include 'wire-model'
 
-// DaiGou
-include 'daigou-service:content-parser'
-include 'daigou-service:daigou-appengine'
-include 'daigou-service:daigou-integration-test'
-include 'daigou-service:daigou-tools'
-include 'daigou-service:lib-wx'
+include 'content-parser'
+include 'core-service'
+include 'integration-test'
+include 'tools'
+include 'lib-wx'

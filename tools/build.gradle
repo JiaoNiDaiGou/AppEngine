@@ -1,0 +1,37 @@
+apply from: "$rootDir/standard-java.gradle"
+apply plugin: 'application'
+
+mainClassName = 'LocalLauncher'
+
+dependencies {
+    compile project(":content-template")
+    compile project(":common")
+    compile project(":common-test")
+    compile project(":core-service")
+
+    compile commons_cli
+
+    compile "org.glassfish.jersey.core:jersey-common:$jersey_ver"
+    compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:$jersey_ver"
+    compile "com.google.appengine:appengine-remote-api:$appengine_sdk_ver"
+}
+
+
+// Run the script from command line.
+// Example:
+// ./gradlew :scripts:runScript -PmainClass=some.package.SomeScript -Dscript.args="--arg1 v1 --arg2 v2"
+task runScript(type:JavaExec) {
+    doFirst {
+        try {
+            main = mainClass
+        } catch (Exception e) {
+            throw new GradleException("Usage: ./gradlew :scripts:runScript -PmainClass=<full class name> -Dscript.args=\"script args\"", null)
+        }
+    }
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    def scriptArgs = System.getProperty("script.args")
+    if (scriptArgs != null) {
+        args scriptArgs.split()
+    }
+}
