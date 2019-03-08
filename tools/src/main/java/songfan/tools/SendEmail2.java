@@ -51,8 +51,8 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/10OAaCKMVWnLa1jdI9j27pYZrZEJuNGg00wex44LyFdI/edit#gid=598426518";
-    private static final boolean SEND_TO_FU = false;
+            "https://docs.google.com/spreadsheets/d/1LfvAZgntrvL_utgkbTn2B_iauGHmvmbur1uSI0sOT7M/edit#gid=1845787594";
+    private static final boolean SEND_TO_FU = true;
 
     //
     //
@@ -132,43 +132,41 @@ public class SendEmail2 {
 
         for (int i = 0; i < headers.size(); i++) {
             String raw = StringUtils.trimToEmpty(headers.get(i));
-//            if (StringUtils.isNotBlank(raw)) {
-            if (raw.equals("時間戳記")) {
-                System.out.println("Parse " + raw + " as Timestamp");
-                schema.datetimeIndex = i;
-            } else if (raw.contains("電子郵件")) {
-                System.out.println("Parse " + raw + " as email.");
-                schema.emailIndex = i;
-            } else if (raw.contains("聯絡名稱")) {
-                System.out.println("Parse " + raw + " as name.");
-                schema.nameIndex = i;
-            } else if (raw.contains("電話")) {
-                System.out.println("Parse " + raw + "as phone.");
-                schema.phoneIndex = i;
-//                } else if ((raw.contains("取貨") && raw.contains("時間")) || (raw.equals("取貨時間"))) {
-            } else if (i == 3) {
-                System.out.println("Parse " + raw + " as DeliveryTime.");
-                schema.deliveryTimeIndex = i;
-//                } else if (raw.contains("取貨") && raw.contains("地點")) {
-            } else if (i == 2) {
-                System.out.println("Parse " + raw + " as DeliveryLocation.");
-                schema.deliveryLocationIndex.put(i, raw);
-            } else if (!raw.equals("$") && raw.contains("$")) { // '$' may used as total price.
-                String productPriceStr = parsePrice(raw);
-                double productPrice = Double.parseDouble(productPriceStr);
-                productPriceStr = "$" + productPriceStr;
-                String productName = (StringUtils.substringBeforeLast(raw, productPriceStr).trim()
-                        + " "
-                        + StringUtils.substringAfterLast(raw, productPriceStr).trim()).trim();
+            if (StringUtils.isNotBlank(raw)) {
+                if (raw.equals("時間戳記")) {
+                    System.out.println("Parse " + raw + " as Timestamp");
+                    schema.datetimeIndex = i;
+                } else if (raw.contains("電子郵件")) {
+                    System.out.println("Parse " + raw + " as email.");
+                    schema.emailIndex = i;
+                } else if (raw.contains("聯絡名稱")) {
+                    System.out.println("Parse " + raw + " as name.");
+                    schema.nameIndex = i;
+                } else if (raw.contains("電話")) {
+                    System.out.println("Parse " + raw + "as phone.");
+                    schema.phoneIndex = i;
+                } else if (raw.equals("取貨時間")) {
+                    System.out.println("Parse " + raw + " as DeliveryTime.");
+                    schema.deliveryTimeIndex = i;
+                } else if (raw.equals("取貨地點")) {
+                    System.out.println("Parse " + raw + " as DeliveryLocation.");
+                    schema.deliveryLocationIndex.put(i, raw);
+                } else if (!raw.equals("$") && raw.contains("$")) { // '$' may used as total price.
+                    String productPriceStr = parsePrice(raw);
+                    double productPrice = Double.parseDouble(productPriceStr);
+                    productPriceStr = "$" + productPriceStr;
+                    String productName = (StringUtils.substringBeforeLast(raw, productPriceStr).trim()
+                            + " "
+                            + StringUtils.substringAfterLast(raw, productPriceStr).trim()).trim();
 
-                Product product = Product.newBuilder()
-                        .setName(productName)
-                        .setSuggestedUnitPrice(Price.newBuilder().setValue(productPrice))
-                        .build();
-                System.out.println("Parse (" + i + ") '" + raw + "' as Product:\n  name:[" + productName + "]\n  price:$[ " + productPrice + " ]");
-                schema.productsIndex.put(i, product);
+                    Product product = Product.newBuilder()
+                            .setName(productName)
+                            .setSuggestedUnitPrice(Price.newBuilder().setValue(productPrice))
+                            .build();
+                    System.out.println("Parse (" + i + ") '" + raw + "' as Product:\n  name:[" + productName + "]\n  price:$[ " + productPrice + " ]");
+                    schema.productsIndex.put(i, product);
+                }
             }
-//            }
         }
 
         checkArgument(schema.maxRowCount > 0, "The spreadsheet has no row");
