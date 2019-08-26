@@ -2,7 +2,7 @@ package jiaoni.daigou.service.appengine.tasks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.util.concurrent.Uninterruptibles;
-import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.email.EmailSender;
 import jiaoni.common.appengine.access.taskqueue.PubSubClient;
 import jiaoni.common.appengine.access.taskqueue.TaskMessage;
 import jiaoni.common.json.ObjectMapperProvider;
@@ -38,7 +38,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
 
     private final WxWebClient wxClient;
     private final PubSubClient pubSubClient;
-    private final EmailClient emailClient;
+    private final EmailSender emailClient;
     private final WxWebSessionDbClient dbClient;
     private final WxAggregateMessageHandler handler;
     private final WxMessageEnricher messageEnricher;
@@ -46,7 +46,7 @@ public class WxSyncTaskRunner implements Consumer<TaskMessage> {
     @Inject
     public WxSyncTaskRunner(final WxWebClient wxClient,
                             final PubSubClient pubSubClient,
-                            final EmailClient emailClient,
+                            final EmailSender emailClient,
                             final WxWebSessionDbClient dbClient,
                             final WxAggregateMessageHandler handler,
                             final WxMessageEnricher messageEnricher) {

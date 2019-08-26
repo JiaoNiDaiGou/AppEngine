@@ -23,6 +23,8 @@ import jiaoni.common.model.Env;
 import jiaoni.daigou.service.appengine.guice.ServiceModule;
 import org.glassfish.hk2.api.TypeLiteral;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -47,8 +49,12 @@ public class ApiApplication extends ResourceConfig {
         register(JacksonJaxbJsonProvider.class);
         register(ObjectMapperContextResolver.class);
         register(RolesAllowedDynamicFeature.class);
+        register(LoggingFeature.class);
         register(ExceptionMappingFeature.class);
         register(MultiPartFeature.class);
+
+        property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_SERVER, "DEBUG");
+        property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_SERVER, LoggingFeature.Verbosity.PAYLOAD_ANY);
 
         // Bind those Guice cannot bind
         register(new Binder());

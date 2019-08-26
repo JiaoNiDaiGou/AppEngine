@@ -4,7 +4,7 @@ apply plugin: 'war'
 apply from: './appengine-web-xml-template.gradle'
 
 buildscript {
-    repositories {   // repositories for Jar's you access in your code
+    repositories {
         jcenter()
         mavenCentral()
     }

@@ -19,7 +19,7 @@ import javax.mail.internet.MimeMultipart;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Singleton
-public class GaeEmailSender implements EmailClient {
+public class GaeEmailSender implements EmailSender {
     private static final EmailValidator emailValidator = EmailValidator.getInstance();
 
     @Override

@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
-import javax.inject.Singleton;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -20,7 +19,7 @@ import javax.mail.internet.MimeMultipart;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class LocalGmailSender implements EmailClient {
+public class LocalGmailSender implements EmailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalGmailSender.class);
     private static final EmailValidator emailValidator = EmailValidator.getInstance();
 
@@ -37,9 +36,6 @@ public class LocalGmailSender implements EmailClient {
 
     @Override
     public void sendHtml(String to, String subject, String htmlContent) {
-        if ("cutejecy@gmail.con".equals(to)) {
-            to = "cutejecy@gmail.com";
-        }
         checkArgument(emailValidator.isValid(to));
         BodyPart bodyPart = new MimeBodyPart();
         try {

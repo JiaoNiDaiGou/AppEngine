@@ -8,7 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
-public class PopupPageEmailClient implements EmailClient {
+public class PopupPageEmailClient implements EmailSender {
     @Override
     public void sendHtml(final String to,
                          final String subject,

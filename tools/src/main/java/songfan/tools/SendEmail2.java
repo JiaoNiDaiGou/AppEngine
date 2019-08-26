@@ -51,8 +51,13 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1LfvAZgntrvL_utgkbTn2B_iauGHmvmbur1uSI0sOT7M/edit#gid=1845787594";
-    private static final boolean SEND_TO_FU = true;
+            "https://docs.google.com/spreadsheets/d/1B2_TpYAe4AHiDz-yhhSNyJretxLMhdeMbRBY4NYhqcs/edit?ts=5d61840b#gid=1109907856";
+    private static final boolean SEND_TO_FU = false;
+
+    //
+    // Click furuijie@gmail.com
+    //
+
 
     //
     //
@@ -97,7 +102,7 @@ public class SendEmail2 {
                     order.getEntiresList().stream().map(t -> t.getProduct().getName() + "[" + t.getQuantity() + "]").reduce((a, b) -> a + ", " + b).get()));
         }
 
-        LocalGmailSender sender = new LocalGmailSender("songfan.rfu@gmail.com", "yangmama");
+        LocalGmailSender sender = new LocalGmailSender("songfan.rfu@gmail.com", "Furuijie1x!");
 
         if (SEND_TO_FU) {
             // Let's send to FU randomly
@@ -280,18 +285,11 @@ public class SendEmail2 {
             // Validation
             checkState(StringUtils.isNotBlank(customerName), "customer name is null");
             checkState(StringUtils.isNotBlank(customerEmail), "email is null");
-            if (customerEmail.equals("cincintsai@gmail.com") || customerName.equals("Cindy")) {
-                deliveryAddressRaw = "BELLEVUE 百佳附近停車場";
-                deliveryTimeRaw = "03/03星期日 11am~11:30am";
-            } else {
-                checkState(StringUtils.isNotBlank(deliveryAddressRaw), "delivery address is null for " + customerName + ":" + customerEmail);
-                checkState(StringUtils.isNotBlank(deliveryTimeRaw), "delivery time is null for " + customerName + ":" + customerEmail);
+            if (customerEmail.endsWith("con")) {
+                customerEmail = customerEmail.substring(0, customerEmail.length() - 1) + "m";
             }
-
-            if (deliveryAddressRaw.contains("03/03星期六")) {
-                deliveryAddressRaw = deliveryTimeRaw.replace("03/03星期六", "03/03星期日");
-            }
-
+            checkState(StringUtils.isNotBlank(deliveryAddressRaw), "delivery address is null for " + customerName + ":" + customerEmail);
+            checkState(StringUtils.isNotBlank(deliveryTimeRaw), "delivery time is null for " + customerName + ":" + customerEmail);
 
             Customer customer = Customer.newBuilder()
                     .setName(customerName)
@@ -375,7 +373,7 @@ public class SendEmail2 {
 
                 if (emailSent.contains(email)) {
                     System.out.println(String.format("[%s/%s]Already sent to %s", i + 1, orders.size(), email));
-//                    continue;
+                    continue;
                 }
 
                 System.out.println(String.format("[%s/%s]Send to %s", i + 1, orders.size(), email));

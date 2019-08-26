@@ -10,7 +10,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import jiaoni.common.appengine.access.email.EmailClient;
+import jiaoni.common.appengine.access.email.EmailSender;
 import jiaoni.common.appengine.access.email.GaeEmailSender;
 import jiaoni.common.appengine.access.gcp.GoogleClientFactory;
 import jiaoni.common.appengine.access.ocr.GoogleVisionOcrClient;
@@ -43,7 +43,7 @@ public class ServiceModule extends AbstractModule {
         bindConstant().annotatedWith(ENV.class).to(AppEnvs.getEnv());
 
         bind(StorageClient.class).to(GcsClient.class);
-        bind(EmailClient.class).to(GaeEmailSender.class);
+        bind(EmailSender.class).to(GaeEmailSender.class);
         bind(PubSubClient.class).to(TaskQueueClient.class);
         bind(OcrClient.class).to(GoogleVisionOcrClient.class);
         bind(SmsClient.class).to(ConsoleSmsClient.class);

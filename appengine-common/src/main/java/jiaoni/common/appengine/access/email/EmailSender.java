@@ -2,7 +2,7 @@ package jiaoni.common.appengine.access.email;
 
 import java.util.List;
 
-public interface EmailClient {
+public interface EmailSender {
     void sendHtml(final String to,
                   final String subject,
                   final String htmlContent);
