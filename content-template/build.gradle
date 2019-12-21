@@ -3,7 +3,8 @@ apply from: "$rootDir/standard-java.gradle"
 dependencies {
     compile project(":common")
 
-    compile freemarker
+    compile group: 'org.freemarker', name: 'freemarker', version: '2.3.29'
+
 
     testCompile project(":common-test")
 }

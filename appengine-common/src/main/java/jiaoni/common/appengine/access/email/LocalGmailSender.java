@@ -36,7 +36,7 @@ public class LocalGmailSender implements EmailSender {
 
     @Override
     public void sendHtml(String to, String subject, String htmlContent) {
-        checkArgument(emailValidator.isValid(to));
+//        checkArgument(emailValidator.isValid(to));
         BodyPart bodyPart = new MimeBodyPart();
         try {
             bodyPart.setContent(htmlContent, "text/html; charset=utf-8");

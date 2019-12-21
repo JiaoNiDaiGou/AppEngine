@@ -21,7 +21,7 @@ message Order {
 message OrderEntry {
     Product product = 10;
     jiaoni.common.wiremodel.Price unit_selling_price = 20;
-    int32 quantity = 30;
+    float quantity = 30;
 }
 
 message OrderGroup {

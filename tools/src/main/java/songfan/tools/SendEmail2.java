@@ -51,11 +51,13 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1B2_TpYAe4AHiDz-yhhSNyJretxLMhdeMbRBY4NYhqcs/edit?ts=5d61840b#gid=1109907856";
-    private static final boolean SEND_TO_FU = false;
+            "https://docs.google.com/spreadsheets/d/1ilIfwHoen7YnQuoBukzhKLfWIvTJxlrFTa7q0Lfg4Kw/edit?ts=5dfe70d1#gid=1594199930";
+    private static final boolean SEND_TO_FU = true;
 
     //
     // Click furuijie@gmail.com
+    //
+    // Change title to 取貨時間, 取貨地點
     //
 
 
@@ -102,7 +104,7 @@ public class SendEmail2 {
                     order.getEntiresList().stream().map(t -> t.getProduct().getName() + "[" + t.getQuantity() + "]").reduce((a, b) -> a + ", " + b).get()));
         }
 
-        LocalGmailSender sender = new LocalGmailSender("songfan.rfu@gmail.com", "Furuijie1x!");
+        LocalGmailSender sender = new LocalGmailSender("songfan.rfu@gmail.com", "Furuijie1x!11");
 
         if (SEND_TO_FU) {
             // Let's send to FU randomly
@@ -268,7 +270,7 @@ public class SendEmail2 {
             for (Map.Entry<Integer, Product> entry : schema.productsIndex.entrySet()) {
                 String quantityStr = row.get(entry.getKey());
                 Product product = entry.getValue();
-                int quantity = StringUtils.isBlank(quantityStr) ? 0 : Integer.parseInt(quantityStr);
+                float quantity = StringUtils.isBlank(quantityStr) ? 0f : Float.parseFloat(quantityStr);
                 if (quantity > 0) {
                     orderEntries.add(OrderEntry.newBuilder()
                             .setProduct(Product.newBuilder()
@@ -441,7 +443,7 @@ public class SendEmail2 {
                 .map(t -> new TemplateData()
                         .add("name", t.getProduct().getName())
                         .add("quantity", t.getQuantity())
-                        .add("unitPrice", t.getUnitSellingPrice().getValue())
+                        .add("unitPrice", formatPrice(t.getUnitSellingPrice().getValue()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -455,10 +457,22 @@ public class SendEmail2 {
                 .add("customerName", order.getCustomer().getName())
                 .add("customerPhone", order.getCustomer().getPhone().getPhone())
                 .add("orders", orders)
-                .add("totalPrice", totalPrice)
+                .add("totalPrice", formatPrice(totalPrice))
                 .add("deliveryAddress", order.getDelivery().getDeliveryAddressRaw())
                 .add("deliveryTime", order.getDelivery().getDeliveryTimeRaw())
                 .build();
+    }
+
+    private static String formatQuantity(float quantity) {
+        if (quantity > ((int) quantity)) {
+            return String.format("%.1f", quantity);
+        } else {
+            return String.valueOf((int) quantity);
+        }
+    }
+
+    private static String formatPrice(double price) {
+        return String.format("%.2f", price);
     }
 
     private static class Schema {

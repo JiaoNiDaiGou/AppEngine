@@ -8,7 +8,7 @@
   <p>親愛的${customerName}，您好。以下是您的訂購單。</p>
   <p>取貨時間：${deliveryTime}</p>
   <p>取貨地點：${deliveryAddress}</p>
-  <p><font color="blue">天热了，记得带保温袋哦。</font></p>
+  <p><font color="blue">记得带保温袋哦。</font></p>
   <br />
   <table>
     <tr>
