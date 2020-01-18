@@ -51,8 +51,8 @@ public class SendEmail2 {
     //
     // If run local, using furuijie@gmail.com
     private static final String SHEET_PATH =
-            "https://docs.google.com/spreadsheets/d/1ilIfwHoen7YnQuoBukzhKLfWIvTJxlrFTa7q0Lfg4Kw/edit?ts=5dfe70d1#gid=1594199930";
-    private static final boolean SEND_TO_FU = true;
+            "https://docs.google.com/spreadsheets/d/1MhQm2e3ls4A7ZIk_PH4Ijy2Ougq2c7QdZrI3s11lJ1s/edit#gid=1887851682";
+    private static final boolean SEND_TO_FU = false;
 
     //
     // Click furuijie@gmail.com
@@ -137,6 +137,7 @@ public class SendEmail2 {
         System.out.println("Find " + headers.size() + " headers:");
         headers.forEach(t -> System.out.println("\t" + t));
 
+        boolean startProduct = false;
         for (int i = 0; i < headers.size(); i++) {
             String raw = StringUtils.trimToEmpty(headers.get(i));
             if (StringUtils.isNotBlank(raw)) {
@@ -158,9 +159,12 @@ public class SendEmail2 {
                 } else if (raw.equals("取貨地點")) {
                     System.out.println("Parse " + raw + " as DeliveryLocation.");
                     schema.deliveryLocationIndex.put(i, raw);
-                } else if (!raw.equals("$") && raw.contains("$")) { // '$' may used as total price.
+                } else if ((raw.contains("$") || raw.contains("＄")) && raw.length() > 1) { // '$' may used as total price.
+                    startProduct = true;
+
                     String productPriceStr = parsePrice(raw);
                     double productPrice = Double.parseDouble(productPriceStr);
+                    checkArgument(productPrice > 0, "Invalid product price: " + raw);
                     productPriceStr = "$" + productPriceStr;
                     String productName = (StringUtils.substringBeforeLast(raw, productPriceStr).trim()
                             + " "
@@ -172,6 +176,10 @@ public class SendEmail2 {
                             .build();
                     System.out.println("Parse (" + i + ") '" + raw + "' as Product:\n  name:[" + productName + "]\n  price:$[ " + productPrice + " ]");
                     schema.productsIndex.put(i, product);
+                } else {
+                    if (startProduct) {
+                        throw new IllegalArgumentException("Found non product in-side products: " + raw);
+                    }
                 }
             }
         }
@@ -191,7 +199,7 @@ public class SendEmail2 {
         StringBuilder text = new StringBuilder();
         boolean add = false;
         for (char c : str.toCharArray()) {
-            if (c == '$') {
+            if (c == '$' || c == '＄') {
                 add = true;
             } else if (c == ' ') {
             } else if ((c >= '0' && c <= '9') || c == '.') {

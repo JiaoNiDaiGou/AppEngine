@@ -20,7 +20,7 @@ dependencies {
 // Run the script from command line.
 // Example:
 // ./gradlew :scripts:runScript -PmainClass=some.package.SomeScript -Dscript.args="--arg1 v1 --arg2 v2"
-task runScript(type:JavaExec) {
+task runScript(type: JavaExec) {
     doFirst {
         try {
             main = mainClass

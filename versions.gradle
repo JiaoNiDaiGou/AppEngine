@@ -42,7 +42,7 @@ ext {
     protobuf_plugin_ver = '0.8.6'
     qcloudsms_ver = '1.0.5'
     reflections_ver = '0.9.11'
-    slf4j_ver = '1.7.25'
+    slf4j_ver = '1.7.29'
     twilio_sdk_ver = '7.24.2'
 
     // Test dependencies
